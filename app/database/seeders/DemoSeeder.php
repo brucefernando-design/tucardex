@@ -44,8 +44,8 @@ class DemoSeeder extends Seeder
         // Activar el colegio: todo lo creado se asigna a este tenant
         app(Tenancy::class)->set($school->id);
 
-        $nombres = ['Mateo', 'Valentina', 'Santiago', 'Camila', 'Sebastián', 'Isabella', 'Diego', 'Luciana', 'Adriano', 'Gabriela', 'Nicolás', 'Daniela', 'Joaquín', 'Antonella', 'Benjamín', 'Renata', 'Emiliano', 'Mía', 'Thiago', 'Sofía', 'Alejandro', 'Fernanda', 'Rodrigo', 'Paula'];
-        $apellidos = ['Mamani', 'Quispe', 'Choque', 'Condori', 'Flores', 'Vargas', 'Rojas', 'Cruz', 'Apaza', 'Torrez', 'Gutiérrez', 'Colque', 'Huanca', 'Aruquipa', 'Villca', 'Poma', 'Nina', 'Ticona'];
+        $nombres = ['Luis', 'Fernando', 'Mario', 'Alejandro', 'Roberto', 'Alberto', 'Gilberto', 'Eduardo', 'Sergio', 'Carlos', 'Jorge', 'Javier', 'María Josefina', 'Alejandra', 'Aurora', 'Johana', 'Margarita', 'Carolina', 'Isabel', 'Dora', 'Lea', 'Abril', 'Patricia', 'Gabriela', 'Sofía', 'Daniela', 'Fernanda', 'Valeria', 'Mariana', 'Diego', 'Santiago', 'Mateo'];
+        $apellidos = ['Sánchez', 'Juárez', 'Torres', 'López', 'García', 'Álvarez', 'Gutiérrez', 'Portillo', 'Zamora', 'Pérez', 'Garza', 'Hidalgo', 'Cárdenas', 'Guzmán', 'Morales', 'Hernández', 'Martínez', 'Mendoza', 'Vázquez', 'Reyes', 'Jiménez', 'Díaz', 'Ramírez', 'Flores', 'Castro', 'Ruiz', 'Herrera', 'Medina', 'Aguilar', 'Vega'];
 
         // Helper: fijar fecha de creación de un registro (para reflejarlo en el tiempo)
         $stamp = function ($model, $date) {

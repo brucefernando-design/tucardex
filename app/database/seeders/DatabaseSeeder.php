@@ -90,7 +90,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
         $docenteUser = User::firstOrCreate(['email' => 'docente@colegio.test'], [
-            'name' => 'Prof. Ana Quispe',
+            'name' => 'Prof. Alejandra Sánchez Juárez',
             'password' => Hash::make('password'),
             'role_id' => $teacherRole->id,
             'is_active' => true,
@@ -104,12 +104,12 @@ class DatabaseSeeder extends Seeder
 
         // ---- Docentes ----
         $teachersData = [
-            ['Ana', 'Quispe Mamani', 'Matemática', 'F'],
-            ['Carlos', 'Rojas Vargas', 'Lenguaje y Literatura', 'Masculino'],
-            ['María', 'Flores Condori', 'Ciencias Naturales', 'F'],
-            ['Jorge', 'Mendoza Cruz', 'Ciencias Sociales', 'Masculino'],
-            ['Lucía', 'Apaza Torrez', 'Inglés', 'F'],
-            ['Pedro', 'Gutiérrez Lima', 'Educación Física', 'Masculino'],
+            ['Alejandra', 'Sánchez Juárez', 'Matemáticas', 'F'],
+            ['Fernando', 'Torres López', 'Lengua Española y Literatura', 'Masculino'],
+            ['María Josefina', 'García Álvarez', 'Ciencias Naturales', 'F'],
+            ['Mario', 'Gutiérrez Portillo', 'Historia y Ciencias Sociales', 'Masculino'],
+            ['Johana', 'Zamora Hidalgo', 'Inglés', 'F'],
+            ['Eduardo', 'Morales Cárdenas', 'Educación Física', 'Masculino'],
         ];
         $teachers = collect($teachersData)->map(function ($t, $i) use ($docenteUser) {
             return Teacher::create([
@@ -176,8 +176,8 @@ class DatabaseSeeder extends Seeder
         }
 
         // ---- Estudiantes ----
-        $nombres = ['Mateo', 'Valentina', 'Santiago', 'Camila', 'Sebastián', 'Isabella', 'Diego', 'Luciana', 'Adriano', 'Gabriela', 'Nicolás', 'Daniela', 'Joaquín', 'Antonella', 'Benjamín', 'Renata', 'Emiliano', 'Mía', 'Thiago', 'Sofía'];
-        $apellidos = ['Mamani', 'Quispe', 'Choque', 'Condori', 'Flores', 'Vargas', 'Rojas', 'Cruz', 'Apaza', 'Torrez', 'Gutiérrez', 'Colque', 'Huanca', 'Aruquipa'];
+        $nombres = ['Luis', 'Fernando', 'Mario', 'Alejandro', 'Roberto', 'Alberto', 'Gilberto', 'Eduardo', 'Sergio', 'Carlos', 'Jorge', 'Javier', 'María Josefina', 'Alejandra', 'Aurora', 'Johana', 'Margarita', 'Carolina', 'Isabel', 'Dora', 'Lea', 'Abril', 'Patricia', 'Gabriela', 'Sofía', 'Daniela', 'Fernanda', 'Valeria', 'Mariana', 'Diego', 'Santiago', 'Mateo'];
+        $apellidos = ['Sánchez', 'Juárez', 'Torres', 'López', 'García', 'Álvarez', 'Gutiérrez', 'Portillo', 'Zamora', 'Pérez', 'Garza', 'Hidalgo', 'Cárdenas', 'Guzmán', 'Morales', 'Hernández', 'Martínez', 'Mendoza', 'Vázquez', 'Reyes', 'Jiménez', 'Díaz', 'Ramírez', 'Flores', 'Castro', 'Ruiz', 'Herrera', 'Medina', 'Aguilar', 'Vega'];
 
         $counter = 1;
         foreach ($courses as $course) {
@@ -285,12 +285,28 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]);
 
+            $childNames = [
+                ['first' => 'Sebastián', 'last' => 'Sánchez Morales', 'relationship' => 'Padre'],
+                ['first' => 'Sofía', 'last' => 'Sánchez Morales', 'relationship' => 'Padre'],
+            ];
+
             foreach ($demoChildren as $idx => $child) {
+                $cData = $childNames[$idx] ?? ['first' => $child->first_name, 'last' => 'Sánchez Morales', 'relationship' => 'Padre'];
+                $child->update([
+                    'first_name' => $cData['first'],
+                    'last_name' => $cData['last'],
+                    'guardian_name' => 'Roberto Sánchez',
+                    'guardian_phone' => '5512345678',
+                ]);
+                if ($child->user_id) {
+                    User::where('id', $child->user_id)->update(['name' => "{$cData['first']} {$cData['last']}"]);
+                }
+
                 $child->guardians()->syncWithoutDetaching([
                     $padreUser->id => [
                         'school_id' => $school->id,
-                        'relationship' => $idx === 0 ? 'Padre' : 'Tutor Legal',
-                        'is_primary' => $idx === 0,
+                        'relationship' => $cData['relationship'],
+                        'is_primary' => true,
                     ],
                 ]);
             }
