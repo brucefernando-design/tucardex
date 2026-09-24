@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'facturama' => [
+        'user' => env('FACTURAMA_USER'),
+        'password' => env('FACTURAMA_PASSWORD'),
+        'env' => env('FACTURAMA_ENV', 'produccion'),
+    ],
+
     'turnstile' => [
         'key' => env('TURNSTILE_SITE_KEY'),
         'secret' => env('TURNSTILE_SECRET_KEY'),

@@ -77,6 +77,7 @@
                     <label class="form-label">Proveedor de Certificación (PAC / Driver)</label>
                     <select name="pac_driver" class="form-select">
                         <option value="simulado" @selected(($settings->pac_driver ?? 'simulado') === 'simulado')>Modo Simulado / Pruebas Internas (Genera XML sin costo)</option>
+                        <option value="facturama" @selected(($settings->pac_driver ?? 'facturama') === 'facturama')>Facturama México (CFDI 4.0 + IEDU · Timbres TuCardex)</option>
                         <option value="facturapi" @selected(($settings->pac_driver ?? '') === 'facturapi')>Facturapi (API REST CFDI 4.0 + IEDU)</option>
                         <option value="finkok" @selected(($settings->pac_driver ?? '') === 'finkok')>Finkok (Timbrado PAC Directo)</option>
                     </select>
@@ -142,14 +143,32 @@
             <span class="text-muted small">Token de acceso para timbrar facturas</span>
         </div>
         <div class="card-body">
+            @if(config('services.facturama.user'))
+            <div class="alert alert-success py-2 mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill fs-5"></i>
+                <div>
+                    <strong>Timbres oficiales TuCardex Activos:</strong> Tu colegio tiene habilitado el timbrado fiscal CFDI 4.0 en automático. No requieres contratar ningún PAC por separado.
+                </div>
+            </div>
+            @endif
+
             <div class="alert alert-info py-2">
-                <i class="bi bi-info-circle me-2"></i> En entorno <strong>Sandbox (Pruebas)</strong> puedes usar la clave simulada para timbrar sin costo de folios.
+                <i class="bi bi-info-circle me-2"></i> Con <strong>Facturama México</strong> puedes timbrar con la cuenta matriz de TuCardex o ingresar tus propias credenciales a continuación si cuentas con paquete propio.
             </div>
             <div class="row g-3">
-                <div class="col-md-12">
-                    <label class="form-label">API Key / Token Secreto de Timbrado</label>
-                    <input type="password" name="pac_api_key" value="{{ old('pac_api_key', $settings->pac_api_key) }}" class="form-control" placeholder="sk_test_••••••••••••••••••••">
-                    <div class="form-text">Proporcionado en tu panel de Facturapi o Finkok. Se almacena cifrado en la base de datos.</div>
+                <div class="col-md-6">
+                    <label class="form-label">Usuario Facturama (Correo / Cuenta)</label>
+                    <input type="text" name="client_id" value="{{ old('client_id', $settings->client_id) }}" class="form-control" placeholder="{{ config('services.facturama.user') ? 'Usando cuenta maestra TuCardex (' . config('services.facturama.user') . ')' : 'tu-correo@facturama.mx' }}">
+                    <div class="form-text">Déjalo vacío para usar la bolsa de timbres de TuCardex.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Contraseña Facturama</label>
+                    <input type="password" name="client_secret" value="" class="form-control" placeholder="{{ $settings->client_secret ? '•••••••••••••••• (Configurada)' : (config('services.facturama.password') ? '•••••••• (Cuenta maestra TuCardex)' : '••••••••••••') }}">
+                    <div class="form-text">Se almacena con cifrado AES-256 en la base de datos.</div>
+                </div>
+                <div class="col-md-12 mt-2">
+                    <label class="form-label small text-muted">API Key alternativa (Facturapi / Finkok)</label>
+                    <input type="password" name="pac_api_key" value="{{ old('pac_api_key', $settings->pac_api_key) }}" class="form-control form-control-sm" placeholder="Opcional solo si no usas Facturama">
                 </div>
             </div>
         </div>

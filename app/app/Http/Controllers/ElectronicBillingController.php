@@ -13,8 +13,18 @@ use Illuminate\View\View;
 class ElectronicBillingController extends Controller
 {
     public function __construct(
-        protected FacturapiService $billing
+        protected FacturapiService $facturapi,
+        protected \App\Services\Facturacion\FacturamaService $facturama
     ) {}
+
+    protected function getActiveBillingDriver()
+    {
+        $settings = ElectronicBillingSetting::current();
+        if ($settings->pac_driver === 'facturapi') {
+            return $this->facturapi;
+        }
+        return $this->facturama;
+    }
 
     public function index(Request $request): View
     {
@@ -63,7 +73,7 @@ class ElectronicBillingController extends Controller
         $data = $request->validate([
             'enabled' => ['nullable', 'boolean'],
             'auto_emit' => ['nullable', 'boolean'],
-            'pac_driver' => ['required', 'in:simulado,facturapi,finkok'],
+            'pac_driver' => ['required', 'in:simulado,facturama,facturapi,finkok'],
             'environment' => ['required', 'in:beta,produccion'],
             'rfc' => ['nullable', 'string', 'min:12', 'max:255'],
             'razon_social' => ['nullable', 'string', 'max:255'],
@@ -71,6 +81,8 @@ class ElectronicBillingController extends Controller
             'codigo_postal' => ['nullable', 'string', 'max:5'],
             'direccion_fiscal' => ['nullable', 'string', 'max:255'],
             'pac_api_key' => ['nullable', 'string', 'max:255'],
+            'client_id' => ['nullable', 'string', 'max:255'],
+            'client_secret' => ['nullable', 'string', 'max:255'],
             'clave_prod_serv' => ['nullable', 'string', 'max:10'],
             'clave_unidad' => ['nullable', 'string', 'max:10'],
             'objeto_imp' => ['nullable', 'string', 'max:5'],
@@ -95,7 +107,7 @@ class ElectronicBillingController extends Controller
 
     public function probar(): RedirectResponse
     {
-        $res = $this->billing->testConnection();
+        $res = $this->getActiveBillingDriver()->testConnection();
 
         if ($res['ok']) {
             return redirect()->route('facturacion.configuracion')
@@ -108,7 +120,7 @@ class ElectronicBillingController extends Controller
 
     public function emitirDesdePago(Payment $payment): RedirectResponse
     {
-        $invoice = $this->billing->emitForPayment($payment);
+        $invoice = $this->getActiveBillingDriver()->emitForPayment($payment);
 
         if ($invoice->estado === 'aceptado') {
             return back()->with('success', "CFDI 4.0 emitido exitosamente. Folio Fiscal: {$invoice->hash}");
@@ -129,7 +141,7 @@ class ElectronicBillingController extends Controller
             return back()->with('error', 'El identificador de Facturapi no está disponible.');
         }
 
-        $content = $this->billing->downloadFile($facturapiId, 'pdf');
+        $content = $this->getActiveBillingDriver()->downloadFile($facturapiId, 'pdf');
         if ($content) {
             return response($content, 200, [
                 'Content-Type' => 'application/pdf',
@@ -147,7 +159,7 @@ class ElectronicBillingController extends Controller
             return back()->with('error', 'El identificador de Facturapi no está disponible.');
         }
 
-        $content = $this->billing->downloadFile($facturapiId, 'xml');
+        $content = $this->getActiveBillingDriver()->downloadFile($facturapiId, 'xml');
         if ($content) {
             return response($content, 200, [
                 'Content-Type' => 'application/xml',
