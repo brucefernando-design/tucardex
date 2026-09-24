@@ -154,9 +154,13 @@
                         <a href="{{ route('facturacion.pdf', $comp) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Descargar PDF"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
                         <a href="{{ route('facturacion.xml', $comp) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Descargar XML"><i class="bi bi-filetype-xml"></i> XML</a>
                     @elseif($p->status === 'pagado')
-                        <span class="badge bg-light text-muted border">Pagado</span>
+                        <a href="{{ route('payments.receipt', $p) }}" target="_blank" class="btn btn-sm btn-outline-primary text-nowrap" title="Descargar Recibo en PDF">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Recibo
+                        </a>
                     @else
-                        <span class="text-muted small">—</span>
+                        <a href="{{ route('parent.payments.checkout', $p) }}" class="btn btn-sm btn-success fw-bold text-nowrap shadow-sm">
+                            <i class="bi bi-credit-card-2-front me-1"></i> Pagar Colegiatura
+                        </a>
                     @endif
                 </td>
             </tr>

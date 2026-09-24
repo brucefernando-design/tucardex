@@ -25,18 +25,29 @@ class SettingsController extends Controller
     {
         $data = $request->validate([
             'school_name' => ['required', 'string', 'max:150'],
+            'cct' => ['nullable', 'string', 'max:30'],
+            'rvoe' => ['nullable', 'string', 'max:60'],
             'academic_year' => ['required', 'string', 'max:10'],
             'active_period' => ['required', 'in:1er Trimestre,2do Trimestre,3er Trimestre,Final'],
             'currency' => ['required', 'string', 'max:10'],
             'address' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:40'],
-            'director'            => ['nullable', 'string', 'max:150'],
-            'cedula_profesional'  => ['nullable', 'string', 'max:20'],
+            'director' => ['nullable', 'string', 'max:150'],
+            'cedula_profesional' => ['nullable', 'string', 'max:20'],
             'tuition_amount' => ['required', 'numeric', 'min:0'],
             'platform_fee_enabled' => ['nullable', 'boolean'],
             'platform_fee_amount' => ['nullable', 'numeric', 'min:0'],
             'platform_fee_label' => ['nullable', 'string', 'max:150'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            // Pasarelas de Cobro en Línea
+            'spei_enabled' => ['nullable', 'boolean'],
+            'spei_bank' => ['nullable', 'string', 'max:60'],
+            'spei_clabe' => ['nullable', 'string', 'max:30'],
+            'spei_beneficiary' => ['nullable', 'string', 'max:150'],
+            'spei_instructions' => ['nullable', 'string', 'max:500'],
+            'mercadopago_enabled' => ['nullable', 'boolean'],
+            'mercadopago_public_key' => ['nullable', 'string', 'max:255'],
+            'mercadopago_access_token' => ['nullable', 'string', 'max:255'],
         ]);
 
         $setting = Setting::current();
@@ -57,8 +68,17 @@ class SettingsController extends Controller
         if ($request->filled('platform_fee_label')) {
             $data['platform_fee_label'] = trim($request->input('platform_fee_label'));
         }
+
+        $data['spei_enabled'] = $request->boolean('spei_enabled');
+        $data['mercadopago_enabled'] = $request->boolean('mercadopago_enabled');
+
+        // Si no se proporcionó nuevo access token pero ya existía uno, preservarlo
+        if (! $request->filled('mercadopago_access_token') && $setting->mercadopago_access_token) {
+            unset($data['mercadopago_access_token']);
+        }
+
         $setting->update($data);
 
-        return redirect()->route('settings.index')->with('success', 'Configuración actualizada correctamente.');
+        return redirect()->route('settings.index')->with('success', 'Configuración de la institución y pasarelas de pago actualizada.');
     }
 }

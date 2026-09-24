@@ -20,6 +20,8 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ParentPaymentController;
+use App\Http\Controllers\Api\MercadoPagoWebhookController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReportCardController;
@@ -60,6 +62,17 @@ Route::post('logout', [LoginController::class, 'logout'])->middleware('auth')->n
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Recibo oficial en PDF (accesible para padres, alumnos y administración)
+    Route::get('payments/{payment}/recibo', [PaymentController::class, 'receipt'])->name('payments.receipt');
+
+    // Pasarela de Pagos en Línea para Familias (Mercado Pago / SPEI)
+    Route::get('pagos/{payment}/checkout', [ParentPaymentController::class, 'checkout'])->name('parent.payments.checkout');
+    Route::post('pagos/{payment}/mercadopago', [ParentPaymentController::class, 'mercadoPago'])->name('parent.payments.mercadopago');
+    Route::post('pagos/{payment}/simular', [ParentPaymentController::class, 'simulate'])->name('parent.payments.simulate');
+    Route::get('pagos/{payment}/retorno', [ParentPaymentController::class, 'returnCallback'])->name('parent.payments.return');
+    Route::get('pagos/{payment}/exito', [ParentPaymentController::class, 'success'])->name('parent.payments.success');
+    Route::post('pagos/{payment}/comprobante', [ParentPaymentController::class, 'uploadSpeiProof'])->name('parent.payments.voucher');
     Route::get('suscripcion/expirada', [SubscriptionController::class, 'expired'])->name('subscription.expired');
 
     // Perfil
@@ -209,3 +222,6 @@ Route::middleware('auth')->group(function () {
         Route::get('bitacora', [AuditLogController::class, 'index'])->name('audit.index');
     });
 });
+
+// Webhooks Pasarelas (sin autenticación de sesión, verificados por firma/token)
+Route::post('api/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])->name('webhooks.mercadopago');

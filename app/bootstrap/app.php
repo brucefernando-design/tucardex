@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'plan.feature' => \App\Http\Middleware\EnsurePlanFeature::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/webhooks/*',
+            'pagos/webhook/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
