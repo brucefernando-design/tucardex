@@ -30,6 +30,7 @@ use App\Http\Controllers\SecretariaController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentDocumentController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\TeacherController;
@@ -45,7 +46,7 @@ Route::middleware('guest')->group(function () {
 
     // Registro / onboarding de nuevos colegios
     Route::get('registro', [RegisterController::class, 'show'])->name('register');
-    Route::post('registro', [RegisterController::class, 'register']);
+    Route::post('registro', [RegisterController::class, 'register'])->middleware('throttle:5,1');
 
     // Recuperación de contraseña
     Route::get('olvide-password', [PasswordResetController::class, 'request'])->name('password.request');
@@ -59,6 +60,7 @@ Route::post('logout', [LoginController::class, 'logout'])->middleware('auth')->n
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('suscripcion/expirada', [SubscriptionController::class, 'expired'])->name('subscription.expired');
 
     // Perfil
     Route::get('perfil', [ProfileController::class, 'edit'])->name('profile.edit');

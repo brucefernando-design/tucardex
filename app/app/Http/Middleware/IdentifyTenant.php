@@ -22,18 +22,26 @@ class IdentifyTenant
     {
         $user = Auth::user();
 
-        if ($user && $user->school_id) {
+        if ($user && $user->school_id && ! $user->isSuperAdmin()) {
             $this->tenancy->set($user->school_id);
+            $school = $user->school;
 
-            // Bloquear acceso si el colegio está suspendido
-            if ($user->school && ! $user->school->isActive() && ! $request->routeIs('login', 'logout')) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+            if ($school) {
+                // Bloquear acceso si el colegio está suspendido
+                if (! $school->isActive() && ! $request->routeIs('login', 'logout')) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
 
-                return redirect()->route('login')->withErrors([
-                    'email' => 'La cuenta de tu colegio está suspendida. Contacta al administrador de la plataforma.',
-                ]);
+                    return redirect()->route('login')->withErrors([
+                        'email' => 'La cuenta de tu colegio está suspendida. Contacta al administrador de la plataforma.',
+                    ]);
+                }
+
+                // Bloquear acceso si el periodo de prueba de 30 días ha concluido
+                if ($school->isTrialExpired() && ! $request->routeIs('subscription.*', 'logout')) {
+                    return redirect()->route('subscription.expired');
+                }
             }
         }
 

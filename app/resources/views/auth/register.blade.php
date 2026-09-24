@@ -41,6 +41,9 @@
         a{text-decoration:none}
         @media(max-width:880px){.brand-panel{display:none}}
     </style>
+    @if(config('services.turnstile.key'))
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
 </head>
 <body>
 <div class="split">
@@ -88,6 +91,17 @@
                     <div class="field"><label>Contraseña</label><input type="password" name="password" placeholder="••••••••" required></div>
                     <div class="field"><label>Confirmar</label><input type="password" name="password_confirmation" placeholder="••••••••" required></div>
                 </div>
+                                {{-- Honeypot oculto contra robots spammers --}}
+                <div style="display:none !important; position:absolute; left:-9999px;" aria-hidden="true">
+                    <input type="text" name="_hp_website" tabindex="-1" autocomplete="off" value="">
+                </div>
+
+                @if(config('services.turnstile.key'))
+                    <div class="field my-3 d-flex justify-content-center">
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="light"></div>
+                    </div>
+                @endif
+
                 <button class="btn"><i class="bi bi-rocket-takeoff"></i> Crear mi colegio</button>
             </form>
             <div class="foot">¿Ya tienes cuenta? <a href="{{ route('login') }}">Inicia sesión</a></div>

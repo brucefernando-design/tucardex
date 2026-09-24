@@ -51,15 +51,33 @@ class School extends Model
 
     public function isOnTrial(): bool
     {
-        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
+        if ($this->subscription_status === 'active') {
+            return false;
+        }
+
+        return $this->subscription_status === 'trial'
+            || ($this->trial_ends_at && $this->trial_ends_at->isFuture());
+    }
+
+    public function isTrialExpired(): bool
+    {
+        if ($this->subscription_status === 'active') {
+            return false;
+        }
+
+        if ($this->subscription_status === 'trial' || $this->trial_ends_at) {
+            return $this->trial_ends_at && now()->startOfDay()->gt($this->trial_ends_at->endOfDay());
+        }
+
+        return false;
     }
 
     public function trialDaysRemaining(): int
     {
-        if (! $this->isOnTrial()) {
+        if (! $this->isOnTrial() || ! $this->trial_ends_at) {
             return 0;
         }
-        return (int) ceil(now()->diffInDays($this->trial_ends_at, false));
+        return (int) max(0, ceil(now()->diffInDays($this->trial_ends_at, false)));
     }
 
     public function effectivePlan(): string
@@ -172,7 +190,10 @@ class School extends Model
 
     public function maxStudents(): int
     {
-        // En el nuevo modelo no se restringe por cupo rígido, sino por volumen facturable
+        if ($this->isOnTrial()) {
+            return (int) config('plans.trial_max_students', 25);
+        }
+
         return match ($this->effectivePlan()) {
             'basico' => 10000,
             default => 50000,
@@ -181,7 +202,19 @@ class School extends Model
 
     public function canAddStudent(): bool
     {
-        return $this->isActive();
+        if (! $this->isActive()) {
+            return false;
+        }
+
+        if ($this->isTrialExpired()) {
+            return false;
+        }
+
+        if ($this->isOnTrial()) {
+            return $this->students()->count() < $this->maxStudents();
+        }
+
+        return true;
     }
 
     public function canAccessPayments(): bool

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
@@ -26,6 +27,34 @@ class RegisterController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
+        // 1. Honeypot anti-bot
+        if (! empty($request->input('_hp_website'))) {
+            return back()->withInput()->withErrors(['school_name' => 'Validación de seguridad rechazada.']);
+        }
+
+        // 2. Cloudflare Turnstile anti-bot (si está configurada la llave secreta en el servidor)
+        if (config('services.turnstile.secret')) {
+            $turnstileToken = $request->input('cf-turnstile-response');
+            if (! $turnstileToken) {
+                return back()->withInput()->withErrors(['school_name' => 'Por favor completa la verificación de seguridad anti-bot de Cloudflare.']);
+            }
+
+            try {
+                $verify = Http::asForm()->timeout(5)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                    'secret' => config('services.turnstile.secret'),
+                    'response' => $turnstileToken,
+                    'remoteip' => $request->ip(),
+                ]);
+
+                if (! $verify->successful() || ! ($verify->json('success') ?? false)) {
+                    return back()->withInput()->withErrors(['school_name' => 'Fallo la verificación de seguridad Cloudflare. Por favor recarga e intenta de nuevo.']);
+                }
+            } catch (\Throwable $e) {
+                // Si la conexión con Cloudflare falla temporalmente, log y permitir o rechazar según política
+                logger()->error('Error verificando Turnstile: ' . $e->getMessage());
+            }
+        }
+
         $data = $request->validate([
             'school_name' => ['required', 'string', 'max:150'],
             'plan' => ['required', 'in:basico,pro,institucional'],
@@ -37,13 +66,14 @@ class RegisterController extends Controller
         ]);
 
         $user = DB::transaction(function () use ($data) {
-            // 1) Crear el colegio (tenant)
+            // 1) Crear el colegio (tenant) con periodo de prueba de 30 días y límite controlado
             $school = School::create([
                 'name' => $data['school_name'],
                 'slug' => $this->uniqueSlug($data['school_name']),
                 'plan' => $data['plan'],
                 'status' => 'activo',
-                'trial_ends_at' => now()->addDays(30),
+                'subscription_status' => 'trial',
+                'trial_ends_at' => now()->addDays((int) config('plans.trial_duration_days', 30)),
                 'email' => $data['email'],
             ]);
 

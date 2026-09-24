@@ -83,7 +83,10 @@
                             </span>
                             @if($onTrial)
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 11px;">
-                                    <i class="bi bi-clock-history me-1"></i>Prueba Profesional activa: {{ $trialDays }} {{ $trialDays === 1 ? 'día restante' : 'días restantes' }}
+                                    <i class="bi bi-clock-history me-1"></i>Prueba activa: {{ $trialDays }} {{ $trialDays === 1 ? 'día restante' : 'días restantes' }}
+                                </span>
+                                <span class="badge {{ $currentSchool->students()->count() >= $currentSchool->maxStudents() ? 'bg-danger-subtle text-danger border-danger-subtle' : 'bg-warning-subtle text-dark border-warning-subtle' }} px-2 py-1" style="font-size: 11px;">
+                                    <i class="bi bi-people me-1"></i>Cupo de prueba: {{ $currentSchool->students()->count() }}/{{ $currentSchool->maxStudents() }} alumnos
                                 </span>
                             @endif
                             <span class="text-muted small d-none d-md-inline" style="font-size: 12px;">

@@ -17,6 +17,24 @@
     </div>
 </div>
 
+@php $currentSchool = auth()->user()?->school; @endphp
+@if($currentSchool && $currentSchool->isOnTrial())
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between py-2 px-3 mb-3 border-warning shadow-sm" style="border-radius: 12px; background: #fffbeb;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-shield-exclamation fs-4 text-warning"></i>
+            <div>
+                <strong class="d-block" style="font-size:13.5px;">Modo de Prueba Gratuita (Límite: {{ $currentSchool->maxStudents() }} alumnos)</strong>
+                <small class="text-muted">Tienes registrados <strong>{{ $currentSchool->students()->count() }}</strong> de <strong>{{ $currentSchool->maxStudents() }}</strong> alumnos permitidos en prueba.</small>
+            </div>
+        </div>
+        @if($currentSchool->students()->count() >= $currentSchool->maxStudents())
+            <a href="mailto:ventas@tucardex.com?subject={{ urlencode('Ampliar cupo - ' . $currentSchool->name) }}" class="btn btn-sm btn-dark text-nowrap rounded-pill px-3 py-1 mt-2 mt-md-0" style="font-size:12px;">
+                <i class="bi bi-arrow-up-circle me-1"></i> Activar Plan para Alumnos Ilimitados
+            </a>
+        @endif
+    </div>
+@endif
+
 <div class="card">
     <div class="card-body">
         <form class="row g-2 mb-3">

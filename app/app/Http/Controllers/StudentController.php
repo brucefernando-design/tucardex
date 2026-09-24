@@ -44,7 +44,13 @@ class StudentController extends Controller
     {
         $school = auth()->user()->school;
         if ($school && ! $school->canAddStudent()) {
-            return redirect()->route('students.index')->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+            if ($school->isTrialExpired()) {
+                return redirect()->route('subscription.expired');
+            }
+            if ($school->isOnTrial()) {
+                return redirect()->route('students.index')->with('error', "Has alcanzado el límite de {$school->maxStudents()} alumnos permitido durante tu periodo de prueba gratuita. Activa tu suscripción para continuar agregando alumnos.");
+            }
+            return redirect()->route('students.index')->with('error', 'No es posible registrar más alumnos con el estado actual de tu suscripción.');
         }
         $courses = Course::orderBy('name')->get();
 
@@ -55,7 +61,13 @@ class StudentController extends Controller
     {
         $school = auth()->user()->school;
         if ($school && ! $school->canAddStudent()) {
-            return redirect()->route('students.index')->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+            if ($school->isTrialExpired()) {
+                return redirect()->route('subscription.expired');
+            }
+            if ($school->isOnTrial()) {
+                return redirect()->route('students.index')->with('error', "Has alcanzado el límite de {$school->maxStudents()} alumnos permitido durante tu periodo de prueba gratuita. Activa tu suscripción para continuar agregando alumnos.");
+            }
+            return redirect()->route('students.index')->with('error', 'No es posible registrar más alumnos con el estado actual de tu suscripción.');
         }
         $data = $this->validateData($request);
         $data['code'] ??= 'EST-'.str_pad((string) (Student::max('id') + 1), 5, '0', STR_PAD_LEFT);
@@ -280,7 +292,13 @@ class StudentController extends Controller
     {
         $school = auth()->user()->school;
         if ($school && ! $school->canAddStudent()) {
-            return back()->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+            if ($school->isTrialExpired()) {
+                return redirect()->route('subscription.expired');
+            }
+            if ($school->isOnTrial()) {
+                return back()->with('error', "Has alcanzado el límite de {$school->maxStudents()} alumnos durante la prueba gratuita. Activa tu suscripción para realizar importaciones.");
+            }
+            return back()->with('error', 'No es posible registrar más alumnos con el estado actual de tu suscripción.');
         }
         $request->validate([
             'file' => ['required', 'file', 'mimes:csv,txt'],
