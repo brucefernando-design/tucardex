@@ -59,6 +59,13 @@ Route::middleware('guest')->group(function () {
 
 Route::post('logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
+// Portal Público de Admisiones y Preinscripciones en Línea
+Route::get('admisiones', [\App\Http\Controllers\AdmissionController::class, 'publicIndex'])->name('admissions.public_index');
+Route::get('admisiones/{slug}', [\App\Http\Controllers\AdmissionController::class, 'publicForm'])->name('admissions.public_form');
+Route::post('admisiones/{slug}', [\App\Http\Controllers\AdmissionController::class, 'publicSubmit'])->name('admissions.public_submit');
+Route::get('admisiones/{slug}/comprobante/{folio}', [\App\Http\Controllers\AdmissionController::class, 'publicSuccess'])->name('admissions.public_success');
+Route::get('admisiones/{slug}/comprobante/{folio}/pdf', [\App\Http\Controllers\AdmissionController::class, 'publicPdf'])->name('admissions.public_pdf');
+
 // Pasarela de Pagos y Recibos Oficiales (Acceso directo para padres vía enlace seguro de WhatsApp/Correo)
 Route::get('pagos/{payment}/checkout', [\App\Http\Controllers\ParentPaymentController::class, 'checkout'])->name('parent.payments.checkout');
 Route::post('pagos/{payment}/mercadopago', [\App\Http\Controllers\ParentPaymentController::class, 'mercadoPago'])->name('parent.payments.mercadopago');
@@ -125,6 +132,12 @@ Route::middleware('auth')->group(function () {
             Route::get('oficios', [SecretariaController::class, 'oficios'])->name('oficios');
             Route::post('oficio/descargar', [SecretariaController::class, 'descargarOficio'])->name('oficio.descargar');
             Route::post('oficio/enviar', [SecretariaController::class, 'enviarOficio'])->name('oficio.enviar');
+
+            // Admisiones y Preinscripciones Escolares
+            Route::get('admisiones', [\App\Http\Controllers\AdmissionController::class, 'index'])->name('admisiones.index');
+            Route::get('admisiones/{admission}', [\App\Http\Controllers\AdmissionController::class, 'show'])->name('admisiones.show');
+            Route::put('admisiones/{admission}/status', [\App\Http\Controllers\AdmissionController::class, 'updateStatus'])->name('admisiones.update_status');
+            Route::post('admisiones/{admission}/matricular', [\App\Http\Controllers\AdmissionController::class, 'matricular'])->name('admisiones.matricular');
         });
 
         // Importación masiva de estudiantes (antes del resource para no chocar con students/{student})

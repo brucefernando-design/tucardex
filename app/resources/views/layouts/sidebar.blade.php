@@ -60,6 +60,7 @@
     <div class="nav-label">Secretaría y Control Escolar</div>
     <ul class="sidebar-nav">
         <li><a href="{{ route('secretaria.index') }}" class="{{ request()->routeIs('secretaria.index') ? 'active' : '' }}"><i class="bi bi-person-workspace"></i> Panel Secretaría</a></li>
+        <li><a href="{{ route('secretaria.admisiones.index') }}" class="{{ request()->routeIs('secretaria.admisiones.*') ? 'active' : '' }}"><i class="bi bi-person-plus-fill"></i> Admisiones / Fichas</a></li>
         <li><a href="{{ route('secretaria.credenciales') }}" class="{{ request()->routeIs('secretaria.credenciales*') ? 'active' : '' }}"><i class="bi bi-person-badge"></i> Credenciales Escolares</a></li>
         <li><a href="{{ route('secretaria.constancias') }}" class="{{ request()->routeIs('secretaria.constancias*') ? 'active' : '' }}"><i class="bi bi-file-earmark-text"></i> Constancias Oficiales</a></li>
         <li><a href="{{ route('secretaria.oficios') }}" class="{{ request()->routeIs('secretaria.oficios*') ? 'active' : '' }}"><i class="bi bi-envelope-paper"></i> Citatorios y Oficios</a></li>
