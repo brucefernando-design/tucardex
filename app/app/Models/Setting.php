@@ -15,6 +15,7 @@ class Setting extends Model
     protected $fillable = [
         'school_id', 'school_name', 'cct', 'rvoe', 'logo', 'academic_year', 'active_period', 'currency',
         'address', 'phone', 'director', 'cedula_profesional', 'tuition_amount',
+        'platform_fee_enabled', 'platform_fee_amount', 'platform_fee_label',
         'spei_enabled', 'spei_bank', 'spei_clabe', 'spei_beneficiary', 'spei_instructions',
         'mercadopago_enabled', 'mercadopago_public_key', 'mercadopago_access_token',
         'stripe_enabled', 'stripe_public_key', 'stripe_secret_key',

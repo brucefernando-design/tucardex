@@ -36,6 +36,28 @@
                     <div class="col-md-2"><label class="form-label">Cédula Profesional</label><input name="cedula_profesional" value="{{ old('cedula_profesional', $setting->cedula_profesional) }}" class="form-control" placeholder="Ej: 12345678" maxlength="20"><div class="form-text">Cédula profesional del Director(a) (requerida SEP).</div></div>
                     <div class="col-md-6"><label class="form-label">Teléfono</label><input name="phone" value="{{ old('phone', $setting->phone) }}" class="form-control"></div>
                     <div class="col-12"><label class="form-label">Dirección</label><input name="address" value="{{ old('address', $setting->address) }}" class="form-control"></div>
+                    <div class="col-12 mt-4 pt-3 border-top">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div>
+                                <h6 class="mb-0 fw-bold"><i class="bi bi-laptop me-1"></i> Cuota de Recuperación "Plataforma Digital"</h6>
+                                <small class="text-muted">Permite al colegio recuperar el costo de TuCardex mediante un renglón cobrado a las familias.</small>
+                            </div>
+                            <div class="form-check form-switch fs-5">
+                                <input class="form-check-input" type="checkbox" name="platform_fee_enabled" value="1" id="platformFeeSwitch" @checked(old('platform_fee_enabled', $setting->platform_fee_enabled))>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-4">
+                                <label class="form-label">Monto de la cuota ($ MXN)</label>
+                                <input type="number" step="0.01" min="0" name="platform_fee_amount" value="{{ old('platform_fee_amount', $setting->platform_fee_amount ?? 30.00) }}" class="form-control" placeholder="30.00">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Concepto en recibo y estado de cuenta</label>
+                                <input type="text" name="platform_fee_label" value="{{ old('platform_fee_label', $setting->platform_fee_label ?? 'Plataforma digital / portal familias') }}" class="form-control" placeholder="Plataforma digital / portal familias">
+                                <div class="form-text">Aparecerá como un segundo cargo independiente para cada alumno al generar las colegiaturas.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="mt-4"><button class="btn btn-brand btn-icon"><i class="bi bi-check-lg"></i> Guardar configuración</button></div>
             </form>

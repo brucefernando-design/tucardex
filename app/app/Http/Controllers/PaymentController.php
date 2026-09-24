@@ -55,6 +55,7 @@ class PaymentController extends Controller
         $students = Student::where('course_id', $data['course_id'])->where('status', 'activo')->get();
         $created = 0;
         $next = (int) Payment::max('id') + 1;
+        $setting = Setting::current();
 
         foreach ($students as $student) {
             // Evitar duplicados: mismo concepto + período para el estudiante
@@ -84,6 +85,27 @@ class PaymentController extends Controller
                 route('dashboard')
             );
             $created++;
+            // Segundo cargo independiente si la plataforma digital está habilitada
+            if ($setting->platform_fee_enabled && (float)$setting->platform_fee_amount > 0) {
+                $feeLabel = $setting->platform_fee_label ?: 'Plataforma digital / portal familias';
+                $feeExists = Payment::where('student_id', $student->id)
+                    ->where('concept', $feeLabel)
+                    ->where('period', $data['period'])
+                    ->exists();
+
+                if (! $feeExists) {
+                    Payment::create([
+                        'student_id' => $student->id,
+                        'invoice_number' => 'FAC-'.now()->format('Ymd').'-'.str_pad((string) $next++, 4, '0', STR_PAD_LEFT),
+                        'concept' => $feeLabel,
+                        'amount' => $setting->platform_fee_amount,
+                        'period' => $data['period'],
+                        'due_date' => $data['due_date'],
+                        'status' => 'pendiente',
+                    ]);
+                    $created++;
+                }
+            }
         }
 
         return redirect()->route('payments.index')->with('success', "Se generaron $created colegiaturas para el grupo seleccionado.");

@@ -31,6 +31,9 @@ class SettingsController extends Controller
             'director'            => ['nullable', 'string', 'max:150'],
             'cedula_profesional'  => ['nullable', 'string', 'max:20'],
             'tuition_amount' => ['required', 'numeric', 'min:0'],
+            'platform_fee_enabled' => ['nullable', 'boolean'],
+            'platform_fee_amount' => ['nullable', 'numeric', 'min:0'],
+            'platform_fee_label' => ['nullable', 'string', 'max:150'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
         ]);
 
@@ -45,6 +48,13 @@ class SettingsController extends Controller
             unset($data['logo']);
         }
 
+        $data['platform_fee_enabled'] = $request->boolean('platform_fee_enabled');
+        if ($request->filled('platform_fee_amount')) {
+            $data['platform_fee_amount'] = (float) $request->input('platform_fee_amount');
+        }
+        if ($request->filled('platform_fee_label')) {
+            $data['platform_fee_label'] = trim($request->input('platform_fee_label'));
+        }
         $setting->update($data);
 
         return redirect()->route('settings.index')->with('success', 'Configuración actualizada correctamente.');
