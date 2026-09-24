@@ -42,6 +42,21 @@
                 <td><span class="badge-soft badge-{{ $p->status }}">{{ ucfirst($p->status) }}</span></td>
                 <td class="text-end pe-3">
                     @if($p->status !== 'pagado')
+                        @php
+                            $phoneRaw = optional($p->student)->guardian_phone ?: optional($p->student)->phone;
+                            $cleanPhone = preg_replace('/\D/', '', $phoneRaw ?? '');
+                            if (strlen($cleanPhone) === 10) { $cleanPhone = '521' . $cleanPhone; }
+                            elseif (strlen($cleanPhone) === 12 && str_starts_with($cleanPhone, '52') && !str_starts_with($cleanPhone, '521')) { $cleanPhone = '521' . substr($cleanPhone, 2); }
+                            $waMsg = app(\App\Services\WhatsApp\WhatsAppService::class)->buildReminderMessage($p);
+                            $waLink = "https://wa.me/{$cleanPhone}?text=" . urlencode($waMsg);
+                        @endphp
+                        @if($cleanPhone)
+                            <a href="{{ $waLink }}" target="_blank" class="btn btn-sm btn-outline-success" title="Enviar recordatorio por WhatsApp Web (1 clic directo)"><i class="bi bi-whatsapp"></i></a>
+                        @endif
+                        <form action="{{ route('payments.recordar', $p) }}" method="POST" class="d-inline" title="Encolar recordatorio automático (WhatsApp + Correo)">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-bell"></i></button>
+                        </form>
                         <form action="{{ route('payments.markPaid', $p) }}" method="POST" class="d-inline">@csrf @method('PATCH')<button class="btn btn-sm btn-success btn-icon"><i class="bi bi-check2"></i> Pagar</button></form>
                     @endif
                     <a href="{{ route('payments.receipt', $p) }}" class="btn btn-sm btn-light" title="Recibo PDF"><i class="bi bi-receipt"></i></a>

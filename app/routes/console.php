@@ -26,3 +26,9 @@ Schedule::command('facturacion:resumen-diario')
 Schedule::command('facturacion:consultar-tickets')
     ->everyThirtyMinutes()
     ->withoutOverlapping();
+
+// Cobranza escolar automatizada (WhatsApp + Correo) con pausas humanas (08:30 AM)
+Schedule::command('tucardex:reminders:dispatch')
+    ->dailyAt('08:30')
+    ->withoutOverlapping()
+    ->runInBackground();

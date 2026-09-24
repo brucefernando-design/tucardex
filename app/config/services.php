@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'whatsapp' => [
+        'url' => env('WHATSAPP_GATEWAY_URL', 'http://tucardex-wa:3000'),
+    ],
+
     'facturama' => [
         'user' => env('FACTURAMA_USER'),
         'password' => env('FACTURAMA_PASSWORD'),

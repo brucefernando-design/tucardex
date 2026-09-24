@@ -114,6 +114,9 @@
     <div class="nav-label">Finanzas</div>
     <ul class="sidebar-nav">
         <li><a href="{{ route('payments.gateways') }}" class="{{ request()->routeIs('payments.gateways') ? 'active' : '' }}"><i class="bi bi-credit-card-2-front"></i> Pasarelas de Pago</a></li>
+        @if($u->isAdmin() || $u->isSecretaria())
+        <li><a href="{{ route('configuracion.whatsapp') }}" class="{{ request()->routeIs('configuracion.whatsapp') ? 'active' : '' }}"><i class="bi bi-whatsapp"></i> WhatsApp & Cobranza</a></li>
+        @endif
         <li><a href="{{ route('payments.index') }}" class="{{ request()->routeIs('payments.*') ? 'active' : '' }}"><i class="bi bi-cash-stack"></i> Pagos / Colegiaturas</a></li>
         @if(optional(\App\Models\ElectronicBillingSetting::current())->enabled)
         <li><a href="{{ route('facturacion.index') }}" class="{{ request()->routeIs('facturacion.index') || request()->routeIs('facturacion.show') ? 'active' : '' }}"><i class="bi bi-receipt-cutoff"></i> Facturación Electrónica</a></li>

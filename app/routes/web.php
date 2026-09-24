@@ -221,6 +221,16 @@ Route::middleware('auth')->group(function () {
         Route::post('facturacion/probar', [ElectronicBillingController::class, 'probar'])->name('facturacion.probar');
         Route::post('facturacion/csd/subir', [ElectronicBillingController::class, 'subirCsd'])->name('facturacion.csd.subir');
         Route::post('facturacion/csd/eliminar', [ElectronicBillingController::class, 'eliminarCsd'])->name('facturacion.csd.eliminar');
+        
+        // WhatsApp & Cobranza Automatizada
+        Route::get('configuracion/whatsapp', [\App\Http\Controllers\WhatsAppController::class, 'index'])->name('configuracion.whatsapp');
+        Route::get('configuracion/whatsapp/status', [\App\Http\Controllers\WhatsAppController::class, 'status'])->name('configuracion.whatsapp.status');
+        Route::get('configuracion/whatsapp/qr', [\App\Http\Controllers\WhatsAppController::class, 'qr'])->name('configuracion.whatsapp.qr');
+        Route::post('configuracion/whatsapp/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('configuracion.whatsapp.logout');
+        Route::post('configuracion/whatsapp/guardar', [\App\Http\Controllers\WhatsAppController::class, 'updateSettings'])->name('configuracion.whatsapp.guardar');
+        Route::post('configuracion/whatsapp/test', [\App\Http\Controllers\WhatsAppController::class, 'testSend'])->name('configuracion.whatsapp.test');
+        Route::post('configuracion/whatsapp/disparar', [\App\Http\Controllers\WhatsAppController::class, 'dispararCobranza'])->name('configuracion.whatsapp.disparar');
+        Route::post('pagos/{payment}/recordar', [\App\Http\Controllers\WhatsAppController::class, 'recordarPago'])->name('payments.recordar');
         Route::get('bitacora', [AuditLogController::class, 'index'])->name('audit.index');
     });
 });
