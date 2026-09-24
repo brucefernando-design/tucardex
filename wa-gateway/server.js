@@ -75,7 +75,7 @@ async function initInstance(schoolId) {
     logger,
     printQRInTerminal: false,
     defaultQueryTimeoutMs: 60000,
-    browser: ['TuCardex Escolar', 'Chrome', '1.0.0']
+    browser: ['TuCardex', 'Chrome', '1.0.0']
   });
 
   instanceData.sock = sock;
