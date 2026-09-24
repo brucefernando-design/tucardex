@@ -176,7 +176,7 @@ class WhatsAppService
         $colegioNombre = $appSettings->school_name ?: 'Colegio';
         $tutorNombre = $student->guardian_name ?: ($student->first_name ? "Familia {$student->last_name}" : 'Estimado Padre de Familia');
         $alumnoNombre = $student->full_name ?? 'su hijo(a)';
-        $gradoGrupo = $course ? " ({$course->name}" . ($course->section ? " "{$course->section}"" : '') . ")" : '';
+        $gradoGrupo = $course ? " ({$course->name}" . ($course->section ? ' "' . $course->section . '"' : '') . ")" : '';
 
         $fechaTexto = $attendance->date ? $attendance->date->locale('es')->isoFormat('dddd D [de] MMMM') : now()->locale('es')->isoFormat('dddd D [de] MMMM');
         $fechaTexto = ucfirst($fechaTexto);
