@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Panel') · {{ config('app.name') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+    @include('layouts.sidebar')
+    <div class="sidebar-backdrop" id="backdrop"></div>
+
+    <div class="main">
+        <header class="topbar">
+            <button class="toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+            <div class="page-title"><i class="bi bi-mortarboard-fill"></i> @yield('title', 'Panel')</div>
+            <div class="spacer"></div>
+            <div class="top-actions">
+                @unless(auth()->user()->isSuperAdmin())
+                    @php
+                        $topUnread = \App\Models\Message::unreadCountFor(auth()->id());
+                        $notifUnread = \App\Models\Notification::unreadFor(auth()->id());
+                    @endphp
+                    <a href="{{ route('notifications.index') }}" title="Notificaciones"><i class="bi bi-bell fs-5"></i>@if($notifUnread)<span class="count">{{ $notifUnread }}</span>@endif</a>
+                    <a href="{{ route('messages.index') }}" title="Mensajes"><i class="bi bi-chat-dots fs-5"></i>@if($topUnread)<span class="count">{{ $topUnread }}</span>@endif</a>
+                @endunless
+                @if(auth()->user()->hasAnyRole(['admin','secretaria','docente']))
+                    <a href="{{ route('announcements.index') }}" title="Comunicados"><i class="bi bi-megaphone fs-5"></i></a>
+                @endif
+                @if(auth()->user()->hasAnyRole(['admin','secretaria']))
+                    <a href="{{ route('payments.index') }}" title="Pagos"><i class="bi bi-cash-coin fs-5"></i></a>
+                @endif
+                <!-- Botón de Asistente en Barra Superior -->
+                <button onclick="window.openCardexAssistant()" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3 py-1 me-2" title="Abrir Asistente TuCardex">
+                    <i class="bi bi-robot"></i>
+                    <span class="d-none d-lg-inline fw-semibold" style="font-size:12.5px">Asistente</span>
+                </button>
+
+                <div class="dropdown">
+                    <div class="user-chip" data-bs-toggle="dropdown">
+                        @if(auth()->user()->avatar_url)<img src="{{ auth()->user()->avatar_url }}" class="avatar" style="object-fit:cover">@else<div class="avatar">{{ auth()->user()->initials() }}</div>@endif
+                        <span class="d-none d-md-inline">{{ auth()->user()->name }}</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+                        @if(auth()->user()->isAdmin())
+                            <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="bi bi-gear me-2"></i>Configuración</a></li>
+                        @endif
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">@csrf
+                                <button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show"><i class="bi bi-check-circle me-2"></i>{{ session('success') }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show"><i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}<button class="btn-close" data-bs-dismiss="alert"></button></div>
+            @endif
+            @yield('content')
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const tg=document.getElementById('sidebarToggle'),sb=document.getElementById('sidebar'),bd=document.getElementById('backdrop');
+    tg&&tg.addEventListener('click',()=>{sb.classList.toggle('open');bd.classList.toggle('show')});
+    bd&&bd.addEventListener('click',()=>{sb.classList.remove('open');bd.classList.remove('show')});
+</script>
+@stack('scripts')
+    @include('layouts.assistant')
+</body>
+</html>

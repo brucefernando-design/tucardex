@@ -1,0 +1,47 @@
+# Environment & Credentials
+.env
+app/.env
+app/.env.*
+!app/.env.example
+auth.json
+
+# Composer & NPM dependencies
+app/vendor/
+app/node_modules/
+
+# Laravel Storage & Cache
+app/storage/*.key
+app/storage/pail
+app/storage/framework/cache/data/*
+!app/storage/framework/cache/data/.gitkeep
+app/storage/framework/sessions/*
+!app/storage/framework/sessions/.gitkeep
+app/storage/framework/testing/*
+!app/storage/framework/testing/.gitkeep
+app/storage/framework/views/*
+!app/storage/framework/views/.gitkeep
+app/storage/logs/*.log
+!app/storage/logs/.gitkeep
+app/.phpunit.result.cache
+app/.phpunit.cache
+
+# Builds & temporary files
+app/public/build
+app/public/hot
+app/public/storage
+
+# Backups & Database dumps
+backups/*
+!backups/.gitkeep
+*.sql
+*.sql.gz
+
+# System & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+npm-debug.log*
+yarn-error.log*

@@ -1,0 +1,57 @@
+services:
+  tucardex-db:
+    image: mariadb:10.11
+    container_name: tucardex-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: tucardex
+      MYSQL_USER: tucardex_user
+      MYSQL_PASSWORD: CardexSecure2026!
+      MYSQL_ROOT_PASSWORD: RootCardex2026!
+    volumes:
+      - tucardex_db_data:/var/lib/mysql
+    networks:
+      - internal
+
+  tucardex-app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: tucardex-app
+    restart: unless-stopped
+    volumes:
+      - /opt/tucardex/app:/var/www/html
+    networks:
+      - internal
+    depends_on:
+      - tucardex-db
+
+  tucardex-web:
+    image: nginx:alpine
+    container_name: tucardex-web
+    restart: unless-stopped
+    volumes:
+      - /opt/tucardex/app:/var/www/html:ro
+      - /opt/tucardex/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tucardex.rule=Host(`tucardex.allia2.com.mx`)"
+      - "traefik.http.routers.tucardex.entrypoints=web,websecure"
+      - "traefik.http.routers.tucardex.tls=true"
+      - "traefik.http.routers.tucardex.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.tucardex.loadbalancer.server.port=80"
+    depends_on:
+      - tucardex-app
+
+networks:
+  internal:
+    driver: bridge
+  proxy:
+    external: true
+    name: n8n_default
+
+volumes:
+  tucardex_db_data:
