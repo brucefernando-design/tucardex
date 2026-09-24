@@ -85,7 +85,7 @@ class ParentPaymentController extends Controller
                         ],
                         'auto_return' => 'approved',
                         'external_reference' => (string) $payment->token,
-                        'notification_url' => route('webhooks.mercadopago', ['school' => $school->id]),
+                        'notification_url' => route('webhooks.mercadopago', ['school' => $payment->school_id]),
                         'statement_descriptor' => Str::limit($setting->school_name ?? 'COLEGIO', 15, ''),
                     ]);
 
@@ -107,34 +107,68 @@ class ParentPaymentController extends Controller
 
     /**
      * Retorno del padre tras completar el flujo en Mercado Pago.
+     * Blindado: Jamás acredita saldo solo por query string; exige confirmación por Webhook o verificación oficial de API.
      */
     public function returnCallback(Request $request, Payment $payment): RedirectResponse
     {
         $this->resolveTenantAndValidate($payment);
 
         $status = $request->query('collection_status', $request->query('status'));
+        $paymentId = $request->query('payment_id');
 
-        if ($status === 'approved' || $status === 'success') {
-            if ($payment->status !== 'pagado') {
-                $payment->update([
-                    'status' => 'pagado',
-                    'paid_date' => now(),
-                    'method' => 'tarjeta',
-                    'remarks' => 'Pago aprobado vía Mercado Pago (ID: ' . $request->query('payment_id', 'MP-'.time()) . ')',
-                ]);
-            }
-
+        // 1. Si el pago ya fue conciliado por el Webhook en tiempo real
+        if ($payment->status === 'pagado') {
             return redirect()->route('parent.payments.success', $payment)
                 ->with('success', '¡Tu pago ha sido acreditado exitosamente por Mercado Pago!');
         }
 
-        if ($status === 'pending') {
+        // 2. Si viene payment_id, consultar directamente a la API oficial de Mercado Pago
+        if (($status === 'approved' || $status === 'success') && $paymentId) {
+            $setting = Setting::current();
+            if ($setting && ! empty($setting->mercadopago_access_token)) {
+                try {
+                    $mpResponse = Http::withToken($setting->mercadopago_access_token)
+                        ->timeout(10)
+                        ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
+
+                    if ($mpResponse->successful()) {
+                        $paymentData = $mpResponse->json();
+                        $mpStatus = $paymentData['status'] ?? null;
+                        $externalRef = $paymentData['external_reference'] ?? null;
+
+                        if ($mpStatus === 'approved' && $externalRef === $payment->token) {
+                            $methodType = $paymentData['payment_type_id'] ?? 'tarjeta';
+                            $method = match ($methodType) {
+                                'bank_transfer' => 'transferencia',
+                                'ticket' => 'efectivo',
+                                default => 'tarjeta',
+                            };
+
+                            $payment->update([
+                                'status' => 'pagado',
+                                'paid_date' => now(),
+                                'method' => $method,
+                                'remarks' => "Acreditado vía verificación oficial API Mercado Pago #{$paymentId}",
+                            ]);
+
+                            return redirect()->route('parent.payments.success', $payment)
+                                ->with('success', '¡Tu pago ha sido confirmado exitosamente por Mercado Pago!');
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    logger()->error('Error verificando pago en retorno MP: ' . $e->getMessage());
+                }
+            }
+        }
+
+        // 3. Si aún no está acreditado, informar al usuario sin alterar el estado en BD
+        if ($status === 'approved' || $status === 'success' || $status === 'pending') {
             return redirect()->route('parent.payments.checkout', $payment)
-                ->with('warning', 'Tu orden de pago fue generada y está en proceso de acreditación (ej. SPEI u OXXO). En cuanto se confirme, tu recibo estará disponible.');
+                ->with('info', 'Tu pago está siendo procesado por la pasarela bancaria. En cuanto Mercado Pago confirme la acreditación a tu colegio, tu recibo estará disponible automáticamente.');
         }
 
         return redirect()->route('parent.payments.checkout', $payment)
-            ->with('error', 'El pago fue cancelado o rechazado por el banco. Puedes intentar con otro método o por transferencia SPEI.');
+            ->with('error', 'El pago fue cancelado o no completado por el banco emisor.');
     }
 
     /**

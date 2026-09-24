@@ -76,6 +76,16 @@ Route::prefix('p')->name('parent.payments.')->group(function () {
     Route::get('{payment:token}/recibo', [\App\Http\Controllers\ParentPaymentController::class, 'publicReceipt'])->name('receipt');
 });
 
+// Alias en español /pagos/{payment:token}/... vinculado obligatoriamente por token
+Route::prefix('pagos')->group(function () {
+    Route::get('{payment:token}/checkout', [\App\Http\Controllers\ParentPaymentController::class, 'checkout']);
+    Route::post('{payment:token}/mercadopago', [\App\Http\Controllers\ParentPaymentController::class, 'mercadoPago']);
+    Route::get('{payment:token}/retorno', [\App\Http\Controllers\ParentPaymentController::class, 'returnCallback']);
+    Route::get('{payment:token}/exito', [\App\Http\Controllers\ParentPaymentController::class, 'success']);
+    Route::post('{payment:token}/comprobante', [\App\Http\Controllers\ParentPaymentController::class, 'uploadSpeiProof']);
+    Route::get('{payment:token}/recibo', [\App\Http\Controllers\ParentPaymentController::class, 'publicReceipt']);
+});
+
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
     // Dejar suplantación SaaS (volver a SuperAdmin)

@@ -316,4 +316,37 @@ class SecurityHardeningTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
     }
+
+    /**
+     * TEST 12: Alterar el query string (?status=success) en la URL de retorno NO marca pagada la colegiatura sin verificación.
+     */
+    public function test_return_callback_query_string_does_not_mark_payment_as_paid(): void
+    {
+        $this->assertEquals('pendiente', $this->pendingPayment->status);
+
+        // Intentar falsificar el retorno con ?status=success y ?collection_status=approved
+        $response = $this->get(route('parent.payments.return', [
+            'payment' => $this->pendingPayment,
+            'status' => 'success',
+            'collection_status' => 'approved',
+        ]));
+
+        $response->assertRedirect(route('parent.payments.checkout', $this->pendingPayment));
+        $this->pendingPayment->refresh();
+
+        // El estado DEBE seguir siendo pendiente
+        $this->assertEquals('pendiente', $this->pendingPayment->status, 'El query string no debe cambiar el estado del pago a pagado.');
+    }
+
+    /**
+     * TEST 13: El alias /pagos/{token}/checkout funciona y rechaza IDs numéricos con 404.
+     */
+    public function test_pagos_alias_works_with_token_and_rejects_numeric_ids(): void
+    {
+        $response = $this->get("/pagos/{$this->pendingPayment->token}/checkout");
+        $response->assertStatus(200);
+
+        $response404 = $this->get('/pagos/1/checkout');
+        $response404->assertStatus(404);
+    }
 }
