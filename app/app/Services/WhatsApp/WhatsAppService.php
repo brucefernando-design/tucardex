@@ -162,4 +162,44 @@ class WhatsAppService
             "_Acepta transferencia SPEI, pago en efectivo en OXXO y tarjetas bancarias. Al pagar, su comprobante y factura SAT (Complemento IEDU) se generan en automático._\n\n" .
             "¡Agradecemos mucho su puntualidad y apoyo a la educación de {$alumnoNombre}!";
     }
+
+    /**
+     * Construye el mensaje amigable de aviso de inasistencia matutina con Spintax y datos del colegio.
+     */
+    public function buildAttendanceAlertMessage(\App\Models\Attendance $attendance): string
+    {
+        $attendance->loadMissing(['student.course', 'student', 'course']);
+        $student = $attendance->student;
+        $course = $attendance->course ?? optional($student)->course;
+        $appSettings = \App\Models\Setting::current();
+
+        $colegioNombre = $appSettings->school_name ?: 'Colegio';
+        $tutorNombre = $student->guardian_name ?: ($student->first_name ? "Familia {$student->last_name}" : 'Estimado Padre de Familia');
+        $alumnoNombre = $student->full_name ?? 'su hijo(a)';
+        $gradoGrupo = $course ? " ({$course->name}" . ($course->section ? " "{$course->section}"" : '') . ")" : '';
+
+        $fechaTexto = $attendance->date ? $attendance->date->locale('es')->isoFormat('dddd D [de] MMMM') : now()->locale('es')->isoFormat('dddd D [de] MMMM');
+        $fechaTexto = ucfirst($fechaTexto);
+
+        // Saludos dinámicos para evitar mensajes idénticos (Spintax humano)
+        $saludos = [
+            "Hola, estimado(a) *{$tutorNombre}* 👋",
+            "Buen día, estimado(a) *{$tutorNombre}* ☀️",
+            "Estimado(a) *{$tutorNombre}*, le saludamos cordialmente 👋",
+        ];
+        $saludo = $saludos[$student->id % count($saludos)];
+
+        return "{$saludo}
+
+" .
+            "Le contactamos de *{$colegioNombre}* para informarle que el día de hoy, *{$fechaTexto}*, se registró la *inasistencia* de su hijo(a) *{$alumnoNombre}*{$gradoGrupo} en el pase de lista matutino.
+
+" .
+            "📌 *Importante:*
+" .
+            "Si la inasistencia se debe a algún motivo de salud o permiso familiar, le solicitamos comunicarse con la Dirección / Control Escolar para registrar el justificante correspondiente.
+
+" .
+            "¡Agradecemos mucho su atención y compromiso con la seguridad y formación de {$alumnoNombre}! 🎓";
+    }
 }

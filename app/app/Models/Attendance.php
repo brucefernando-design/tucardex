@@ -12,11 +12,12 @@ class Attendance extends Model
     use BelongsToSchool, HasFactory;
 
     protected $fillable = [
-        'student_id', 'course_id', 'date', 'status', 'remarks',
+        'student_id', 'course_id', 'date', 'status', 'remarks', 'notified_at',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'notified_at' => 'datetime',
     ];
 
     public function student(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendAttendanceAlertJob;
 use App\Models\Attendance;
 use App\Models\Course;
 use App\Models\Setting;
@@ -45,8 +46,23 @@ class AttendanceController extends Controller
             'status' => ['required', 'array'],
         ]);
 
+        $settings = Setting::current();
+        $notifyEnabled = (bool) ($request->boolean('notify_absents_whatsapp', true)
+            && $settings->whatsapp_enabled
+            && ($settings->attendance_whatsapp_enabled ?? true));
+
+        $isToday = Carbon::parse($request->date)->isToday();
+        $minDelay = (int) ($settings->reminder_min_delay ?: 45);
+        $maxDelay = (int) ($settings->reminder_max_delay ?: 118);
+        $cumulativeDelay = 0;
+        $absentsEnqueued = 0;
+
         foreach ($request->status as $studentId => $status) {
-            Attendance::updateOrCreate(
+            $existingRecord = Attendance::where('student_id', $studentId)
+                ->whereDate('date', $request->date)
+                ->first();
+
+            $attendance = Attendance::updateOrCreate(
                 ['student_id' => $studentId, 'date' => $request->date],
                 [
                     'course_id' => $request->course_id,
@@ -54,10 +70,28 @@ class AttendanceController extends Controller
                     'remarks' => $request->input("remarks.$studentId"),
                 ]
             );
+
+            // Solo programar alerta si es hoy, estado ausente y no ha sido notificado aún hoy
+            if ($notifyEnabled && $isToday && in_array(strtolower($status), ['ausente', 'falta'])) {
+                if (!$existingRecord || $existingRecord->notified_at === null) {
+                    $delaySeconds = rand($minDelay, $maxDelay);
+                    $cumulativeDelay += $delaySeconds;
+
+                    SendAttendanceAlertJob::dispatch($attendance)
+                        ->delay(now()->addSeconds($cumulativeDelay));
+
+                    $absentsEnqueued++;
+                }
+            }
+        }
+
+        $msg = 'Asistencia registrada correctamente.';
+        if ($absentsEnqueued > 0) {
+            $msg .= " Se programaron {$absentsEnqueued} avisos de inasistencia por WhatsApp a los tutores con pausas humanas de seguridad ({$minDelay}s - {$maxDelay}s).";
         }
 
         return redirect()->route('attendances.index', ['course_id' => $request->course_id, 'date' => $request->date])
-            ->with('success', 'Asistencia registrada correctamente.');
+            ->with('success', $msg);
     }
 
     /**

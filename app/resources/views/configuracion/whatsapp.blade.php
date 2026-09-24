@@ -187,6 +187,16 @@
                             </div>
                         </div>
 
+                                                <div class="col-md-12">
+                            <div class="form-check form-switch p-3 border rounded bg-light">
+                                <input class="form-check-input" type="checkbox" role="switch" id="attendance_whatsapp_enabled" name="attendance_whatsapp_enabled" value="1" @checked($settings->attendance_whatsapp_enabled ?? true)>
+                                <label class="form-check-label fw-bold ms-2" for="attendance_whatsapp_enabled">
+                                    <i class="bi bi-person-x-fill text-danger me-1"></i> Notificar Inasistencias Escolares por WhatsApp
+                                    <span class="d-block text-muted small fw-normal">Envía aviso inmediato al tutor cuando el alumno falte en el pase de lista, utilizando las mismas pausas aleatorias humanas de seguridad ({{ $settings->reminder_min_delay ?: 45 }}s a {{ $settings->reminder_max_delay ?: 118 }}s) para proteger la línea.</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Recordatorio Preventivo</label>
                             <div class="input-group">
