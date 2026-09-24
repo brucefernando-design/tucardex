@@ -41,7 +41,7 @@
             </div>
 
             <div class="d-grid gap-2">
-                <a href="{{ route('payments.receipt', $payment) }}" target="_blank" class="btn btn-primary py-3 fw-bold fs-6 rounded-3 shadow-sm">
+                <a href="{{ route('parent.payments.receipt', $payment) }}" target="_blank" class="btn btn-primary py-3 fw-bold fs-6 rounded-3 shadow-sm">
                     <i class="bi bi-file-earmark-pdf me-2"></i> Descargar Recibo Oficial en PDF
                 </a>
                 @auth

@@ -117,19 +117,27 @@ class PaymentController extends Controller
     public function receipt(Payment $payment)
     {
         $user = auth()->user();
-        if ($user && ! $user->hasAnyRole(['admin', 'secretaria', 'superadmin'])) {
-            if ($user->hasRole('padre')) {
-                $isGuardian = $payment->student->guardians()->where('users.id', $user->id)->exists();
-                if (! $isGuardian) {
-                    abort(403, 'No tienes autorización para ver este recibo.');
-                }
-            } elseif ($user->hasRole('estudiante')) {
-                if ($payment->student->user_id !== $user->id) {
-                    abort(403, 'No tienes autorización para ver este recibo.');
-                }
-            } else {
-                abort(403);
+        if (! $user) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        if ($user->hasRole('superadmin')) {
+            // Superadmin puede acceder en modo soporte
+        } elseif ($user->hasAnyRole(['admin', 'secretaria'])) {
+            if ($user->school_id !== $payment->school_id) {
+                abort(403, 'No tienes autorización para ver recibos de otra institución.');
             }
+        } elseif ($user->hasRole('padre')) {
+            $isGuardian = $payment->student->guardians()->where('users.id', $user->id)->exists();
+            if (! $isGuardian) {
+                abort(403, 'No tienes autorización para ver este recibo.');
+            }
+        } elseif ($user->hasRole('estudiante')) {
+            if ($payment->student->user_id !== $user->id) {
+                abort(403, 'No tienes autorización para ver este recibo.');
+            }
+        } else {
+            abort(403, 'No tienes autorización para ver este recibo.');
         }
 
         $payment->load('student.course');

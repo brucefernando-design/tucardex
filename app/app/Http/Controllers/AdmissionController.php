@@ -9,6 +9,8 @@ use App\Models\School;
 use App\Models\Setting;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\Tenancy;
+use Illuminate\Validation\Rule;
 use App\Services\WhatsApp\WhatsAppService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -44,6 +46,8 @@ class AdmissionController extends Controller
             abort(403, 'El proceso de admisiones en línea para esta institución se encuentra temporalmente suspendido.');
         }
 
+        app(Tenancy::class)->set($school->id);
+
         $courses = Course::withoutGlobalScopes()
             ->where('school_id', $school->id)
             ->where('status', 'activo')
@@ -62,6 +66,11 @@ class AdmissionController extends Controller
     public function publicSubmit(Request $request, string $slug): RedirectResponse
     {
         $school = School::where('slug', $slug)->firstOrFail();
+        if ($school->status !== 'activo') {
+            abort(403, 'El proceso de admisiones en línea para esta institución se encuentra temporalmente suspendido.');
+        }
+
+        app(Tenancy::class)->set($school->id);
 
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
@@ -69,7 +78,10 @@ class AdmissionController extends Controller
             'curp' => ['nullable', 'string', 'max:18'],
             'birth_date' => ['nullable', 'date'],
             'gender' => ['nullable', 'in:M,F'],
-            'course_id' => ['nullable', 'exists:courses,id'],
+            'course_id' => [
+                'nullable',
+                Rule::exists('courses', 'id')->where('school_id', $school->id)->where('status', 'activo'),
+            ],
             'grade_level' => ['nullable', 'string', 'max:100'],
             'previous_school' => ['nullable', 'string', 'max:150'],
             'guardian_name' => ['required', 'string', 'max:150'],
@@ -148,6 +160,7 @@ class AdmissionController extends Controller
     public function publicSuccess(string $slug, string $folio): View
     {
         $school = School::where('slug', $slug)->firstOrFail();
+        app(Tenancy::class)->set($school->id);
         $admission = Admission::withoutGlobalScopes()
             ->where('school_id', $school->id)
             ->where('folio', $folio)
@@ -164,6 +177,7 @@ class AdmissionController extends Controller
     public function publicPdf(string $slug, string $folio)
     {
         $school = School::where('slug', $slug)->firstOrFail();
+        app(Tenancy::class)->set($school->id);
         $admission = Admission::withoutGlobalScopes()
             ->where('school_id', $school->id)
             ->where('folio', $folio)

@@ -114,14 +114,7 @@
                         </button>
                     </form>
 
-                    <div class="mt-2 text-center">
-                        <form action="{{ route('parent.payments.simulate', $payment) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-link btn-sm text-decoration-none text-muted" title="Probar sin tarjeta real">
-                                <i class="bi bi-play-circle me-1"></i> Simular pago aprobado (Modo Demo)
-                            </button>
-                        </form>
-                    </div>
+                    
                 </div>
 
                 <!-- Opción 2: Transferencia Interbancaria SPEI Directa -->

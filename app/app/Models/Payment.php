@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Payment extends Model
 {
     use Auditable, BelongsToSchool, HasFactory;
 
     protected $fillable = [
-        'student_id', 'invoice_number', 'concept', 'amount', 'period',
+        'token', 'student_id', 'invoice_number', 'concept', 'amount', 'period',
         'due_date', 'paid_date', 'method', 'status', 'remarks',
     ];
 
@@ -23,6 +24,15 @@ class Payment extends Model
         'due_date' => 'date',
         'paid_date' => 'date',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($payment) {
+            if (empty($payment->token)) {
+                $payment->token = Str::random(40);
+            }
+        });
+    }
 
     public function student(): BelongsTo
     {

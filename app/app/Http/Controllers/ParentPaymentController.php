@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Setting;
+use App\Services\Tenancy;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -14,11 +16,13 @@ class ParentPaymentController extends Controller
 {
     /**
      * Muestra la pantalla de checkout para liquidar una colegiatura o pago pendiente.
+     * Protegido mediante token opaco único en la URL (sin IDs numéricos predecibles).
      */
     public function checkout(Payment $payment): View|RedirectResponse
     {
-        $user = auth()->user();
+        $this->resolveTenantAndValidate($payment);
 
+        $user = auth()->user();
         if (! $this->canAccessPayment($user, $payment)) {
             abort(403, 'No tienes autorización para acceder a esta colegiatura.');
         }
@@ -40,9 +44,16 @@ class ParentPaymentController extends Controller
      */
     public function mercadoPago(Payment $payment): RedirectResponse
     {
+        $this->resolveTenantAndValidate($payment);
+
         $user = auth()->user();
         if (! $this->canAccessPayment($user, $payment)) {
-            abort(403);
+            abort(403, 'No tienes autorización para acceder a esta colegiatura.');
+        }
+
+        if ($payment->status === 'pagado') {
+            return redirect()->route('parent.payments.success', $payment)
+                ->with('info', 'Esta colegiatura ya se encuentra pagada.');
         }
 
         $setting = Setting::current();
@@ -68,12 +79,12 @@ class ParentPaymentController extends Controller
                             'email' => $user ? $user->email : ($payment->student->guardian_email ?? 'contacto@' . (parse_url(config('app.url'), PHP_URL_HOST) ?? 'tucardex.com')),
                         ],
                         'back_urls' => [
-                            'success' => route('parent.payments.return', ['payment' => $payment->id, 'status' => 'success']),
-                            'failure' => route('parent.payments.return', ['payment' => $payment->id, 'status' => 'failure']),
-                            'pending' => route('parent.payments.return', ['payment' => $payment->id, 'status' => 'pending']),
+                            'success' => route('parent.payments.return', ['payment' => $payment->token, 'status' => 'success']),
+                            'failure' => route('parent.payments.return', ['payment' => $payment->token, 'status' => 'failure']),
+                            'pending' => route('parent.payments.return', ['payment' => $payment->token, 'status' => 'pending']),
                         ],
                         'auto_return' => 'approved',
-                        'external_reference' => (string) $payment->id,
+                        'external_reference' => (string) $payment->token,
                         'statement_descriptor' => Str::limit($setting->school_name ?? 'COLEGIO', 15, ''),
                     ]);
 
@@ -89,29 +100,8 @@ class ParentPaymentController extends Controller
             }
         }
 
-        // Si no tiene credenciales o está en modo demostración/sandbox, simular éxito
-        return $this->simulate($payment);
-    }
-
-    /**
-     * Simulación instantánea para modo Sandbox / Demo de colegios.
-     */
-    public function simulate(Payment $payment): RedirectResponse
-    {
-        $user = auth()->user();
-        if (! $this->canAccessPayment($user, $payment)) {
-            abort(403);
-        }
-
-        $payment->update([
-            'status' => 'pagado',
-            'paid_date' => now(),
-            'method' => 'tarjeta',
-            'remarks' => 'Pago en línea verificado con éxito (Simulación en modo Demo/Sandbox)',
-        ]);
-
-        return redirect()->route('parent.payments.success', $payment)
-            ->with('success', '¡Pago procesado exitosamente! El recibo oficial ha sido emitido.');
+        // Si no tiene credenciales configuradas, orientar al usuario a transferencia SPEI
+        return back()->with('error', 'El cobro con tarjeta en línea no está disponible en este momento. Por favor realiza tu pago por transferencia SPEI o en ventanilla escolar.');
     }
 
     /**
@@ -119,6 +109,8 @@ class ParentPaymentController extends Controller
      */
     public function returnCallback(Request $request, Payment $payment): RedirectResponse
     {
+        $this->resolveTenantAndValidate($payment);
+
         $status = $request->query('collection_status', $request->query('status'));
 
         if ($status === 'approved' || $status === 'success') {
@@ -136,7 +128,7 @@ class ParentPaymentController extends Controller
         }
 
         if ($status === 'pending') {
-            return redirect()->route('dashboard')
+            return redirect()->route('parent.payments.checkout', $payment)
                 ->with('warning', 'Tu orden de pago fue generada y está en proceso de acreditación (ej. SPEI u OXXO). En cuanto se confirme, tu recibo estará disponible.');
         }
 
@@ -149,6 +141,8 @@ class ParentPaymentController extends Controller
      */
     public function success(Payment $payment): View
     {
+        $this->resolveTenantAndValidate($payment);
+
         $payment->load('student.course');
         $setting = Setting::current();
 
@@ -156,15 +150,49 @@ class ParentPaymentController extends Controller
     }
 
     /**
+     * Descarga pública del recibo oficial en PDF para padres (protegido por token único).
+     */
+    public function publicReceipt(Payment $payment)
+    {
+        $this->resolveTenantAndValidate($payment);
+
+        if ($payment->status !== 'pagado') {
+            abort(403, 'El recibo oficial solo se encuentra disponible para colegiaturas liquidadas.');
+        }
+
+        $payment->load('student.course');
+        $setting = Setting::current();
+
+        $items = Payment::where('student_id', $payment->student_id)
+            ->where('period', $payment->period)
+            ->where('status', $payment->status)
+            ->when($payment->paid_date, fn ($q) => $q->whereDate('paid_date', $payment->paid_date->toDateString()))
+            ->get();
+
+        if ($items->isEmpty() || ! $items->contains('id', $payment->id)) {
+            $items = collect([$payment]);
+        }
+
+        $totalAmount = (float) $items->sum('amount');
+
+        return Pdf::loadView('documents.receipt', compact('payment', 'items', 'totalAmount', 'setting'))
+            ->setPaper('letter', 'portrait')
+            ->download('Recibo_'.$payment->invoice_number.'.pdf');
+    }
+
+    /**
      * Subida de comprobante para transferencia SPEI.
      */
     public function uploadSpeiProof(Request $request, Payment $payment): RedirectResponse
     {
+        $this->resolveTenantAndValidate($payment);
+
         $request->validate([
             'voucher' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
-        $path = $request->file('voucher')->store('vouchers', 'public');
+        $folder = "vouchers/school_{$payment->school_id}";
+        $path = $request->file('voucher')->store($folder, 'public');
 
         $payment->update([
             'remarks' => 'Comprobante SPEI subido el ' . now()->format('d/m/Y H:i') . ' (' . $path . ')',
@@ -174,15 +202,31 @@ class ParentPaymentController extends Controller
             ->with('success', 'Comprobante de transferencia enviado correctamente. El área administrativa lo validará a la brevedad.');
     }
 
+    /**
+     * Aísla el tenant del colegio de este pago y valida su vigencia operativa.
+     */
+    private function resolveTenantAndValidate(Payment $payment): void
+    {
+        app(Tenancy::class)->set($payment->school_id);
+
+        if (! $payment->school || ! $payment->school->isActive()) {
+            abort(403, 'La institución educativa asociada a este pago no se encuentra disponible.');
+        }
+    }
+
     private function canAccessPayment($user, Payment $payment): bool
     {
-        // Enlace público directo enviado a los padres vía WhatsApp o Correo
+        // Enlace público protegido por token criptográfico único (40 caracteres)
         if (! $user) {
             return true;
         }
 
-        if ($user->hasAnyRole(['admin', 'secretaria', 'superadmin'])) {
+        if ($user->hasRole('superadmin')) {
             return true;
+        }
+
+        if ($user->hasAnyRole(['admin', 'secretaria'])) {
+            return $user->school_id === $payment->school_id;
         }
 
         if ($user->hasRole('padre')) {
@@ -193,6 +237,6 @@ class ParentPaymentController extends Controller
             return $payment->student->user_id === $user->id;
         }
 
-        return true;
+        return false;
     }
 }

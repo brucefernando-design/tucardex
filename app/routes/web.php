@@ -66,14 +66,15 @@ Route::post('admisiones/{slug}', [\App\Http\Controllers\AdmissionController::cla
 Route::get('admisiones/{slug}/comprobante/{folio}', [\App\Http\Controllers\AdmissionController::class, 'publicSuccess'])->name('admissions.public_success');
 Route::get('admisiones/{slug}/comprobante/{folio}/pdf', [\App\Http\Controllers\AdmissionController::class, 'publicPdf'])->name('admissions.public_pdf');
 
-// Pasarela de Pagos y Recibos Oficiales (Acceso directo para padres vía enlace seguro de WhatsApp/Correo)
-Route::get('pagos/{payment}/checkout', [\App\Http\Controllers\ParentPaymentController::class, 'checkout'])->name('parent.payments.checkout');
-Route::post('pagos/{payment}/mercadopago', [\App\Http\Controllers\ParentPaymentController::class, 'mercadoPago'])->name('parent.payments.mercadopago');
-Route::post('pagos/{payment}/simular', [\App\Http\Controllers\ParentPaymentController::class, 'simulate'])->name('parent.payments.simulate');
-Route::get('pagos/{payment}/retorno', [\App\Http\Controllers\ParentPaymentController::class, 'returnCallback'])->name('parent.payments.return');
-Route::get('pagos/{payment}/exito', [\App\Http\Controllers\ParentPaymentController::class, 'success'])->name('parent.payments.success');
-Route::post('pagos/{payment}/comprobante', [\App\Http\Controllers\ParentPaymentController::class, 'uploadSpeiProof'])->name('parent.payments.voucher');
-Route::get('payments/{payment}/recibo', [\App\Http\Controllers\PaymentController::class, 'receipt'])->name('payments.receipt');
+// Pasarela de Pagos y Recibos Oficiales protegida por Token Criptográfico Único (sin IDs secuenciales)
+Route::prefix('p')->name('parent.payments.')->group(function () {
+    Route::get('{payment:token}/checkout', [\App\Http\Controllers\ParentPaymentController::class, 'checkout'])->name('checkout');
+    Route::post('{payment:token}/mercadopago', [\App\Http\Controllers\ParentPaymentController::class, 'mercadoPago'])->name('mercadopago');
+    Route::get('{payment:token}/retorno', [\App\Http\Controllers\ParentPaymentController::class, 'returnCallback'])->name('return');
+    Route::get('{payment:token}/exito', [\App\Http\Controllers\ParentPaymentController::class, 'success'])->name('success');
+    Route::post('{payment:token}/comprobante', [\App\Http\Controllers\ParentPaymentController::class, 'uploadSpeiProof'])->name('voucher');
+    Route::get('{payment:token}/recibo', [\App\Http\Controllers\ParentPaymentController::class, 'receipt'])->name('receipt');
+});
 
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
