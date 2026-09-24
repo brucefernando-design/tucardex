@@ -59,20 +59,20 @@ Route::middleware('guest')->group(function () {
 
 Route::post('logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
+// Pasarela de Pagos y Recibos Oficiales (Acceso directo para padres vía enlace seguro de WhatsApp/Correo)
+Route::get('pagos/{payment}/checkout', [\App\Http\Controllers\ParentPaymentController::class, 'checkout'])->name('parent.payments.checkout');
+Route::post('pagos/{payment}/mercadopago', [\App\Http\Controllers\ParentPaymentController::class, 'mercadoPago'])->name('parent.payments.mercadopago');
+Route::post('pagos/{payment}/simular', [\App\Http\Controllers\ParentPaymentController::class, 'simulate'])->name('parent.payments.simulate');
+Route::get('pagos/{payment}/retorno', [\App\Http\Controllers\ParentPaymentController::class, 'returnCallback'])->name('parent.payments.return');
+Route::get('pagos/{payment}/exito', [\App\Http\Controllers\ParentPaymentController::class, 'success'])->name('parent.payments.success');
+Route::post('pagos/{payment}/comprobante', [\App\Http\Controllers\ParentPaymentController::class, 'uploadSpeiProof'])->name('parent.payments.voucher');
+Route::get('payments/{payment}/recibo', [\App\Http\Controllers\PaymentController::class, 'receipt'])->name('payments.receipt');
+
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
+
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Recibo oficial en PDF (accesible para padres, alumnos y administración)
-    Route::get('payments/{payment}/recibo', [PaymentController::class, 'receipt'])->name('payments.receipt');
-
-    // Pasarela de Pagos en Línea para Familias (Mercado Pago / SPEI)
-    Route::get('pagos/{payment}/checkout', [ParentPaymentController::class, 'checkout'])->name('parent.payments.checkout');
-    Route::post('pagos/{payment}/mercadopago', [ParentPaymentController::class, 'mercadoPago'])->name('parent.payments.mercadopago');
-    Route::post('pagos/{payment}/simular', [ParentPaymentController::class, 'simulate'])->name('parent.payments.simulate');
-    Route::get('pagos/{payment}/retorno', [ParentPaymentController::class, 'returnCallback'])->name('parent.payments.return');
-    Route::get('pagos/{payment}/exito', [ParentPaymentController::class, 'success'])->name('parent.payments.success');
-    Route::post('pagos/{payment}/comprobante', [ParentPaymentController::class, 'uploadSpeiProof'])->name('parent.payments.voucher');
     Route::get('suscripcion/expirada', [SubscriptionController::class, 'expired'])->name('subscription.expired');
 
     // Perfil

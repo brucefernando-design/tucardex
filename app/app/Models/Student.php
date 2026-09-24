@@ -100,4 +100,12 @@ class Student extends Model
     {
         return mb_strtoupper(mb_substr($this->first_name, 0, 1).mb_substr($this->last_name, 0, 1));
     }
+
+    public function initials(): string
+    {
+        $first = mb_substr($this->first_name ?? '', 0, 1);
+        $last = mb_substr($this->last_name ?? '', 0, 1);
+        return strtoupper($first . $last) ?: 'AL';
+    }
+
 }

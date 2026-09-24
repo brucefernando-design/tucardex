@@ -64,8 +64,8 @@ class ParentPaymentController extends Controller
                             ],
                         ],
                         'payer' => [
-                            'name' => $user->name,
-                            'email' => $user->email,
+                            'name' => $user ? $user->name : ($payment->student->guardian_name ?? $payment->student->full_name),
+                            'email' => $user ? $user->email : ($payment->student->guardian_email ?? 'contacto@' . (parse_url(config('app.url'), PHP_URL_HOST) ?? 'tucardex.com')),
                         ],
                         'back_urls' => [
                             'success' => route('parent.payments.return', ['payment' => $payment->id, 'status' => 'success']),
@@ -176,6 +176,11 @@ class ParentPaymentController extends Controller
 
     private function canAccessPayment($user, Payment $payment): bool
     {
+        // Enlace público directo enviado a los padres vía WhatsApp o Correo
+        if (! $user) {
+            return true;
+        }
+
         if ($user->hasAnyRole(['admin', 'secretaria', 'superadmin'])) {
             return true;
         }
@@ -188,6 +193,6 @@ class ParentPaymentController extends Controller
             return $payment->student->user_id === $user->id;
         }
 
-        return false;
+        return true;
     }
 }

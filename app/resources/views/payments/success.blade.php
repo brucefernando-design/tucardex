@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.checkout')
 @section('title', 'Pago Acreditado')
 
 @section('content')
@@ -44,9 +44,15 @@
                 <a href="{{ route('payments.receipt', $payment) }}" target="_blank" class="btn btn-primary py-3 fw-bold fs-6 rounded-3 shadow-sm">
                     <i class="bi bi-file-earmark-pdf me-2"></i> Descargar Recibo Oficial en PDF
                 </a>
+                @auth
                 <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary py-2 rounded-3">
                     <i class="bi bi-house me-1"></i> Volver al Portal de Padres
                 </a>
+                @else
+                <div class="text-muted small mt-2">
+                    <i class="bi bi-check-circle text-success me-1"></i> Puedes cerrar esta ventana con seguridad. Una copia de tu comprobante ha sido registrada.
+                </div>
+                @endauth
             </div>
         </div>
     </div>

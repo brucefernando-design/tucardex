@@ -1,15 +1,17 @@
-@extends('layouts.app')
+@extends('layouts.checkout')
 @section('title', 'Pagar Colegiatura')
 
 @section('content')
-<div class="page-head">
+<div class="d-flex align-items-center justify-content-between mb-4">
     <div>
-        <h1>Pagar Colegiatura en Línea</h1>
-        <div class="breadcrumb-mini">Liquidación segura de colegiaturas y cuotas escolares</div>
+        <h2 class="h3 fw-bold mb-1">Pagar Colegiatura en Línea</h2>
+        <div class="text-muted small">Liquidación oficial y segura de colegiaturas escolares</div>
     </div>
-    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-icon">
+    @auth
+    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left"></i> Volver al Portal
     </a>
+    @endauth
 </div>
 
 <div class="row g-4">
@@ -31,7 +33,7 @@
                 <!-- Tarjeta del alumno -->
                 <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-4" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
                     <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #16a34a, #15803d); color:#fff; display:flex; align-items:center; justify-content:center; font-size: 24px; font-weight: bold;">
-                        {{ $student->initials() }}
+                        {{ method_exists($student, 'initials') ? $student->initials() : 'AL' }}
                     </div>
                     <div>
                         <strong class="d-block" style="font-size: 15px;">{{ $student->first_name }} {{ $student->last_name }}</strong>
