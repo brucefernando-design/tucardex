@@ -261,7 +261,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> Avisos y comunicados escolares</li>
                     <li><i class="bi bi-check-circle-fill"></i> Reportes académicos básicos</li>
                 </ul>
-                <a href="https://wa.me/5218671234567?text=Hola,%20solicito%20informaci%C3%B3n%20sobre%20el%20Plan%20B%C3%A1sico%20de%20TuCardex" target="_blank" class="btn btn-ghost" style="justify-content:center">Solicitar información</a>
+                <a href="https://wa.me/525644117635?text=Hola,%20solicito%20informaci%C3%B3n%20sobre%20el%20Plan%20B%C3%A1sico%20de%20TuCardex" target="_blank" class="btn btn-ghost" style="justify-content:center">Solicitar información</a>
             </div>
 
             <!-- Plan Profesional -->
@@ -298,7 +298,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> Soporte multi-plantel y multi-sede</li>
                     <li><i class="bi bi-check-circle-fill"></i> Configuraciones a la medida por institución</li>
                 </ul>
-                <a href="https://wa.me/5218671234567?text=Hola,%20me%20interesa%20el%20Plan%20Integral%20con%20Canvas%20LMS%20para%20mi%20instituci%C3%B3n" target="_blank" class="btn btn-ghost" style="justify-content:center">Hablar con ventas</a>
+                <a href="https://wa.me/525644117635?text=Hola,%20me%20interesa%20el%20Plan%20Integral%20con%20Canvas%20LMS%20para%20mi%20instituci%C3%B3n" target="_blank" class="btn btn-ghost" style="justify-content:center">Hablar con ventas</a>
 
                 <div class="discreet-note">
                     * La licencia institucional de Canvas, cuando sea requerida, es contratada directamente por la institución educativa. El Plan Integral de TuCardex incluye las funciones de integración disponibles.
@@ -341,7 +341,10 @@
                     <tr><td>Estados de cuenta para familias</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Control de adeudos y cartera vencida</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Becas y descuentos automáticos</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
-                    <tr><td>Facturación electrónica CFDI 4.0</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Facturación electrónica SAT CFDI 4.0 (con Complemento IEDU)</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Cobranza Automatizada por WhatsApp y Correo (con enlaces de pago)</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Avisos de Inasistencias Matutinos por WhatsApp</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Portal Público de Admisiones y Preinscripciones con Documentación Digital</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Constancias y credenciales escolares</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Reportes financieros y cortes de caja</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Notificaciones y oficios citatorios</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
@@ -378,7 +381,7 @@
 </div>
 
 <!-- Botón Flotante de WhatsApp para Ventas -->
-<a href="https://wa.me/5218671234567?text=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20y%20agendar%20una%20demostraci%C3%B3n%20de%20TuCardex%20para%20mi%20colegio" target="_blank" class="wa-float" title="Contactar por WhatsApp para una Demostración">
+<a href="https://wa.me/525644117635?text=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20y%20agendar%20una%20demostraci%C3%B3n%20de%20TuCardex%20para%20mi%20colegio" target="_blank" class="wa-float" title="Contactar por WhatsApp para una Demostración">
     <i class="bi bi-whatsapp"></i>
     <span class="wa-text">Solicitar Demo</span>
 </a>

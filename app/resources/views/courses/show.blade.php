@@ -13,6 +13,9 @@
                 @endforeach
             </ul>
         </div>
+        <a href="{{ route('courses.boletas_masivas', $course) }}" class="btn btn-success btn-icon shadow-sm" title="Descargar todas las boletas individuales de este grupo en un solo PDF compilado">
+            <i class="bi bi-printer"></i> Boletas del Grupo (PDF)
+        </a>
         <a href="{{ route('courses.academic.index', $course) }}" class="btn btn-outline-secondary btn-icon"><i class="bi bi-journal-bookmark"></i> Carga académica</a>
         <a href="{{ route('courses.edit', $course) }}" class="btn btn-brand btn-icon"><i class="bi bi-pencil"></i> Editar</a>
         <a href="{{ route('courses.index') }}" class="btn btn-light btn-icon"><i class="bi bi-arrow-left"></i> Volver</a>

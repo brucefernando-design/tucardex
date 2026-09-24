@@ -148,6 +148,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('teachers', TeacherController::class);
 
         Route::get('courses/{course}/acta', [ReportCardController::class, 'courseSheet'])->name('courses.acta');
+        Route::get('courses/{course}/boletas-masivas', [\App\Http\Controllers\ReportCardController::class, 'massCourseBoletines'])->name('courses.boletas_masivas');
         Route::get('courses/{course}/materias', [CourseSubjectController::class, 'index'])->name('courses.academic.index');
         Route::post('courses/{course}/materias', [CourseSubjectController::class, 'store'])->name('courses.academic.store');
         Route::put('courses/{course}/materias/{subject}', [CourseSubjectController::class, 'update'])->name('courses.academic.update');

@@ -133,7 +133,7 @@
                 </ul>
             </div>
             <div class="card-footer bg-light py-2 text-center">
-                <a href="https://wa.me/5218671234567?text=Hola,%20solicito%20informaci%C3%B3n%20para%20ajustar%20el%20plan%20de%20mi%20colegio%20en%20TuCardex" target="_blank" class="btn btn-sm btn-link text-decoration-none">
+                <a href="https://wa.me/525644117635?text=Hola,%20solicito%20informaci%C3%B3n%20para%20ajustar%20el%20plan%20de%20mi%20colegio%20en%20TuCardex" target="_blank" class="btn btn-sm btn-link text-decoration-none">
                     <i class="bi bi-arrow-up-circle me-1"></i> Solicitar cambio de plan o convenio
                 </a>
             </div>

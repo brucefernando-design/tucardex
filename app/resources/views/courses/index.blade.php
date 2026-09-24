@@ -21,6 +21,7 @@
                         <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('courses.show', $c) }}"><i class="bi bi-eye me-2"></i>Ver</a></li>
+                            <li><a class="dropdown-item text-success fw-semibold" href="{{ route('courses.boletas_masivas', $c) }}" target="_blank"><i class="bi bi-printer me-2"></i>Boletas del Grupo (PDF)</a></li>
                             <li><a class="dropdown-item" href="{{ route('courses.academic.index', $c) }}"><i class="bi bi-journal-bookmark me-2"></i>Carga académica</a></li>
                             <li><a class="dropdown-item" href="{{ route('courses.edit', $c) }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
                             <li><form action="{{ route('courses.destroy', $c) }}" method="POST" onsubmit="return confirm('¿Eliminar curso?')">@csrf @method('DELETE')<button class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Eliminar</button></form></li>
@@ -31,6 +32,10 @@
                 <div class="d-flex justify-content-between small text-muted mb-1"><span>Estudiantes</span><span>{{ $c->students_count }} / {{ $c->capacity }}</span></div>
                 <div class="progress mb-3"><div class="progress-bar" style="background:var(--brand);width:{{ min(100, $c->capacity ? round($c->students_count/$c->capacity*100) : 0) }}%"></div></div>
                 <div class="small"><i class="bi bi-person-badge text-muted me-1"></i> Profesor Titular: {{ optional($c->tutor)->full_name ?? 'Sin asignar' }}</div>
+                <div class="mt-3 pt-2 border-top d-flex gap-2">
+                    <a href="{{ route('courses.show', $c) }}" class="btn btn-sm btn-light flex-grow-1"><i class="bi bi-eye me-1"></i>Ver Grupo</a>
+                    <a href="{{ route('courses.boletas_masivas', $c) }}" target="_blank" class="btn btn-sm btn-outline-success" title="Descargar todas las boletas de calificaciones de este grupo en un solo PDF"><i class="bi bi-printer me-1"></i>Boletas (PDF)</a>
+                </div>
             </div>
         </div>
     @empty

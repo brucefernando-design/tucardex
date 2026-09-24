@@ -3,7 +3,7 @@
 return [
     'trial_max_students' => 25,
     'trial_duration_days' => 30,
-    'sales_whatsapp' => env('SALES_WHATSAPP', '5218671234567'),
+    'sales_whatsapp' => env('SALES_WHATSAPP', '525644117635'),
     'plans' => [
         'basico' => [
             'name' => 'Básico',

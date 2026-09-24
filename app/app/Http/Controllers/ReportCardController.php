@@ -9,6 +9,7 @@ use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class ReportCardController extends Controller
 {
@@ -191,5 +192,40 @@ class ReportCardController extends Controller
             'totalDays'                  => $totalDays,
             'date'                       => now(),
         ];
+    }
+
+    /**
+     * Genera y descarga las boletas oficiales de TODO el grupo en un solo archivo PDF compilado.
+     */
+    public function massCourseBoletines(Course $course): Response
+    {
+        $user = auth()->user();
+        if (! $user || ! $user->hasAnyRole(['admin', 'secretaria', 'docente', 'superadmin'])) {
+            abort(403);
+        }
+
+        $students = Student::where('course_id', $course->id)
+            ->where('status', 'activo')
+            ->orderBy('last_name')
+            ->get();
+
+        if ($students->isEmpty()) {
+            abort(404, 'Este grupo no tiene alumnos activos para generar boletas.');
+        }
+
+        $appSettings = Setting::current();
+        $date = now();
+        $studentsData = [];
+
+        foreach ($students as $student) {
+            $studentsData[] = $this->buildData($student);
+        }
+
+        $pdf = Pdf::loadView('reportcards.boletines_masivos', compact('course', 'studentsData', 'appSettings', 'date'))
+            ->setPaper('letter', 'portrait');
+
+        $filename = 'Boletas_Grupo_' . Str::slug($course->name . '_' . $course->section) . '.pdf';
+
+        return $pdf->download($filename);
     }
 }
