@@ -11,6 +11,7 @@ use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -118,11 +119,16 @@ class SchoolController extends Controller
             'status' => ['required', 'in:activo,suspendido'],
             'phone' => ['nullable', 'string', 'max:40'],
             'email' => ['nullable', 'email', 'max:120'],
+            'price_per_student' => ['nullable', 'numeric', 'min:0'],
+            'minimum_monthly_fee' => ['nullable', 'numeric', 'min:0'],
+            'trial_ends_at' => ['nullable', 'date'],
+            'billing_renews_at' => ['nullable', 'date'],
+            'subscription_status' => ['nullable', 'string', 'max:30'],
         ]);
 
         $school->update($data);
 
-        return redirect()->route('schools.show', $school)->with('success', 'Colegio actualizado.');
+        return redirect()->route('schools.show', $school)->with('success', 'Colegio y condiciones de suscripción actualizadas exitosamente.');
     }
 
     public function destroy(School $school): RedirectResponse
@@ -141,5 +147,102 @@ class SchoolController extends Controller
         });
 
         return redirect()->route('schools.index')->with('success', "Colegio '{$name}' cancelado y eliminado de la plataforma.");
+    }
+
+    /**
+     * Inicia sesión como administrador del colegio seleccionado (Modo Soporte SaaS).
+     */
+    public function impersonate(School $school): RedirectResponse
+    {
+        $admin = User::withoutGlobalScopes()
+            ->where('school_id', $school->id)
+            ->whereHas('role', fn ($q) => $q->where('slug', 'admin'))
+            ->first();
+
+        if (! $admin) {
+            // Si no tiene admin, buscar cualquier usuario del colegio
+            $admin = User::withoutGlobalScopes()->where('school_id', $school->id)->first();
+        }
+
+        if (! $admin) {
+            return back()->with('error', "El colegio '{$school->name}' no tiene ningún usuario registrado para ingresar.");
+        }
+
+        $superAdminId = auth()->id();
+        session([
+            'impersonator_id' => $superAdminId,
+            'impersonator_school' => $school->id,
+        ]);
+
+        Auth::login($admin);
+
+        return redirect()->route('dashboard')->with('success', "Has ingresado como Administrador de {$school->name} en Modo Soporte Técnico.");
+    }
+
+    /**
+     * Sale del modo suplantación y restaura la sesión del SuperAdmin.
+     */
+    public function leaveImpersonation(): RedirectResponse
+    {
+        if (! session()->has('impersonator_id')) {
+            return redirect()->route('dashboard');
+        }
+
+        $superAdminId = session('impersonator_id');
+        $schoolId = session('impersonator_school');
+
+        $superAdmin = User::find($superAdminId);
+        session()->forget(['impersonator_id', 'impersonator_school']);
+
+        if ($superAdmin) {
+            Auth::login($superAdmin);
+        }
+
+        if ($schoolId) {
+            return redirect()->route('schools.show', $schoolId)->with('success', 'Sesión de soporte finalizada. Has vuelto a tu Panel SuperAdmin.');
+        }
+
+        return redirect()->route('schools.index')->with('success', 'Has vuelto a tu Panel SuperAdmin.');
+    }
+
+    /**
+     * Alterna rápidamente el estado del colegio entre Activo y Suspendido.
+     */
+    public function toggleStatus(School $school): RedirectResponse
+    {
+        if ($school->id === 1 && $school->status === 'activo') {
+            return back()->with('error', 'El colegio principal del sistema no debe ser suspendido.');
+        }
+
+        $newStatus = $school->status === 'activo' ? 'suspendido' : 'activo';
+        $school->update(['status' => $newStatus]);
+
+        $msg = $newStatus === 'activo'
+            ? "El colegio '{$school->name}' ha sido REACTIVADO exitosamente."
+            : "El colegio '{$school->name}' ha sido SUSPENDIDO. Sus usuarios no podrán ingresar hasta reactivarlo.";
+
+        return back()->with('success', $msg);
+    }
+
+    /**
+     * Reseteo express de contraseña de un administrador del colegio.
+     */
+    public function resetAdminPassword(Request $request, School $school): RedirectResponse
+    {
+        $request->validate([
+            'admin_id' => ['required', 'exists:users,id'],
+            'new_password' => ['required', 'string', 'min:6'],
+        ]);
+
+        $admin = User::withoutGlobalScopes()
+            ->where('school_id', $school->id)
+            ->where('id', $request->admin_id)
+            ->firstOrFail();
+
+        $admin->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return back()->with('success', "Contraseña actualizada exitosamente para {$admin->name} ({$admin->email}). Nueva clave: {$request->new_password}");
     }
 }

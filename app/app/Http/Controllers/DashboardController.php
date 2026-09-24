@@ -44,16 +44,35 @@ class DashboardController extends Controller
 
     private function superDashboard(): View
     {
+        $schools = School::withCount(['students', 'users'])->get();
+
+        // Cálculo de MRR recurrente de la plataforma
+        $totalMRR = 0;
+        foreach ($schools as $sch) {
+            if ($sch->status === 'activo') {
+                $calc = $sch->calculateMonthlySubscription();
+                $totalMRR += $calc['total'] ?? 0;
+            }
+        }
+
+        // Volumen de cobro de colegiaturas recaudado este mes en todos los colegios
+        $monthlyTuitionVolume = Payment::withoutGlobalScopes()
+            ->where('status', 'pagado')
+            ->whereMonth('paid_date', now()->month)
+            ->whereYear('paid_date', now()->year)
+            ->sum('amount');
+
         $stats = [
-            'schools' => School::count(),
-            'active' => School::where('status', 'activo')->count(),
-            'students' => Student::count(),
-            'users' => User::count(),
+            'schools' => $schools->count(),
+            'active' => $schools->where('status', 'activo')->count(),
+            'students' => Student::withoutGlobalScopes()->count(),
+            'users' => User::withoutGlobalScopes()->count(),
+            'mrr' => $totalMRR,
+            'tuition_volume' => (float) $monthlyTuitionVolume,
         ];
 
         $byPlan = School::selectRaw('plan, COUNT(*) as total')->groupBy('plan')->pluck('total', 'plan')->toArray();
-
-        $recentSchools = School::withCount('students')->latest()->limit(8)->get();
+        $recentSchools = School::withCount(['students', 'users'])->latest()->limit(10)->get();
 
         return view('dashboards.super', compact('stats', 'byPlan', 'recentSchools'));
     }

@@ -28,7 +28,7 @@ class IdentifyTenant
 
             if ($school) {
                 // Bloquear acceso si el colegio está suspendido
-                if (! $school->isActive() && ! $request->routeIs('login', 'logout')) {
+                if (! $school->isActive() && ! $request->routeIs('login', 'logout', 'schools.leave_impersonation') && ! session()->has('impersonator_id')) {
                     Auth::logout();
                     $request->session()->invalidate();
                     $request->session()->regenerateToken();

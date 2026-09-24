@@ -13,6 +13,20 @@
     <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
 </head>
 <body>
+@if(session()->has('impersonator_id'))
+<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 10px 24px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 99999; box-shadow: 0 4px 12px rgba(0,0,0,0.18);">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-shield-lock-fill fs-5"></i>
+        <span>Navegando como Administrador de <strong>{{ auth()->user()->school?->name ?? 'Colegio' }}</strong> (Modo Soporte SaaS)</span>
+    </div>
+    <form action="{{ route('schools.leave_impersonation') }}" method="POST" class="m-0">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-dark fw-bold px-3 py-1 shadow-sm" style="border-radius: 8px;">
+            <i class="bi bi-box-arrow-left me-1"></i> Salir al Panel SuperAdmin
+        </button>
+    </form>
+</div>
+@endif
 <div class="app">
     @include('layouts.sidebar')
     <div class="sidebar-backdrop" id="backdrop"></div>

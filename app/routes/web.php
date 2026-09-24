@@ -70,6 +70,9 @@ Route::get('payments/{payment}/recibo', [\App\Http\Controllers\PaymentController
 
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
+    // Dejar suplantación SaaS (volver a SuperAdmin)
+    Route::post('plataforma/dejar-suplantacion', [\App\Http\Controllers\SchoolController::class, 'leaveImpersonation'])->name('schools.leave_impersonation');
+
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -207,6 +210,11 @@ Route::middleware('auth')->group(function () {
         Route::get('plataforma/colegios/{school}', [SchoolController::class, 'show'])->name('schools.show');
         Route::put('plataforma/colegios/{school}', [SchoolController::class, 'update'])->name('schools.update');
         Route::delete('plataforma/colegios/{school}', [SchoolController::class, 'destroy'])->name('schools.destroy');
+
+        // Acciones SaaS de SuperAdmin
+        Route::post('plataforma/colegios/{school}/impersonar', [SchoolController::class, 'impersonate'])->name('schools.impersonate');
+        Route::post('plataforma/colegios/{school}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('schools.toggle_status');
+        Route::post('plataforma/colegios/{school}/reset-admin-password', [SchoolController::class, 'resetAdminPassword'])->name('schools.reset_admin_password');
     });
 
     // ===== Solo Administrador =====
