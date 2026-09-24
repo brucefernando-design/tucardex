@@ -59,7 +59,7 @@
 
         /* Sections */
         section{padding:80px 0}
-        .sec-head{text-align:center;max-width:640px;margin:0 auto 56px}
+        .sec-head{text-align:center;max-width:680px;margin:0 auto 56px}
         .sec-head .tag{color:var(--brand-2);font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1.5px}
         .sec-head h2{font-size:40px;font-weight:800;letter-spacing:-.8px;margin:10px 0 14px}
         .sec-head p{color:var(--muted);font-size:17px;line-height:1.6}
@@ -74,14 +74,37 @@
         /* Pricing */
         .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
         .plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px 28px;display:flex;flex-direction:column}
-        .plan.featured{background:linear-gradient(160deg,rgba(34,197,94,.16),rgba(13,148,136,.08));border-color:rgba(34,197,94,.45);position:relative}
-        .plan .ptag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brand-2);color:#06281a;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px}
-        .plan h3{font-size:20px;font-weight:700}
-        .plan .price{font-size:42px;font-weight:800;margin:14px 0 4px}
-        .plan .price span{font-size:15px;color:var(--muted);font-weight:500}
+        .plan.featured{background:linear-gradient(160deg,rgba(34,197,94,.16),rgba(13,148,136,.08));border-color:rgba(34,197,94,.45);position:relative;box-shadow:0 12px 32px rgba(34,197,94,.15)}
+        .plan .ptag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brand-2);color:#06281a;font-size:12px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:.5px}
+        .plan h3{font-size:24px;font-weight:800}
+        .plan .subtitle{color:var(--muted);font-size:14px;margin-top:4px}
+        .plan .price{font-size:38px;font-weight:900;margin:18px 0 4px;color:#fff}
+        .plan .price span{font-size:14px;color:var(--muted);font-weight:500}
+        .plan .special-note{font-size:12.5px;color:#86efac;background:rgba(34,197,94,.1);padding:6px 10px;border-radius:8px;margin-top:8px}
         .plan ul{list-style:none;margin:22px 0;flex:1}
-        .plan li{display:flex;align-items:center;gap:10px;padding:8px 0;color:#cfe0d8;font-size:14.5px}
-        .plan li i{color:var(--brand-2)}
+        .plan li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;color:#cfe0d8;font-size:14px;line-height:1.4}
+        .plan li i{color:var(--brand-2);flex-shrink:0;margin-top:2px}
+        .plan .discreet-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.4;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
+
+        /* Comparative table */
+        .comp-table-wrap{overflow-x:auto;margin-top:50px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px}
+        .comp-table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}
+        .comp-table th,.comp-table td{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+        .comp-table th{font-weight:800;color:#fff;background:rgba(255,255,255,.02);font-size:15px}
+        .comp-table th.center,.comp-table td.center{text-align:center;width:18%}
+        .comp-table tr:hover td{background:rgba(255,255,255,.02)}
+        .comp-table td i.bi-check-circle-fill{color:var(--brand-2);font-size:16px}
+        .comp-table td i.bi-dash{color:rgba(255,255,255,.2);font-size:20px}
+
+        /* Institution types */
+        .inst-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:36px}
+        .inst-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:34px}
+        .inst-card h3{font-size:22px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+        .inst-card p.desc{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:20px}
+        .inst-card ul{list-style:none}
+        .inst-card li{display:flex;align-items:center;gap:10px;padding:7px 0;color:#cfe0d8;font-size:14.5px}
+        .inst-card li i{color:var(--brand-2)}
+        .inst-card .highlight-box{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:14px;margin-top:20px;font-size:13.5px;color:#a7f3d0}
 
         /* CTA band */
         .cta-band{background:linear-gradient(135deg,var(--brand-3),var(--teal));border-radius:24px;padding:56px;text-align:center;margin:40px 0}
@@ -93,7 +116,7 @@
         .foot-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
 
         @media(max-width:900px){
-            .features,.plans{grid-template-columns:1fr}
+            .features,.plans,.inst-grid{grid-template-columns:1fr}
             .hero h1{font-size:44px}
             .nav-links .link{display:none}
             .stats{gap:34px}
@@ -110,6 +133,7 @@
         <div class="brand"><span class="logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:13px">@else🎓@endif</span> {{ $appSettings->school_name ?? 'TuCardex' }}</div>
         <div class="nav-links">
             <a href="#funciones" class="link">Funciones</a>
+            <a href="#instituciones" class="link">Instituciones</a>
             <a href="#precios" class="link">Precios</a>
             <a href="{{ route('login') }}" class="link">Iniciar sesión</a>
             <a href="{{ route('register') }}" class="btn btn-primary btn-sm"><i class="bi bi-rocket-takeoff"></i> Prueba gratis</a>
@@ -118,39 +142,39 @@
 
     <!-- Hero -->
     <div class="hero">
-        <div class="badge-pill">🚀 Plataforma integral de gestión escolar</div>
-        <h1>Gestiona tu colegio<br><span class="grad">de forma inteligente</span></h1>
-        <p class="sub">Todo lo que necesitas para administrar estudiantes, notas, asistencia, pagos y comunicación. Sin complicaciones, desde cualquier dispositivo.</p>
+        <div class="badge-pill"><i class="bi bi-shield-check"></i> Diseñado para el Sistema Educativo Mexicano</div>
+        <h1>Control escolar que <span class="grad">revoluciona</span> tu colegio</h1>
+        <p class="sub">Calificaciones oficiales SEP, boletas con QR, cobranza de colegiaturas, portales para alumnos y tutores. Todo lo que tu plantel necesita en una sola plataforma SaaS.</p>
         <div class="hero-cta">
-            <a href="{ route('register') }" class="btn btn-primary"><i class="bi bi-rocket-takeoff"></i> Comenzar gratis — 30 días</a>
-            <a href="https://wa.me/5218671234567?text=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20y%20agendar%20una%20demostraci%C3%B3n%20de%20TuCardex%20para%20mi%20colegio" target="_blank" class="btn" style="background:#25d366;color:#fff"><i class="bi bi-whatsapp"></i> Solicitar Demo WhatsApp</a>
-            <a href="#funciones" class="btn btn-ghost"><i class="bi bi-grid"></i> Ver funciones</a>
+            <a href="{{ route('register') }}" class="btn btn-primary"><i class="bi bi-rocket-takeoff"></i> Comenzar prueba de 30 días</a>
+            <a href="#precios" class="btn btn-ghost"><i class="bi bi-eye"></i> Ver planes y precios</a>
         </div>
+
         <div class="stats">
-            <div class="stat"><div class="num">+25</div><div class="lbl">Módulos integrados</div></div>
-            <div class="stat"><div class="num">4</div><div class="lbl">Roles de usuario</div></div>
-            <div class="stat"><div class="num">100%</div><div class="lbl">Responsive</div></div>
-            <div class="stat"><div class="num">24/7</div><div class="lbl">Disponible</div></div>
+            <div class="stat"><div class="num">100%</div><div class="lbl">Formato Oficial SEP</div></div>
+            <div class="stat"><div class="num">Multi-Rol</div><div class="lbl">Alumnos, Padres y Docentes</div></div>
+            <div class="stat"><div class="num">En la Nube</div><div class="lbl">Acceso 24/7 seguro</div></div>
+            <div class="stat"><div class="num">CFDI 4.0</div><div class="lbl">Facturación y SPEI</div></div>
         </div>
     </div>
 </div>
 
 <!-- Funciones -->
-<section id="funciones">
+<section id="funciones" style="background:var(--bg-2)">
     <div class="container">
         <div class="sec-head">
-            <div class="tag">Funciones</div>
-            <h2>Una plataforma, todo el colegio</h2>
-            <p>Reúne la gestión académica, financiera y la comunicación de tu institución en un solo lugar.</p>
+            <div class="tag">Módulos</div>
+            <h2>Todo lo que tu colegio necesita</h2>
+            <p>Una suite integral que digitaliza desde el expediente del alumno hasta la cobranza y entrega de boletas.</p>
         </div>
         <div class="features">
             @php $feats = [
-                ['bi-people-fill','#16a34a','Control Escolar de Alumnos','Inscripciones, CURP, expedientes completos, credenciales escolares y exportación masiva en PDF.'],
-                ['bi-clipboard-data','#0d9488','Calificaciones y Boletas SEP','Registro por grupo o asignatura y boletas oficiales de calificaciones SEP en PDF.'],
-                ['bi-calendar2-check','#3b82f6','Asistencia','Pase de lista diario por grupo y reporte mensual con porcentajes.'],
-                ['bi-cash-stack','#f59e0b','Pagos y colegiaturas','Cobranzas, estados de cuenta, facturas y reportes financieros.'],
-                ['bi-megaphone','#8b5cf6','Comunicación','Comunicados con envío por correo y mensajería interna entre usuarios.'],
-                ['bi-bar-chart-line','#ef4444','Reportes y panel','Dashboard con indicadores en tiempo real y exportación de datos.'],
+                ['bi-journal-bookmark','#10b981','Boletas y Kárdex Oficial','Generación de boletas SEP con códigos QR verificables, cálculo automático de promedios y actas consolidadas.'],
+                ['bi-person-badge','#06b6d4','Credenciales y Constancias','Emisión de credenciales escolares con fotografía en formato oficial y constancias de estudio foliadas.'],
+                ['bi-calendar2-check','#3b82f6','Asistencia y Pase de Lista','Pase de lista diario por grupo, seguimiento de faltas justificadas y reportes mensuales automatizados.'],
+                ['bi-cash-stack','#f59e0b','Colegiaturas y Pagos','Caja, recibos foliados, estados de cuenta familiares, semáforos de cobranza y pasarelas de pago SPEI.'],
+                ['bi-people-fill','#8b5cf6','Portales Alumno y Familiar','Portal independiente para estudiantes y portal multi-hijo para padres y tutores en un solo inicio de sesión.'],
+                ['bi-megaphone','#ef4444','Oficios y Comunicados','Envío de citatorios con código QR y avisos escolares directamente a los tutores por correo electrónico.'],
             ]; @endphp
             @foreach($feats as $f)
                 <div class="feature">
@@ -163,53 +187,174 @@
     </div>
 </section>
 
-<!-- Precios -->
-<section id="precios">
+<!-- Sección Tipos de Institución -->
+<section id="instituciones">
     <div class="container">
         <div class="sec-head">
-            <div class="tag">Precios</div>
-            <h2>Planes para cada institución</h2>
-            <p>Elige el plan que se ajuste al tamaño de tu colegio. Sin costos ocultos.</p>
+            <div class="tag">Flexibilidad Institucional</div>
+            <h2>TuCardex se adapta a tu institución</h2>
+            <p>Ya sea una escuela pública o un colegio privado, nuestra arquitectura ofrece exactamente las herramientas que tu modelo operativo requiere.</p>
         </div>
+
+        <div class="inst-grid">
+            <div class="inst-card">
+                <h3><i class="bi bi-bank2 text-success"></i> Escuelas Públicas</h3>
+                <p class="desc">Control escolar ágil y confiable enfocado en la gestión académica, asistencia, calificaciones y expedientes, sin forzar módulos de cobranza ni pagos.</p>
+                <ul>
+                    <li><i class="bi bi-check-circle-fill"></i> Control escolar centralizado y matrícula</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Directorio de alumnos, docentes y grupos</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Asistencia diaria y porcentaje SEP</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Evaluaciones periódicas y kárdex histórico</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Boletas oficiales con código QR</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Comunicación y avisos con familias</li>
+                    <li><i class="bi bi-check-circle-fill"></i> 100% libre de módulos financieros forzosos</li>
+                </ul>
+                <div class="highlight-box">
+                    <i class="bi bi-info-circle-fill me-1"></i> <strong>Convenio Institucional:</strong> Tarifa preferencial de $10 MXN por alumno/mes con un mínimo garantizado de $2,000 MXN mensuales por plantel.
+                </div>
+            </div>
+
+            <div class="inst-card">
+                <h3><i class="bi bi-buildings text-primary"></i> Escuelas Privadas</h3>
+                <p class="desc">La suite integral 360° para colegios privados que buscan excelencia académica, control administrativo estricto y cobranza oportuna de colegiaturas.</p>
+                <ul>
+                    <li><i class="bi bi-check-circle-fill"></i> Todo el control escolar y académico SEP</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Facturación electrónica CFDI 4.0 y pasarelas SPEI</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Estados de cuenta en tiempo real para padres</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Control de adeudos, recargos y becas</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Recuperación de costos mediante cuota digital</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Reportes financieros y cortes de caja ejecutivos</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Integración disponible con Canvas LMS y APIs</li>
+                </ul>
+                <div class="highlight-box" style="background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25);color:#bfdbfe">
+                    <i class="bi bi-stars me-1"></i> <strong>Plan Profesional:</strong> Diseñado específicamente para colegios que administran cobranza y estados de cuenta familiares.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Precios -->
+<section id="precios" style="background:var(--bg-2)">
+    <div class="container">
+        <div class="sec-head">
+            <div class="tag">Planes Comerciales</div>
+            <h2>Elige el plan ideal para tu plantel</h2>
+            <p>Planes en pesos mexicanos calculados por alumno al mes. Sin plazos forzosos y adaptados al volumen real de tu colegio.</p>
+        </div>
+
         <div class="plans">
+            <!-- Plan Básico -->
             <div class="plan">
                 <h3>Básico</h3>
-                <div class="price">$0 MXN<span>/mes</span></div>
-                <div style="color:var(--muted);font-size:14px">Ideal para empezar</div>
+                <div class="subtitle">Control escolar esencial</div>
+                <div class="price">$15 <span>MXN por alumno / mes</span></div>
+                <div class="special-note">
+                    <i class="bi bi-info-circle-fill me-1"></i> Planes institucionales desde $10 por alumno/mes (mínimo $2,000/mes)
+                </div>
                 <ul>
-                    <li><i class="bi bi-check-circle-fill"></i> Hasta 100 estudiantes</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Notas y asistencia</li>
-                    <li><i class="bi bi-check-circle-fill"></i> 1 administrador</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Soporte por correo</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Gestión de alumnos, grupos y materias</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Portal del alumno y portal de tutores</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Asistencia diaria y porcentajes SEP</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Calificaciones, boletas y kárdex con QR</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Credenciales escolares y constancias</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Avisos y comunicados escolares</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Reportes académicos básicos</li>
                 </ul>
-                <a href="{{ route('register') }}" class="btn btn-ghost" style="justify-content:center">Comenzar</a>
+                <a href="https://wa.me/5218671234567?text=Hola,%20solicito%20informaci%C3%B3n%20sobre%20el%20Plan%20B%C3%A1sico%20de%20TuCardex" target="_blank" class="btn btn-ghost" style="justify-content:center">Solicitar información</a>
             </div>
+
+            <!-- Plan Profesional -->
             <div class="plan featured">
                 <div class="ptag">MÁS POPULAR</div>
                 <h3>Profesional</h3>
-                <div class="price">$1,499 MXN<span>/mes</span></div>
-                <div style="color:var(--muted);font-size:14px">Para colegios en crecimiento</div>
+                <div class="subtitle">Control académico, administrativo y financiero</div>
+                <div class="price">$30 <span>MXN por alumno / mes</span></div>
+                <div style="color:var(--muted);font-size:13.5px;margin-top:6px">Control académico, administrativo y financiero en una sola plataforma.</div>
                 <ul>
-                    <li><i class="bi bi-check-circle-fill"></i> Estudiantes ilimitados</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Todos los módulos</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Pagos y biblioteca</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Reportes y PDF</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Soporte prioritario</li>
+                    <li><i class="bi bi-check-circle-fill"></i> <strong>Todo lo incluido en el Plan Básico</strong></li>
+                    <li><i class="bi bi-check-circle-fill"></i> Colegiaturas y registro de pagos en caja</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Estados de cuenta y control de adeudos</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Becas, descuentos y recargos automáticos</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Recibos foliados y facturación CFDI 4.0</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Reportes financieros y de cartera vencida</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Notificaciones y citatorios oficiales con QR</li>
                 </ul>
-                <a href="{{ route('register') }}" class="btn btn-primary" style="justify-content:center">Comenzar ahora</a>
+                <a href="{{ route('register') }}" class="btn btn-primary" style="justify-content:center">Probar TuCardex</a>
             </div>
+
+            <!-- Plan Integral -->
             <div class="plan">
-                <h3>Institucional</h3>
-                <div class="price">A medida</div>
-                <div style="color:var(--muted);font-size:14px">Para redes de colegios</div>
+                <h3>Integral</h3>
+                <div class="subtitle">Tu ecosistema escolar conectado</div>
+                <div class="price">$45 <span>MXN por alumno / mes</span></div>
+                <div style="color:var(--muted);font-size:13.5px;margin-top:6px">Ecosistema escolar completo con Canvas, automatizaciones e integraciones avanzadas.</div>
                 <ul>
-                    <li><i class="bi bi-check-circle-fill"></i> Multi-sede</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Integraciones a medida</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Capacitación incluida</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Gerente de cuenta</li>
+                    <li><i class="bi bi-check-circle-fill"></i> <strong>Todo lo incluido en el Plan Profesional</strong></li>
+                    <li><i class="bi bi-check-circle-fill"></i> Integración disponible con Canvas LMS</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Sincronización de alumnos, cursos y notas</li>
+                    <li><i class="bi bi-check-circle-fill"></i> API de TuCardex, Webhooks y automatizaciones</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Auditoría de cambios y bitácora avanzada</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Soporte multi-plantel y multi-sede</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Configuraciones a la medida por institución</li>
                 </ul>
-                <a href="{{ route('login') }}" class="btn btn-ghost" style="justify-content:center">Contactar</a>
+                <a href="https://wa.me/5218671234567?text=Hola,%20me%20interesa%20el%20Plan%20Integral%20con%20Canvas%20LMS%20para%20mi%20instituci%C3%B3n" target="_blank" class="btn btn-ghost" style="justify-content:center">Hablar con ventas</a>
+
+                <div class="discreet-note">
+                    * La licencia institucional de Canvas, cuando sea requerida, es contratada directamente por la institución educativa. El Plan Integral de TuCardex incluye las funciones de integración disponibles.
+                </div>
             </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px;font-size:13.5px;color:var(--muted)">
+            Precios en MXN más IVA cuando aplique. Aplican condiciones comerciales según volumen de matrícula.
+        </div>
+
+        <!-- Tabla Comparativa -->
+        <div class="comp-table-wrap">
+            <h3 style="margin-bottom:18px;font-size:20px;font-weight:800"><i class="bi bi-table text-success me-2"></i> Tabla comparativa detallada de funciones</h3>
+            <table class="comp-table">
+                <thead>
+                    <tr>
+                        <th>Funcionalidad / Módulo</th>
+                        <th class="center">Básico<div style="font-size:12px;font-weight:500;color:var(--muted)">$15/alumno</div></th>
+                        <th class="center" style="color:#86efac">Profesional<div style="font-size:12px;font-weight:500;color:#86efac">MÁS POPULAR · $30</div></th>
+                        <th class="center">Integral<div style="font-size:12px;font-weight:500;color:var(--muted)">$45/alumno</div></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Gestión de alumnos y expedientes</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Padres y tutores (relación multi-hijo)</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Docentes y asignaciones de materia</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Grupos, grados y secciones</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Materias y planes curriculares</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Asistencia diaria y porcentajes oficiales</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Calificaciones por periodo y promedios</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Boletas oficiales de calificaciones SEP</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Kárdex académico con código QR</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Portal del alumno</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Portal de padres o tutores</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Avisos y comunicados escolares</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Reportes académicos básicos</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Colegiaturas y conceptos de cobro</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Registro de pagos y recibos foliados</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Estados de cuenta para familias</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Control de adeudos y cartera vencida</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Becas y descuentos automáticos</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Facturación electrónica CFDI 4.0</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Constancias y credenciales escolares</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Reportes financieros y cortes de caja</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Notificaciones y oficios citatorios</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Integración con Canvas LMS</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>API de TuCardex</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Webhooks y eventos en tiempo real</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Automatizaciones de procesos</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Integraciones externas</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Auditoría y bitácora de movimientos</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Roles y permisos avanzados</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>Multi-plantel y multi-sede</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </section>
@@ -218,15 +363,15 @@
 <div class="container">
     <div class="cta-band">
         <h2>Moderniza la gestión de tu colegio hoy</h2>
-        <p>Crea tu cuenta gratis y descubre todo lo que puedes hacer.</p>
-        <a href="{{ route('register') }}" class="btn btn-primary"><i class="bi bi-rocket-takeoff"></i> Comenzar gratis</a>
+        <p>Inicia tu prueba de 30 días con acceso a todos los módulos y comprueba cómo TuCardex simplifica el día a día en tu institución.</p>
+        <a href="{{ route('register') }}" class="btn btn-primary"><i class="bi bi-rocket-takeoff"></i> Comenzar prueba gratis</a>
     </div>
 </div>
 
 <footer>
     <div class="container foot-row">
         <div class="brand" style="font-size:16px"><span class="logo" style="width:34px;height:34px;font-size:17px">🎓</span> {{ $appSettings->school_name ?? 'TuCardex' }}</div>
-        <div>© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuCardex' }} · Sistema de Gestión Escolar</div>
+        <div>© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuCardex' }} · Control Escolar SaaS en México</div>
         <a href="{{ route('login') }}" class="link" style="color:var(--brand-2)">Iniciar sesión →</a>
     </div>
 </footer>

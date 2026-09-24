@@ -105,7 +105,12 @@
         @endif
     @endif
 
-    @if($isAcad)
+    @php
+        $school = $u->school;
+        $hasBilling = $school ? $school->hasFeature('billing') : true;
+    @endphp
+
+    @if($isAcad && $hasBilling)
     <div class="nav-label">Finanzas</div>
     <ul class="sidebar-nav">
         <li><a href="{{ route('payments.gateways') }}" class="{{ request()->routeIs('payments.gateways') ? 'active' : '' }}"><i class="bi bi-credit-card-2-front"></i> Pasarelas de Pago</a></li>

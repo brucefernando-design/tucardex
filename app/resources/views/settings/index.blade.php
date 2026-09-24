@@ -63,6 +63,82 @@
             </form>
         </div>
     </div>
+        <div>
+        @if(isset($subscription))
+        <div class="card mb-3 border border-primary-subtle shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                <span class="title"><i class="bi bi-star-fill text-warning me-1"></i> Suscripción TuCardex</span>
+                <span class="badge {{ $subscription['status'] === 'active' ? 'bg-success' : 'bg-warning text-dark' }}">
+                    {{ ucfirst($subscription['status'] === 'active' ? 'Activa' : $subscription['status']) }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-baseline justify-content-between mb-3 pb-2 border-bottom">
+                    <div>
+                        <div class="small text-muted text-uppercase fw-bold" style="font-size:11px;">Plan Asignado</div>
+                        <h4 class="mb-0 text-primary">{{ $subscription['plan_name'] }}</h4>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-muted text-uppercase fw-bold" style="font-size:11px;">Cuota por Alumno</div>
+                        <span class="fs-5 fw-bold">${{ number_format($subscription['unit_price'], 2) }}</span> <span class="small text-muted">MXN/mes</span>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3 text-center">
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-light border">
+                            <small class="text-muted d-block" style="font-size:11px;">Matrícula Activa</small>
+                            <strong class="fs-6">{{ $subscription['active_students'] }} alumnos</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-light border">
+                            <small class="text-muted d-block" style="font-size:11px;">Piso Mínimo Mensual</small>
+                            <strong class="fs-6">${{ number_format($subscription['minimum_fee'], 2) }} MXN</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded mb-3" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Cálculo estimado del mes:</span>
+                        @if($subscription['applied_minimum'])
+                            <span class="badge bg-warning text-dark border border-warning" style="font-size:10px;">Piso Mínimo Aplicado</span>
+                        @endif
+                    </div>
+                    <div class="d-flex justify-content-between align-items-baseline mt-1">
+                        <span class="small">{{ $subscription['active_students'] }} alumnos × ${{ number_format($subscription['unit_price'], 2) }}</span>
+                        <h4 class="mb-0 text-success fw-bold">${{ number_format($subscription['total'], 2) }} <span class="fs-6 fw-normal text-muted">MXN / mes</span></h4>
+                    </div>
+                </div>
+
+                <div class="small fw-bold text-muted mb-2">Módulos e Integraciones:</div>
+                <ul class="list-unstyled small mb-0 d-flex flex-column gap-1">
+                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Control Escolar, Kárdex y Boletas SEP</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Portales independientes Alumno y Tutor</li>
+                    <li>
+                        @if($school && $school->hasFeature('billing'))
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> Cobranza, Colegiaturas y Recibos
+                        @else
+                            <i class="bi bi-dash-circle text-muted me-1"></i> Cobranza y Colegiaturas (Requiere Plan Profesional)
+                        @endif
+                    </li>
+                    <li>
+                        @if($school && $school->hasFeature('canvas'))
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> Integración Canvas LMS (Activo)
+                        @else
+                            <i class="bi bi-dash-circle text-muted me-1"></i> Canvas LMS (Disponible en Plan Integral)
+                        @endif
+                    </li>
+                </ul>
+            </div>
+            <div class="card-footer bg-light py-2 text-center">
+                <a href="https://wa.me/5218671234567?text=Hola,%20solicito%20informaci%C3%B3n%20para%20ajustar%20el%20plan%20de%20mi%20colegio%20en%20TuCardex" target="_blank" class="btn btn-sm btn-link text-decoration-none">
+                    <i class="bi bi-arrow-up-circle me-1"></i> Solicitar cambio de plan o convenio
+                </a>
+            </div>
+        </div>
+        @endif
     <div class="card">
         <div class="card-header"><span class="title"><i class="bi bi-shield-lock"></i> Roles del sistema</span></div>
         <div class="card-body p-0"><table class="table mb-0"><thead><tr><th class="ps-3">Rol</th><th>Descripción</th><th>Usuarios</th></tr></thead><tbody>
@@ -71,6 +147,7 @@
         <div class="card-body">
             <p class="text-muted small mb-0"><i class="bi bi-info-circle"></i> El ciclo escolar y el período activo definidos aquí se usan como valores por defecto al crear grupos, inscripciones y registrar calificaciones.</p>
         </div>
+    </div>
     </div>
 </div>
 @endsection

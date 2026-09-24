@@ -15,8 +15,10 @@ class SettingsController extends Controller
     {
         $roles = Role::withCount('users')->get();
         $setting = Setting::current();
+        $school = auth()->user()->school;
+        $subscription = $school ? $school->calculateMonthlySubscription() : null;
 
-        return view('settings.index', compact('roles', 'setting'));
+        return view('settings.index', compact('roles', 'setting', 'school', 'subscription'));
     }
 
     public function update(Request $request): RedirectResponse
