@@ -197,6 +197,80 @@ class ElectronicBillingController extends Controller
         return back()->with('error', 'Esta factura no tiene un pago asociado para reintentar.');
     }
 
+    public function subirCsd(Request $request): RedirectResponse
+    {
+        $settings = ElectronicBillingSetting::current();
+
+        if (empty($settings->rfc)) {
+            return back()->with('error', 'Debes configurar y guardar el RFC del colegio antes de subir los sellos digitales.');
+        }
+
+        $request->validate([
+            'csd_cer' => ['required', 'file', 'max:2048'],
+            'csd_key' => ['required', 'file', 'max:2048'],
+            'csd_password' => ['required', 'string'],
+        ]);
+
+        $cerFile = $request->file('csd_cer');
+        $keyFile = $request->file('csd_key');
+        $password = $request->input('csd_password');
+
+        $certBase64 = base64_encode(file_get_contents($cerFile->getRealPath()));
+        $keyBase64 = base64_encode(file_get_contents($keyFile->getRealPath()));
+
+        $res = $this->facturama->uploadCsd(
+            $settings->rfc,
+            $certBase64,
+            $keyBase64,
+            $password
+        );
+
+        if ($res['ok']) {
+            $schoolId = $settings->school_id ?: 1;
+            $cerPath = $cerFile->storeAs("csd/{$schoolId}", 'certificado.cer');
+            $keyPath = $keyFile->storeAs("csd/{$schoolId}", 'llave.key');
+
+            $settings->update([
+                'certificate_path' => $cerPath,
+                'private_key_path' => $keyPath,
+                'certificate_password' => $password,
+                'csd_status' => 'activo',
+                'csd_valido_hasta' => $res['expiration'] ?? null,
+                'csd_error' => null,
+            ]);
+
+            return back()->with('success', '✅ ' . $res['message']);
+        }
+
+        $settings->update([
+            'csd_status' => 'error',
+            'csd_error' => $res['message'],
+        ]);
+
+        return back()->with('error', '❌ ' . $res['message']);
+    }
+
+    public function eliminarCsd(): RedirectResponse
+    {
+        $settings = ElectronicBillingSetting::current();
+
+        if ($settings->rfc) {
+            $this->facturama->deleteCsd($settings->rfc);
+        }
+
+        $settings->update([
+            'certificate_path' => null,
+            'private_key_path' => null,
+            'certificate_password' => null,
+            'csd_status' => 'pendiente',
+            'csd_numero_serie' => null,
+            'csd_valido_hasta' => null,
+            'csd_error' => null,
+        ]);
+
+        return back()->with('success', 'Certificado de Sello Digital (CSD) desvinculado.');
+    }
+
     public function resumenes(): View
     {
         return view('facturacion.resumenes');

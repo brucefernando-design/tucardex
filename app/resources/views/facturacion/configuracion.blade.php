@@ -32,9 +32,10 @@
     <span class="fe-chip {{ $settings->enabled ? 'is-on' : 'is-off' }}">
         <i class="bi bi-{{ $settings->enabled ? 'check-circle-fill' : 'slash-circle' }}"></i> {{ $settings->enabled ? 'Timbrado Activo' : 'Timbrado Inactivo' }}
     </span>
-    <span class="fe-chip is-neutral"><i class="bi bi-cpu"></i> Motor: {{ ucfirst($settings->pac_driver ?? 'Simulado') }}</span>
-    <span class="fe-chip {{ $settings->environment === 'produccion' ? 'is-prod' : 'is-neutral' }}">
-        <i class="bi bi-shield-lock"></i> Entorno: {{ $settings->environment === 'produccion' ? 'Producción SAT' : 'Sandbox (Pruebas)' }}
+    <span class="fe-chip is-neutral"><i class="bi bi-cpu"></i> Motor: Facturama Multiemisor</span>
+    <span class="fe-chip {{ $settings->isCsdActive() ? 'is-on' : 'is-off' }}">
+        <i class="bi bi-{{ $settings->isCsdActive() ? 'shield-fill-check' : 'shield-exclamation' }}"></i>
+        {{ $settings->isCsdActive() ? 'CSD SAT Sincronizado' : 'CSD SAT Pendiente' }}
     </span>
     <span class="fe-chip {{ filled($settings->rfc) ? 'is-on' : 'is-off' }}">
         <i class="bi bi-person-vcard"></i> RFC: {{ $settings->rfc ?? 'Sin RFC' }}
@@ -44,7 +45,98 @@
     </form>
 </div>
 
-<form action="{{ route('facturacion.guardar') }}" method="POST">@csrf
+{{-- Card Especial: Certificado de Sello Digital (CSD SAT) para Multiemisor --}}
+<div class="card mb-4 border-2 {{ $settings->isCsdActive() ? 'border-success' : 'border-primary' }}">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <span class="title">
+            <i class="bi bi-shield-lock-fill text-{{ $settings->isCsdActive() ? 'success' : 'primary' }}"></i>
+            <strong>Certificado de Sello Digital (CSD SAT) · Modo Multiemisor</strong>
+        </span>
+        @if($settings->isCsdActive())
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                <i class="bi bi-check-circle-fill me-1"></i> Sellos Activos ante el SAT
+            </span>
+        @else
+            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> Requiere Sellos para facturar con tu RFC
+            </span>
+        @endif
+    </div>
+    <div class="card-body">
+        @if($settings->isCsdActive())
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-success text-white rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                            <i class="bi bi-check2-all fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-success fw-bold">Sellos Digitales del Colegio Vinculados Correctamente</h6>
+                            <p class="mb-0 text-muted small">
+                                Las facturas (CFDI 4.0 con Complemento IEDU) se timbran oficialmente con el RFC <strong>{{ $settings->rfc }}</strong> y los timbres incluidos de TuCardex.
+                                @if($settings->csd_valido_hasta)
+                                    <span class="d-block mt-1"><strong>Vigencia SAT:</strong> Hasta {{ $settings->csd_valido_hasta->format('d/m/Y') }}.</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <form action="{{ route('facturacion.csd.eliminar') }}" method="POST" onsubmit="return confirm('¿Seguro que deseas desvincular los sellos CSD de esta escuela?');">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger btn-sm btn-icon">
+                            <i class="bi bi-trash"></i> Desvincular / Cambiar sellos
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="alert alert-light border py-2 mb-3">
+                <div class="d-flex gap-2">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 mt-1"></i>
+                    <div class="small">
+                        <strong>¿Para qué sirve el CSD?</strong> Permite que las facturas de colegiatura salgan formalmente emitidas por <strong>el RFC de tu colegio</strong> ante el SAT, consumiendo los timbres incluidos de tu suscripción de TuCardex. Tu contador tiene estos 2 archivos listos.
+                    </div>
+                </div>
+            </div>
+
+            @if($settings->csd_status === 'error' && $settings->csd_error)
+                <div class="alert alert-danger py-2 mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Error al validar el CSD:</strong> {{ $settings->csd_error }}
+                </div>
+            @endif
+
+            <form action="{{ route('facturacion.csd.subir') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">1. Archivo Certificado (.cer) <span class="text-danger">*</span></label>
+                        <input type="file" name="csd_cer" class="form-control" accept=".cer" required>
+                        <div class="form-text">Certificado de Sello Digital (.cer)</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">2. Archivo Llave Privada (.key) <span class="text-danger">*</span></label>
+                        <input type="file" name="csd_key" class="form-control" accept=".key" required>
+                        <div class="form-text">Llave privada del CSD (.key)</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">3. Contraseña de la Llave Privada <span class="text-danger">*</span></label>
+                        <input type="password" name="csd_password" class="form-control" placeholder="••••••••••••" required>
+                        <div class="form-text">Contraseña configurada en el SAT para este CSD</div>
+                    </div>
+                    <div class="col-12 text-end mt-2">
+                        <button type="submit" class="btn btn-success btn-icon">
+                            <i class="bi bi-cloud-arrow-up-fill"></i> Sincronizar y Validar Sellos ante el SAT
+                        </button>
+                    </div>
+                </div>
+            </form>
+        @endif
+    </div>
+</div>
+
+<form action="{{ route('facturacion.guardar') }}" method="POST">
+    @csrf
 
     {{-- Estado y Modo --}}
     <div class="card card-accent mb-4">
@@ -76,8 +168,8 @@
                 <div class="col-md-6">
                     <label class="form-label">Proveedor de Certificación (PAC / Driver)</label>
                     <select name="pac_driver" class="form-select">
-                        <option value="simulado" @selected(($settings->pac_driver ?? 'simulado') === 'simulado')>Modo Simulado / Pruebas Internas (Genera XML sin costo)</option>
-                        <option value="facturama" @selected(($settings->pac_driver ?? 'facturama') === 'facturama')>Facturama México (CFDI 4.0 + IEDU · Timbres TuCardex)</option>
+                        <option value="facturama" @selected(($settings->pac_driver ?? 'facturama') === 'facturama')>Facturama México (CFDI 4.0 + IEDU · Timbres TuCardex Multiemisor)</option>
+                        <option value="simulado" @selected(($settings->pac_driver ?? '') === 'simulado')>Modo Simulado / Pruebas Internas (Genera XML sin costo)</option>
                         <option value="facturapi" @selected(($settings->pac_driver ?? '') === 'facturapi')>Facturapi (API REST CFDI 4.0 + IEDU)</option>
                         <option value="finkok" @selected(($settings->pac_driver ?? '') === 'finkok')>Finkok (Timbrado PAC Directo)</option>
                     </select>
@@ -85,8 +177,8 @@
                 <div class="col-md-6">
                     <label class="form-label">Entorno de Timbrado</label>
                     <select name="environment" class="form-select">
+                        <option value="produccion" @selected($settings->environment === 'produccion')>Producción SAT (Facturas reales válidas ante el SAT)</option>
                         <option value="beta" @selected($settings->environment === 'beta')>Sandbox / Pruebas (RFC genérico de prueba SAT)</option>
-                        <option value="produccion" @selected($settings->environment === 'produccion')>Producción (Facturas reales válidas ante el SAT)</option>
                     </select>
                 </div>
             </div>
@@ -103,12 +195,12 @@
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">RFC del Colegio <span class="text-danger">*</span></label>
-                    <input name="rfc" value="{{ old('rfc', $settings->rfc) }}" class="form-control text-uppercase" maxlength="13" placeholder="ESC200101XYZ">
+                    <input name="rfc" value="{{ old('rfc', $settings->rfc) }}" class="form-control text-uppercase" maxlength="13" placeholder="ESC200101XYZ" required>
                     <div class="form-text">12 caracteres para Personas Morales, 13 para Físicas.</div>
                 </div>
                 <div class="col-md-8">
                     <label class="form-label">Razón Social <span class="text-danger">*</span></label>
-                    <input name="razon_social" value="{{ old('razon_social', $settings->razon_social) }}" class="form-control text-uppercase" placeholder="COLEGIO EJEMPLO DE MEXICO S.C.">
+                    <input name="razon_social" value="{{ old('razon_social', $settings->razon_social) }}" class="form-control text-uppercase" placeholder="COLEGIO EJEMPLO DE MEXICO" required>
                     <div class="form-text">En CFDI 4.0 debe ir sin régimen societario (sin 'S.C.' o 'S.A. de C.V.').</div>
                 </div>
                 <div class="col-md-6">
@@ -122,7 +214,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Código Postal Fiscal <span class="text-danger">*</span></label>
-                    <input name="codigo_postal" value="{{ old('codigo_postal', $settings->codigo_postal) }}" class="form-control" maxlength="5" placeholder="06700">
+                    <input name="codigo_postal" value="{{ old('codigo_postal', $settings->codigo_postal) }}" class="form-control" maxlength="5" placeholder="06700" required>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Nombre Comercial</label>
@@ -139,8 +231,8 @@
     {{-- Credenciales de Timbrado y Llaves --}}
     <div class="card mb-4">
         <div class="card-header">
-            <span class="title"><i class="bi bi-key"></i> Llaves de API del Proveedor (PAC)</span>
-            <span class="text-muted small">Token de acceso para timbrar facturas</span>
+            <span class="title"><i class="bi bi-key"></i> Bolsa de Timbres TuCardex & Cuenta Propia</span>
+            <span class="text-muted small">Administración del proveedor de timbres</span>
         </div>
         <div class="card-body">
             @if(config('services.facturama.user'))
@@ -153,17 +245,17 @@
             @endif
 
             <div class="alert alert-info py-2">
-                <i class="bi bi-info-circle me-2"></i> Con <strong>Facturama México</strong> puedes timbrar con la cuenta matriz de TuCardex o ingresar tus propias credenciales a continuación si cuentas con paquete propio.
+                <i class="bi bi-info-circle me-2"></i> Con <strong>Facturama Multiemisor</strong> los timbres se descuentan de la bolsa maestra de TuCardex. Si tu colegio prefiere usar su propio paquete contratado directamente con Facturama, puedes ingresar tus credenciales a continuación.
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Usuario Facturama (Correo / Cuenta)</label>
-                    <input type="text" name="client_id" value="{{ old('client_id', $settings->client_id) }}" class="form-control" placeholder="{{ config('services.facturama.user') ? 'Usando cuenta maestra TuCardex (' . config('services.facturama.user') . ')' : 'tu-correo@facturama.mx' }}">
+                    <label class="form-label">Usuario Facturama Propio (Opcional)</label>
+                    <input type="text" name="client_id" value="{{ old('client_id', $settings->client_id) }}" class="form-control" placeholder="{{ config('services.facturama.user') ? 'Usando bolsa TuCardex Multiemisor' : 'tu-correo@facturama.mx' }}">
                     <div class="form-text">Déjalo vacío para usar la bolsa de timbres de TuCardex.</div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Contraseña Facturama</label>
-                    <input type="password" name="client_secret" value="" class="form-control" placeholder="{{ $settings->client_secret ? '•••••••••••••••• (Configurada)' : (config('services.facturama.password') ? '•••••••• (Cuenta maestra TuCardex)' : '••••••••••••') }}">
+                    <label class="form-label">Contraseña Facturama Propia (Opcional)</label>
+                    <input type="password" name="client_secret" value="" class="form-control" placeholder="{{ $settings->client_secret ? '•••••••••••••••• (Configurada)' : (config('services.facturama.password') ? '•••••••• (Bolsa TuCardex)' : '••••••••••••') }}">
                     <div class="form-text">Se almacena con cifrado AES-256 en la base de datos.</div>
                 </div>
                 <div class="col-md-12 mt-2">
@@ -198,7 +290,7 @@
                         <option value="01" @selected(($settings->objeto_imp ?: '02') === '01')>01 - No objeto de impuesto (No recomendado)</option>
                         <option value="02" @selected(($settings->objeto_imp ?: '02') === '02')>02 - Sí objeto de impuesto (IVA Exento — obligatorio con RVOE)</option>
                     </select>
-                    <div class="form-text">⚠️ Usar <strong>02 + Exento</strong> para colegiaturas con RVOE (Art. 15 Fracc. IV LIVA). El valor 01 puede causar rechazo del PAC SAT.</div>
+                    <div class="form-text">⚠️ Usar <strong>02 + Exento</strong> para colegiaturas con RVOE (Art. 15 Fracc. IV LIVA).</div>
                 </div>
 
                 <div class="col-md-3">

@@ -6,6 +6,7 @@ use App\Models\ElectronicBillingSetting;
 use App\Models\ElectronicInvoice;
 use App\Models\Payment;
 use App\Models\Setting;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -45,7 +46,7 @@ class FacturamaService
     }
 
     /**
-     * Prueba la conexión con Facturama (GET /TaxEntity o /BranchOffice).
+     * Prueba la conexión con Facturama (GET /TaxEntity o /api-lite/csds).
      */
     public function testConnection(?string $user = null, ?string $password = null, ?string $env = null): array
     {
@@ -73,19 +74,19 @@ class FacturamaService
                 $regimen = $tax['FiscalRegime'] ?? '';
                 return [
                     'ok' => true,
-                    'message' => "Conexión exitosa con Facturama CFDI 4.0: {$taxName} (RFC: {$rfc}, Régimen: {$regimen}). Timbres TuCardex listos.",
+                    'message' => "Conexión exitosa con Facturama CFDI 4.0: {$taxName} (RFC: {$rfc}, Régimen: {$regimen}). Timbres TuCardex Multiemisor listos.",
                 ];
             }
 
-            // Fallback con sucursales
-            $branchResponse = Http::withBasicAuth($authUser, $authPass)
+            // Fallback con CSDs o sucursales
+            $csdsResponse = Http::withBasicAuth($authUser, $authPass)
                 ->timeout(10)
-                ->get("{$baseUrl}/BranchOffice");
+                ->get("{$baseUrl}/api-lite/csds");
 
-            if ($branchResponse->successful()) {
+            if ($csdsResponse->successful()) {
                 return [
                     'ok' => true,
-                    'message' => 'Conexión verificada exitosamente con la API de Facturama (Sucursal Principal activa).',
+                    'message' => 'Conexión verificada exitosamente con la API Multiemisor de Facturama.',
                 ];
             }
 
@@ -103,7 +104,134 @@ class FacturamaService
     }
 
     /**
+     * Sube o actualiza el Certificado de Sello Digital (CSD) de la escuela en Facturama Multiemisor.
+     */
+    public function uploadCsd(string $rfc, string $certificateBase64, string $privateKeyBase64, string $password): array
+    {
+        $creds = $this->getCredentials();
+        $baseUrl = $this->getBaseUrl();
+
+        if (empty($creds['user']) || empty($creds['password'])) {
+            return [
+                'ok' => false,
+                'message' => 'Credenciales maestras de Facturama no configuradas en el servidor.',
+            ];
+        }
+
+        $cleanRfc = strtoupper(trim($rfc));
+        $payload = [
+            'Rfc' => $cleanRfc,
+            'Certificate' => $certificateBase64,
+            'PrivateKey' => $privateKeyBase64,
+            'PrivateKeyPassword' => $password,
+        ];
+
+        try {
+            // Intentar crear (POST) o actualizar (PUT)
+            $response = Http::withBasicAuth($creds['user'], $creds['password'])
+                ->timeout(20)
+                ->post("{$baseUrl}/api-lite/csds", $payload);
+
+            if (!$response->successful() && $response->status() === 409) {
+                // Ya existe, actualizar con PUT
+                $response = Http::withBasicAuth($creds['user'], $creds['password'])
+                    ->timeout(20)
+                    ->put("{$baseUrl}/api-lite/csds/{$cleanRfc}", $payload);
+            }
+
+            if ($response->successful()) {
+                // Consultar vigencia del CSD registrado
+                $csdInfo = $this->getCsdInfo($cleanRfc);
+                $expDate = $csdInfo['CsdExpirationDate'] ?? null;
+
+                return [
+                    'ok' => true,
+                    'message' => 'Certificado de Sello Digital (CSD) sincronizado y verificado ante el SAT exitosamente.',
+                    'expiration' => $expDate ? Carbon::parse($expDate) : null,
+                ];
+            }
+
+            $errMsg = $response->json('Message') 
+                ?? $response->json('ModelState') 
+                ?? $response->json('ExceptionMessage') 
+                ?? $response->body();
+
+            if (is_array($errMsg)) {
+                $errMsg = json_encode($errMsg, JSON_UNESCAPED_UNICODE);
+            }
+
+            return [
+                'ok' => false,
+                'message' => "Facturama rechazó el CSD: {$errMsg}",
+            ];
+        } catch (\Throwable $e) {
+            Log::error("Error subiendo CSD a Facturama: " . $e->getMessage());
+            return [
+                'ok' => false,
+                'message' => 'Error de comunicación al subir CSD: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Consulta el CSD de un RFC en Facturama Multiemisor.
+     */
+    public function getCsdInfo(string $rfc): ?array
+    {
+        $creds = $this->getCredentials();
+        $baseUrl = $this->getBaseUrl();
+
+        if (empty($creds['user']) || empty($creds['password'])) {
+            return null;
+        }
+
+        try {
+            $response = Http::withBasicAuth($creds['user'], $creds['password'])
+                ->timeout(10)
+                ->get("{$baseUrl}/api-lite/csds");
+
+            if ($response->successful()) {
+                $csds = $response->json();
+                if (is_array($csds)) {
+                    $cleanRfc = strtoupper(trim($rfc));
+                    foreach ($csds as $item) {
+                        if (strtoupper($item['Rfc'] ?? '') === $cleanRfc) {
+                            return $item;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Error consultando CSD en Facturama: " . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Elimina el CSD de la escuela en Facturama Multiemisor.
+     */
+    public function deleteCsd(string $rfc): bool
+    {
+        $creds = $this->getCredentials();
+        $baseUrl = $this->getBaseUrl();
+
+        try {
+            $cleanRfc = strtoupper(trim($rfc));
+            $response = Http::withBasicAuth($creds['user'], $creds['password'])
+                ->timeout(10)
+                ->delete("{$baseUrl}/api-lite/csds/{$cleanRfc}");
+
+            return $response->successful();
+        } catch (\Throwable $e) {
+            Log::error("Error eliminando CSD en Facturama: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Emite un CFDI 4.0 oficial con Complemento IEDU para un pago de colegiatura.
+     * Si la escuela tiene CSD activo, timbra vía Multiemisor (/api-lite/3/cfdis) con su RFC.
      */
     public function emitForPayment(Payment $payment, string $tipoDoc = '03'): ElectronicInvoice
     {
@@ -137,8 +265,13 @@ class FacturamaService
 
         $descripcion = 'Colegiatura ' . ($payment->concept ?: 'Mensualidad') . ($payment->period ? ' · ' . $payment->period : '');
 
-        // Si tenemos credenciales de Facturama activas, llamamos a la API
-        if (!empty($creds['user']) && !empty($creds['password'])) {
+        // ¿Tiene CSD activo o credenciales de Facturama?
+        $useMultiemisor = $settings->isCsdActive();
+        $hasApiCreds = !empty($creds['user']) && !empty($creds['password']);
+
+        if ($hasApiCreds && $settings->pac_driver === 'facturama') {
+            $endpoint = $useMultiemisor ? '/api-lite/3/cfdis' : '/3/cfdis';
+
             $payload = [
                 'Receiver' => [
                     'Rfc' => $clientRfc,
@@ -188,11 +321,20 @@ class FacturamaService
                 ],
             ];
 
+            // En modo Multiemisor, se incluye el Emisor con el RFC del Colegio
+            if ($useMultiemisor) {
+                $payload['Issuer'] = [
+                    'Rfc' => strtoupper(trim($settings->rfc)),
+                    'Name' => strtoupper(trim($settings->razon_social)),
+                    'FiscalRegime' => $settings->regimen_fiscal ?: '603',
+                ];
+            }
+
             try {
                 $baseUrl = $this->getBaseUrl();
                 $response = Http::withBasicAuth($creds['user'], $creds['password'])
                     ->timeout(25)
-                    ->post("{$baseUrl}/3/cfdis", $payload);
+                    ->post("{$baseUrl}{$endpoint}", $payload);
 
                 if ($response->successful()) {
                     $data = $response->json();
@@ -220,15 +362,23 @@ class FacturamaService
                         'client_razon_social' => $clientNombre,
                         'client_direccion' => $clientCp,
                         'estado' => 'aceptado',
-                        'sunat_code' => $facturamaId, // Almacena el ID de Facturama para descargas
+                        'sunat_code' => $facturamaId, // ID de Facturama para descargas
                         'hash' => $uuid,
                         'cdr_description' => 'CFDI 4.0 timbrado exitosamente con Facturama (Complemento IEDU SAT)',
                         'error_message' => null,
                     ]);
                 }
 
-                $errorBody = $response->json('Message') ?? $response->json('message') ?? $response->body();
-                Log::error('Facturama Error:', ['status' => $response->status(), 'body' => $errorBody]);
+                $errorBody = $response->json('Message') 
+                    ?? $response->json('message') 
+                    ?? $response->json('ModelState')
+                    ?? $response->body();
+
+                if (is_array($errorBody)) {
+                    $errorBody = json_encode($errorBody, JSON_UNESCAPED_UNICODE);
+                }
+
+                Log::error('Facturama CFDI Error:', ['status' => $response->status(), 'body' => $errorBody]);
 
                 return ElectronicInvoice::create([
                     'school_id' => $settings->school_id,
@@ -247,11 +397,11 @@ class FacturamaService
                     'error_message' => "Facturama: {$errorBody}",
                 ]);
             } catch (\Throwable $e) {
-                Log::error('Facturama Exception: ' . $e->getMessage());
+                Log::error('Facturama CFDI Exception: ' . $e->getMessage());
             }
         }
 
-        // Modo Simulado o pruebas
+        // Modo Simulado / Demostración
         $serie = $settings->serie_factura ?: 'F';
         $folio = (int) (ElectronicInvoice::where('serie', $serie)->max('correlativo') ?? 0) + 1;
         $uuid = Str::uuid()->toString();
@@ -282,7 +432,7 @@ class FacturamaService
     }
 
     /**
-     * Descarga XML o PDF oficial desde Facturama.
+     * Descarga XML o PDF oficial desde Facturama (soporta tanto Web API como Multiemisor).
      */
     public function downloadFile(string $invoiceId, string $format = 'pdf'): ?string
     {
@@ -297,21 +447,25 @@ class FacturamaService
             return null;
         }
 
-        try {
-            $format = strtolower($format) === 'xml' ? 'xml' : 'pdf';
-            $response = Http::withBasicAuth($creds['user'], $creds['password'])
-                ->timeout(15)
-                ->get("{$baseUrl}/cfdi/{$format}/issued/{$invoiceId}");
+        $format = strtolower($format) === 'xml' ? 'xml' : 'pdf';
 
-            if ($response->successful()) {
-                $data = $response->json();
-                if (isset($data['Content'])) {
-                    return base64_decode($data['Content']);
+        // Probar primero con issuedLite (Multiemisor), luego con issued (Web API)
+        foreach (['issuedLite', 'issued'] as $type) {
+            try {
+                $response = Http::withBasicAuth($creds['user'], $creds['password'])
+                    ->timeout(15)
+                    ->get("{$baseUrl}/cfdi/{$format}/{$type}/{$invoiceId}");
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (isset($data['Content'])) {
+                        return base64_decode($data['Content']);
+                    }
+                    return $response->body();
                 }
-                return $response->body();
+            } catch (\Throwable $e) {
+                Log::warning("Error descargando {$format}/{$type}: " . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            Log::error("Error descargando {$format} de Facturama: " . $e->getMessage());
         }
 
         return null;

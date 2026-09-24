@@ -219,6 +219,8 @@ Route::middleware('auth')->group(function () {
         Route::get('facturacion/configuracion', [ElectronicBillingController::class, 'configuracion'])->name('facturacion.configuracion');
         Route::post('facturacion/configuracion', [ElectronicBillingController::class, 'guardar'])->name('facturacion.guardar');
         Route::post('facturacion/probar', [ElectronicBillingController::class, 'probar'])->name('facturacion.probar');
+        Route::post('facturacion/csd/subir', [ElectronicBillingController::class, 'subirCsd'])->name('facturacion.csd.subir');
+        Route::post('facturacion/csd/eliminar', [ElectronicBillingController::class, 'eliminarCsd'])->name('facturacion.csd.eliminar');
         Route::get('bitacora', [AuditLogController::class, 'index'])->name('audit.index');
     });
 });

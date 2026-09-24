@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToSchool;
 use App\Services\Tenancy;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Crypt;
 
 class ElectronicBillingSetting extends Model
 {
@@ -14,9 +13,10 @@ class ElectronicBillingSetting extends Model
     protected $fillable = [
         'school_id', 'enabled', 'auto_emit', 'driver', 'pac_driver', 'environment',
         'rfc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'codigo_postal',
-        'regimen_fiscal', 'pac_api_key', 'clave_prod_serv', 'clave_unidad', 'objeto_imp',
+        'regimen_fiscal', 'pac_api_key', 'client_id', 'client_secret', 'clave_prod_serv', 'clave_unidad', 'objeto_imp',
         'ruc', 'ubigeo', 'departamento', 'provincia', 'distrito', 'urbanizacion',
-        'sol_user', 'sol_pass', 'certificate_path', 'certificate_password',
+        'sol_user', 'sol_pass', 'certificate_path', 'private_key_path', 'certificate_password',
+        'csd_status', 'csd_numero_serie', 'csd_valido_hasta', 'csd_error',
         'serie_factura', 'serie_boleta', 'serie_nc_factura', 'serie_nc_boleta',
         'igv_percent', 'moneda', 'boletas_por_resumen',
     ];
@@ -26,11 +26,15 @@ class ElectronicBillingSetting extends Model
         'auto_emit'           => 'boolean',
         'boletas_por_resumen' => 'boolean',
         'igv_percent'         => 'decimal:2',
-        // Llaves de timbrado PAC cifradas con AES-256-CBC
+        'csd_valido_hasta'    => 'datetime',
         'pac_api_key'         => 'encrypted',
-        'pac_api_secret'      => 'encrypted',
-        // 'rfc' no requiere cifrado (RFC es dato publico)
+        'certificate_password'=> 'encrypted',
     ];
+
+    public function isCsdActive(): bool
+    {
+        return $this->csd_status === 'activo' && filled($this->rfc);
+    }
 
     public static function current(): self
     {
@@ -50,8 +54,8 @@ class ElectronicBillingSetting extends Model
                 'enabled' => false,
                 'auto_emit' => true,
                 'driver' => 'none',
-                'pac_driver' => 'simulado',
-                'environment' => 'beta',
+                'pac_driver' => 'facturama',
+                'environment' => 'produccion',
                 'regimen_fiscal' => '603',
                 'clave_prod_serv' => '86121500',
                 'clave_unidad' => 'E48',
@@ -62,6 +66,7 @@ class ElectronicBillingSetting extends Model
                 'serie_nc_boleta' => 'NCR',
                 'igv_percent' => 0.00,
                 'moneda' => 'MXN',
+                'csd_status' => 'pendiente',
             ]
         );
     }
