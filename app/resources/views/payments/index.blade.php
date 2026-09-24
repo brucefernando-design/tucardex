@@ -53,8 +53,8 @@
                             <div class="dropdown d-inline">
                                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" title="Emitir comprobante"><i class="bi bi-receipt-cutoff"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><h6 class="dropdown-header">Emitir comprobante SUNAT</h6></li>
-                                    <li><form action="{{ route('facturacion.emitir', $p) }}" method="POST">@csrf<input type="hidden" name="tipo_doc" value="03"><button class="dropdown-item"><i class="bi bi-file-text me-2"></i>Boleta</button></form></li>
+                                    <li><h6 class="dropdown-header">Comprobante Fiscal</h6></li>
+                                    <li><form action="{{ route('facturacion.emitir', $p) }}" method="POST">@csrf<input type="hidden" name="tipo_doc" value="03"><button class="dropdown-item"><i class="bi bi-file-text me-2"></i>Boleta / Recibo</button></form></li>
                                     <li><form action="{{ route('facturacion.emitir', $p) }}" method="POST">@csrf<input type="hidden" name="tipo_doc" value="01"><button class="dropdown-item"><i class="bi bi-file-earmark-text me-2"></i>Factura</button></form></li>
                                 </ul>
                             </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\OficioInstitucionalMail;
 use App\Models\Course;
+use App\Models\DocumentFolio;
 use App\Models\Grade;
 use App\Models\Payment;
 use App\Models\Role;
@@ -311,7 +312,8 @@ class SecretariaController extends Controller
         $firmante = $request->firmante ?? ($setting->director ?? 'Dirección del Plantel');
         $cargo = $request->cargo ?? 'Director(a)';
 
-        $folio = 'OFC-' . date('Y') . '-' . rand(1000, 9999);
+        $schoolId = auth()->user()->school_id ?? optional($setting)->school_id ?? 1;
+        $folio = DocumentFolio::nextFolio($schoolId, 'OFC');
 
         $qrData = $this->generateQrCode("OFICIO OFICIAL | FOLIO: {$folio} | ASUNTO: {$asunto} | {$setting->school_name}", 120);
 
@@ -415,7 +417,8 @@ class SecretariaController extends Controller
         }
 
         // Generar PDF Oficial con Folio y QR para adjuntarlo en el correo
-        $folio = 'OFC-' . date('Y') . '-' . rand(1000, 9999);
+        $schoolId = auth()->user()->school_id ?? optional($setting)->school_id ?? 1;
+        $folio = DocumentFolio::nextFolio($schoolId, 'OFC');
         $qrData = $this->generateQrCode("OFICIO OFICIAL | FOLIO: {$folio} | ASUNTO: {$asunto} | {$setting->school_name}", 120);
 
         $pdf = Pdf::loadView('secretaria.pdf.oficio_citatorio', [
@@ -440,12 +443,12 @@ class SecretariaController extends Controller
             $fromAddress = config('mail.from.address') ?: 'notificaciones@tucardex.allia2.com.mx';
 
             if ($recipients->count() === 1) {
-                Mail::to($recipients->first())->send(new OficioInstitucionalMail(
+                Mail::to($recipients->first())->queue(new OficioInstitucionalMail(
                     $tipo, $asunto, $cuerpo, $destinatarioNombre, $fechaCita, $horaCita, $lugar, $firmante, $cargo, $setting->school_name, $pdfContent, $pdfFilename
                 ));
             } else {
                 // Envío grupal en BCC para proteger privacidad de correos
-                Mail::to($fromAddress)->bcc($recipients->all())->send(new OficioInstitucionalMail(
+                Mail::to($fromAddress)->bcc($recipients->all())->queue(new OficioInstitucionalMail(
                     $tipo, $asunto, $cuerpo, $destinatarioNombre, $fechaCita, $horaCita, $lugar, $firmante, $cargo, $setting->school_name, $pdfContent, $pdfFilename
                 ));
             }

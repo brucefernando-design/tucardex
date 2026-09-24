@@ -75,9 +75,11 @@
     <ul class="sidebar-nav">
         <li><a href="{{ route('payments.gateways') }}" class="{{ request()->routeIs('payments.gateways') ? 'active' : '' }}"><i class="bi bi-credit-card-2-front"></i> Pasarelas de Pago</a></li>
         <li><a href="{{ route('payments.index') }}" class="{{ request()->routeIs('payments.*') ? 'active' : '' }}"><i class="bi bi-cash-stack"></i> Pagos / Colegiaturas</a></li>
+        @if(optional(\App\Models\ElectronicBillingSetting::current())->enabled)
         <li><a href="{{ route('facturacion.index') }}" class="{{ request()->routeIs('facturacion.index') || request()->routeIs('facturacion.show') ? 'active' : '' }}"><i class="bi bi-receipt-cutoff"></i> Facturación Electrónica</a></li>
         @if($u->isAdmin())
             <li><a href="{{ route('facturacion.configuracion') }}" class="{{ request()->routeIs('facturacion.configuracion') ? 'active' : '' }}"><i class="bi bi-file-earmark-medical"></i> Facturación SAT (CFDI 4.0)</a></li>
+        @endif
         @endif
     </ul>
 

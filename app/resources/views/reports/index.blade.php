@@ -7,7 +7,7 @@
 <div class="stats-row">
     <div class="stat-card bg-teal"><div class="label">Total estudiantes</div><div class="value">{{ $totals['students'] }}</div><i class="bi bi-people icon"></i></div>
     <div class="stat-card bg-green"><div class="label">Estudiantes activos</div><div class="value">{{ $totals['active'] }}</div><i class="bi bi-person-check icon"></i></div>
-    <div class="stat-card bg-dark"><div class="label">Ingresos cobrados</div><div class="value">{{ $appSettings->currency ?? 'Bs' }} {{ number_format($totals['income'],0) }}</div><i class="bi bi-cash icon"></i></div>
+    <div class="stat-card bg-dark"><div class="label">Ingresos cobrados</div><div class="value">{{ $appSettings->currency ?? '$' }} {{ number_format($totals['income'],0) }}</div><i class="bi bi-cash icon"></i></div>
 </div>
 
 <div class="grid-2">
