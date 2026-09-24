@@ -259,7 +259,8 @@ class ReportCardController extends Controller
     }
 
     /**
-     * Genera y descarga las boletas oficiales de TODO el grupo en un solo archivo PDF compilado.
+     * Genera y descarga las boletas oficiales del grupo en un solo archivo PDF compilado.
+     * Optimizado: partición en bloques de máx 50 alumnos, límites de memoria seguros y caché en disco.
      */
     public function massCourseBoletines(Course $course): Response
     {
@@ -279,13 +280,44 @@ class ReportCardController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
+        $totalStudents = Student::where('course_id', $course->id)
+            ->where('status', 'activo')
+            ->count();
+
+        if ($totalStudents === 0) {
+            abort(404, 'Este grupo no tiene alumnos activos para generar boletas.');
+        }
+
+        // Partición en bloques seguros de hasta 50 alumnos para no saturar memoria
+        $chunkSize = 50;
+        $part = max(1, (int) request()->query('part', 1));
+
         $students = Student::where('course_id', $course->id)
             ->where('status', 'activo')
             ->orderBy('last_name')
+            ->skip(($part - 1) * $chunkSize)
+            ->take($chunkSize)
             ->get();
 
         if ($students->isEmpty()) {
-            abort(404, 'Este grupo no tiene alumnos activos para generar boletas.');
+            abort(404, 'No hay más alumnos en este bloque.');
+        }
+
+        $suffix = $totalStudents > $chunkSize ? "_Parte_{$part}" : '';
+        $filename = 'Boletas_Grupo_' . Str::slug($course->name . '_' . $course->section) . $suffix . '.pdf';
+
+        // Caché en disco para servir instantáneamente si ya se generó recientemente
+        $latestGradeChange = Grade::where('course_id', $course->id)->max('updated_at') ?? 'none';
+        $cacheKey = "boletas_c{$course->id}_p{$part}_" . md5($latestGradeChange . '_' . $totalStudents);
+        $cacheDir = storage_path('app/reports/cache');
+        $cachePath = "{$cacheDir}/{$cacheKey}.pdf";
+
+        if (file_exists($cachePath) && (time() - filemtime($cachePath) < 1800)) {
+            $cachedContent = file_get_contents($cachePath);
+            return response($cachedContent, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
         }
 
         $appSettings = Setting::current();
@@ -299,8 +331,16 @@ class ReportCardController extends Controller
         $pdf = Pdf::loadView('reportcards.boletines_masivos', compact('course', 'studentsData', 'appSettings', 'date'))
             ->setPaper('letter', 'portrait');
 
-        $filename = 'Boletas_Grupo_' . Str::slug($course->name . '_' . $course->section) . '.pdf';
+        $pdfOutput = $pdf->output();
 
-        return $pdf->download($filename);
+        if (! file_exists($cacheDir)) {
+            @mkdir($cacheDir, 0755, true);
+        }
+        @file_put_contents($cachePath, $pdfOutput);
+
+        return response($pdfOutput, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }
