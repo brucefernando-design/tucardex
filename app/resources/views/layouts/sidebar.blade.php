@@ -20,6 +20,7 @@
     @php
         $isAcad = $u->hasAnyRole(['admin','secretaria']);
         $isDaily = $u->hasAnyRole(['admin','secretaria','docente']);
+        $isParent = $u->hasRole('padre');
     @endphp
 
     @if($u->isSuperAdmin())
@@ -36,6 +37,23 @@
             <li><a href="{{ route('messages.index') }}" class="{{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="bi bi-chat-dots"></i> Mensajes
                 @if($unread)<span class="badge rounded-pill bg-danger ms-auto">{{ $unread }}</span>@endif</a></li>
         </ul>
+    @endif
+
+        @if($isParent)
+        @php
+            $currentChild = null;
+            if (session()->has('parent_selected_student_id')) {
+                $currentChild = $u->children->firstWhere('id', session('parent_selected_student_id'));
+            }
+            $currentChild = $currentChild ?? $u->children->first();
+        @endphp
+        @if($currentChild)
+        <div class="nav-label">Expediente Alumno</div>
+        <ul class="sidebar-nav">
+            <li><a href="{{ route('students.boletin', $currentChild) }}" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Boleta Oficial</a></li>
+            <li><a href="{{ route('students.estadoCuenta', $currentChild) }}" target="_blank"><i class="bi bi-receipt"></i> Estado de Cuenta</a></li>
+        </ul>
+        @endif
     @endif
 
     @if($isAcad)
@@ -68,6 +86,23 @@
         <li><a href="{{ route('incidents.index') }}" class="{{ request()->routeIs('incidents.*') ? 'active' : '' }}"><i class="bi bi-clipboard-check"></i> Disciplina</a></li>
         <li><a href="{{ route('events.index') }}" class="{{ request()->routeIs('events.*') ? 'active' : '' }}"><i class="bi bi-calendar-event"></i> Calendario</a></li>
     </ul>
+    @endif
+
+        @if($isParent)
+        @php
+            $currentChild = null;
+            if (session()->has('parent_selected_student_id')) {
+                $currentChild = $u->children->firstWhere('id', session('parent_selected_student_id'));
+            }
+            $currentChild = $currentChild ?? $u->children->first();
+        @endphp
+        @if($currentChild)
+        <div class="nav-label">Expediente Alumno</div>
+        <ul class="sidebar-nav">
+            <li><a href="{{ route('students.boletin', $currentChild) }}" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Boleta Oficial</a></li>
+            <li><a href="{{ route('students.estadoCuenta', $currentChild) }}" target="_blank"><i class="bi bi-receipt"></i> Estado de Cuenta</a></li>
+        </ul>
+        @endif
     @endif
 
     @if($isAcad)

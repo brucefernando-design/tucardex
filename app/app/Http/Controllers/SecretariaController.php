@@ -351,43 +351,63 @@ class SecretariaController extends Controller
         $destinatarioNombre = $request->destinatario ?? 'Comunidad Escolar';
 
         if ($request->destinatario_tipo === 'individual') {
-            $student = Student::with('user')->find($request->student_id);
+            $student = Student::with(['user', 'guardians'])->find($request->student_id);
             if (! $student) {
                 return back()->with('error', 'Por favor selecciona un estudiante válido.');
             }
 
-            $destinatarioNombre = $student->guardian_name ? "C. {$student->guardian_name} (Tutor de {$student->full_name})" : $student->full_name;
-            $email = $student->email ?? optional($student->user)->email;
+            // Destinatario prioritario: correo de los tutores (guardians)
+            $primaryGuardian = $student->guardians->sortByDesc(fn ($g) => $g->pivot->is_primary)->first();
+            if ($primaryGuardian && $primaryGuardian->email) {
+                $destinatarioNombre = "C. {$primaryGuardian->name} (Tutor de {$student->full_name})";
+                $email = $primaryGuardian->email;
+            } else {
+                $destinatarioNombre = $student->guardian_name ? "C. {$student->guardian_name} (Tutor de {$student->full_name})" : $student->full_name;
+                $email = $student->email ?? optional($student->user)->email;
+            }
 
             // Si el alumno no tenía correo en BD pero la secretaria lo ingresó en el formulario rápido:
+            // Se crea como rol PADRE (no como estudiante) y se envía reset link
             if (! $email && $request->filled('email_estudiante')) {
                 $email = trim($request->email_estudiante);
                 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $student->update(['email' => $email]);
-
-                    // Crear o vincular usuario con rol estudiante
-                    $studentRole = Role::where('slug', 'estudiante')->first();
+                    $padreRole = Role::where('slug', 'padre')->first();
+                    $guardianName = $student->guardian_name ?: "Tutor de {$student->full_name}";
                     $user = User::firstOrCreate(
                         ['email' => $email],
                         [
-                            'name' => $student->full_name,
+                            'name' => $guardianName,
                             'password' => Hash::make(Str::random(32)),
-                            'role_id' => optional($studentRole)->id,
+                            'role_id' => optional($padreRole)->id,
                             'school_id' => auth()->user()->school_id,
+                            'phone' => $student->guardian_phone,
                             'is_active' => true,
                         ]
                     );
-                    $student->update(['user_id' => $user->id]);
+
+                    $student->guardians()->syncWithoutDetaching([
+                        $user->id => [
+                            'school_id' => auth()->user()->school_id,
+                            'relationship' => 'Tutor',
+                            'is_primary' => true,
+                        ],
+                    ]);
+
+                    try {
+                        \Illuminate\Support\Facades\Password::broker()->sendResetLink(['email' => $user->email]);
+                    } catch (\Throwable $e) {}
+
+                    $destinatarioNombre = "C. {$user->name} (Tutor de {$student->full_name})";
                 }
             }
 
             if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $recipients->push($email);
             } else {
-                return back()->with('error', "El alumno {$student->full_name} no tiene correo registrado. Por favor ingresa el correo del tutor para continuar.");
+                return back()->with('error', "El alumno {$student->full_name} no tiene correo de tutor ni de estudiante registrado. Por favor ingresa el correo del tutor para continuar.");
             }
         } elseif ($request->destinatario_tipo === 'grupo') {
-            $course = Course::with(['students.user'])->find($request->course_id);
+            $course = Course::with(['students.user', 'students.guardians'])->find($request->course_id);
             if (! $course) {
                 return back()->with('error', 'Por favor selecciona un grupo escolar válido.');
             }
@@ -395,9 +415,16 @@ class SecretariaController extends Controller
             $destinatarioNombre = "Padres de Familia y Alumnos de {$course->full_name}";
 
             foreach ($course->students as $st) {
-                $email = $st->email ?? optional($st->user)->email;
-                if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $recipients->push($email);
+                $guardianEmails = $st->guardians->pluck('email')->filter();
+                if ($guardianEmails->isNotEmpty()) {
+                    foreach ($guardianEmails as $ge) {
+                        $recipients->push($ge);
+                    }
+                } else {
+                    $email = $st->email ?? optional($st->user)->email;
+                    if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $recipients->push($email);
+                    }
                 }
             }
 

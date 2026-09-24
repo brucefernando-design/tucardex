@@ -19,7 +19,7 @@
 
 <div class="grid-2">
     <div>
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header"><span class="title"><i class="bi bi-person-vcard"></i> Datos personales</span><span class="badge-soft badge-{{ $student->status }}">{{ ucfirst($student->status) }}</span></div>
             <div class="card-body">
                 <div class="d-flex align-items-center gap-3 mb-3">
@@ -32,11 +32,56 @@
                     <div class="col-6 mb-2"><small class="text-muted d-block">Género</small>{{ $student->gender ?? '—' }}</div>
                     <div class="col-6 mb-2"><small class="text-muted d-block">Grado y Grupo</small>{{ optional($student->course)->name ?? '—' }}</div>
                     <div class="col-6 mb-2"><small class="text-muted d-block">Teléfono</small>{{ $student->phone ?? '—' }}</div>
-                    <div class="col-6 mb-2"><small class="text-muted d-block">Correo</small>{{ $student->email ?? '—' }}</div>
+                    <div class="col-6 mb-2"><small class="text-muted d-block">Correo del Alumno</small>{{ $student->email ?? '—' }}</div>
                     <div class="col-12 mb-2"><small class="text-muted d-block">Dirección</small>{{ $student->address ?? '—' }}</div>
-                    <div class="col-6 mb-2"><small class="text-muted d-block">Padre o Tutor</small>{{ $student->guardian_name ?? '—' }}</div>
-                    <div class="col-6 mb-2"><small class="text-muted d-block">Tel. Padre o Tutor</small>{{ $student->guardian_phone ?? '—' }}</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tutores Vinculados -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="title"><i class="bi bi-people"></i> Tutores / Padres Vinculados</span>
+                <span class="badge bg-light text-dark">{{ $student->guardians->count() }} vinculado(s)</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0 align-middle">
+                    <thead>
+                        <tr class="table-light">
+                            <th class="ps-3">Nombre</th>
+                            <th>Parentesco</th>
+                            <th>Correo / Acceso</th>
+                            <th>Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($student->guardians as $g)
+                        <tr>
+                            <td class="ps-3 fw-medium">
+                                {{ $g->name }}
+                                @if($g->pivot->is_primary)
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size:10px;">Titular</span>
+                                @endif
+                            </td>
+                            <td>{{ $g->pivot->relationship ?? 'Tutor' }}</td>
+                            <td>
+                                <a href="mailto:{{ $g->email }}" class="text-decoration-none">{{ $g->email }}</a>
+                                <span class="badge bg-success-subtle text-success ms-1" style="font-size:10px;">Portal Activo</span>
+                            </td>
+                            <td>{{ $g->phone ?? '—' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-3 text-muted">
+                                Sin cuentas de tutor vinculadas.
+                                @if($student->guardian_name)
+                                    <div class="small mt-1">Registrado como texto: <strong>{{ $student->guardian_name }}</strong> (Tel: {{ $student->guardian_phone ?? '—' }})</div>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

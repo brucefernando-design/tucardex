@@ -36,7 +36,8 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Administrador', 'slug' => 'admin', 'description' => 'Acceso total al sistema'],
             ['name' => 'Docente', 'slug' => 'docente', 'description' => 'Gestión de notas, asistencia y horarios'],
             ['name' => 'Secretaría', 'slug' => 'secretaria', 'description' => 'Matrículas, pagos y estudiantes'],
-            ['name' => 'Estudiante / Padre', 'slug' => 'estudiante', 'description' => 'Consulta de notas y comunicados'],
+            ['name' => 'Estudiante', 'slug' => 'estudiante', 'description' => 'Consulta de notas y comunicados'],
+            ['name' => 'Padre / Tutor', 'slug' => 'padre', 'description' => 'Consulta de expediente de hijos'],
         ];
         foreach ($roles as $r) {
             Role::firstOrCreate(['slug' => $r['slug']], $r);
@@ -270,6 +271,31 @@ class DatabaseSeeder extends Seeder
             ]);
             $firstStudent->update(['user_id' => $estUser->id, 'email' => 'estudiante@colegio.test']);
         }
+
+        // ---- Usuario padre de prueba con 2 hijos del mismo colegio ----
+        $padreRole = Role::where('slug', 'padre')->first();
+        $demoChildren = Student::where('status', 'activo')->orderBy('id')->take(2)->get();
+        if ($padreRole && $demoChildren->count() >= 2) {
+            $padreUser = User::firstOrCreate(['email' => 'padre@colegio.test'], [
+                'name' => 'Roberto Sánchez (Padre de Familia)',
+                'password' => Hash::make('password'),
+                'role_id' => $padreRole->id,
+                'school_id' => $school->id,
+                'phone' => '5512345678',
+                'is_active' => true,
+            ]);
+
+            foreach ($demoChildren as $idx => $child) {
+                $child->guardians()->syncWithoutDetaching([
+                    $padreUser->id => [
+                        'school_id' => $school->id,
+                        'relationship' => $idx === 0 ? 'Padre' : 'Tutor Legal',
+                        'is_primary' => $idx === 0,
+                    ],
+                ]);
+            }
+        }
+
 
         // ---- Horarios para el primer curso ----
         $firstCourse = $courses->first();

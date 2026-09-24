@@ -17,8 +17,43 @@ class ReportCardController extends Controller
     /**
      * Genera y descarga el boletín de notas del estudiante en PDF.
      */
+    /**
+     * Valida permisos para consultar la boleta del estudiante.
+     * Admin, secretaria, docente: acceso total.
+     * Padre: solo sus hijos vinculados.
+     * Estudiante: solo su propio expediente.
+     */
+    private function authorizeAccess(Student $student): void
+    {
+        $user = auth()->user();
+        if (! $user) {
+            abort(403);
+        }
+
+        if ($user->hasAnyRole(['admin', 'secretaria', 'docente', 'superadmin'])) {
+            return;
+        }
+
+        if ($user->hasRole('padre')) {
+            if (! $student->guardians()->where('users.id', $user->id)->exists()) {
+                abort(403, 'No tienes autorización para acceder a la boleta de este estudiante.');
+            }
+            return;
+        }
+
+        if ($user->hasRole('estudiante')) {
+            if ($student->user_id !== $user->id) {
+                abort(403, 'No tienes autorización para acceder a la boleta de este estudiante.');
+            }
+            return;
+        }
+
+        abort(403, 'Acceso denegado.');
+    }
+
     public function pdf(Student $student): Response
     {
+        $this->authorizeAccess($student);
         $data = $this->buildData($student);
 
         $pdf = Pdf::loadView('reportcards.boletin', $data)
@@ -34,6 +69,7 @@ class ReportCardController extends Controller
      */
     public function preview(Student $student)
     {
+        $this->authorizeAccess($student);
         return view('reportcards.boletin', $this->buildData($student));
     }
 

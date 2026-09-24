@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\View\View;
 
@@ -19,7 +20,7 @@ class StudentController extends Controller
 {
     public function index(Request $request): View
     {
-        $students = Student::with('course')
+        $students = Student::with(['course', 'guardians'])
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('first_name', 'like', "%{$search}%")
@@ -63,38 +64,42 @@ class StudentController extends Controller
             $data['photo'] = $request->file('photo')->store('students', 'public');
         }
 
-        // Crear o vincular cuenta de usuario (User) para que el alumno/tutor pueda acceder al sistema
+        // Crear o vincular cuenta de usuario exclusiva para el ALUMNO (rol estudiante) si se proporciona correo
         if (! empty($data['email'])) {
             $studentRole = Role::where('slug', 'estudiante')->first();
             $user = User::firstOrCreate(
                 ['email' => $data['email']],
                 [
                     'name' => trim("{$data['first_name']} {$data['last_name']}"),
-                    'password' => Hash::make(Str::random(32)), // Contraseña inicial: Matrícula
+                    'password' => Hash::make(Str::random(32)),
                     'role_id' => optional($studentRole)->id,
                     'school_id' => auth()->user()->school_id,
-                    'phone' => $data['phone'] ?? $data['guardian_phone'] ?? null,
+                    'phone' => $data['phone'] ?? null,
                     'is_active' => true,
                 ]
             );
             $data['user_id'] = $user->id;
         }
 
-        Student::create($data);
+        $student = Student::create($data);
+
+        // Procesar tutores / padres
+        $this->syncGuardiansFromRequest($request, $student);
 
         return redirect()->route('students.index')
-            ->with('success', 'Estudiante registrado correctamente con su cuenta de acceso.');
+            ->with('success', 'Estudiante registrado correctamente con sus accesos.');
     }
 
     public function show(Student $student): View
     {
-        $student->load(['course', 'payments', 'grades.subject', 'attendances', 'incidents.reporter']);
+        $student->load(['course', 'payments', 'grades.subject', 'attendances', 'incidents.reporter', 'guardians']);
 
         return view('students.show', compact('student'));
     }
 
     public function edit(Student $student): View
     {
+        $student->load('guardians');
         $courses = Course::orderBy('name')->get();
 
         return view('students.edit', compact('student', 'courses'));
@@ -111,13 +116,13 @@ class StudentController extends Controller
             $data['photo'] = $request->file('photo')->store('students', 'public');
         }
 
-        // Actualizar o crear la cuenta de usuario para acceso
+        // Actualizar o crear la cuenta de usuario para el alumno
         if (! empty($data['email'])) {
             if ($student->user) {
                 $student->user->update([
                     'name' => trim("{$data['first_name']} {$data['last_name']}"),
                     'email' => $data['email'],
-                    'phone' => $data['phone'] ?? $data['guardian_phone'] ?? $student->user->phone,
+                    'phone' => $data['phone'] ?? $student->user->phone,
                 ]);
             } else {
                 $studentRole = Role::where('slug', 'estudiante')->first();
@@ -128,7 +133,7 @@ class StudentController extends Controller
                         'password' => Hash::make(Str::random(32)),
                         'role_id' => optional($studentRole)->id,
                         'school_id' => auth()->user()->school_id,
-                        'phone' => $data['phone'] ?? $data['guardian_phone'] ?? null,
+                        'phone' => $data['phone'] ?? null,
                         'is_active' => true,
                     ]
                 );
@@ -138,12 +143,18 @@ class StudentController extends Controller
 
         $student->update($data);
 
+        // Sincronizar tutores / padres
+        $this->syncGuardiansFromRequest($request, $student);
+
         return redirect()->route('students.index')
             ->with('success', 'Estudiante actualizado correctamente.');
     }
 
     public function destroy(Student $student): RedirectResponse
     {
+        if ($student->photo) {
+            Storage::disk('public')->delete($student->photo);
+        }
         $student->delete();
 
         return redirect()->route('students.index')
@@ -151,26 +162,84 @@ class StudentController extends Controller
     }
 
     /**
-     * Exporta el listado de estudiantes (respeta filtros) a CSV o PDF.
+     * Sincroniza tutores en la tabla pivote guardian_student sin borrar registros de User.
      */
-    public function export(Request $request)
+    private function syncGuardiansFromRequest(Request $request, Student $student): void
     {
-        $students = Student::with('course')
+        $guardiansInput = $request->input('guardians', []);
+        $syncData = [];
+        $padreRole = Role::where('slug', 'padre')->first();
+        $schoolId = $student->school_id ?? auth()->user()->school_id;
+
+        if (is_array($guardiansInput)) {
+            foreach ($guardiansInput as $g) {
+                $email = isset($g['email']) ? trim($g['email']) : '';
+                if (empty($email) || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
+
+                $user = User::where('email', $email)->first();
+
+                if (! $user) {
+                    $name = ! empty($g['name']) ? trim($g['name']) : 'Tutor / Padre';
+                    $phone = ! empty($g['phone']) ? trim($g['phone']) : null;
+                    $user = User::create([
+                        'name' => $name,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'password' => Hash::make(Str::random(32)),
+                        'role_id' => optional($padreRole)->id,
+                        'school_id' => $schoolId,
+                        'is_active' => true,
+                    ]);
+
+                    try {
+                        Password::broker()->sendResetLink(['email' => $user->email]);
+                    } catch (\Throwable $e) {}
+                } else {
+                    if (! empty($g['phone']) && empty($user->phone)) {
+                        $user->update(['phone' => trim($g['phone'])]);
+                    }
+                }
+
+                $syncData[$user->id] = [
+                    'school_id' => $schoolId,
+                    'relationship' => ! empty($g['relationship']) ? trim($g['relationship']) : 'Tutor',
+                    'is_primary' => ! empty($g['is_primary']),
+                ];
+            }
+        }
+
+        // Sincronizar en la tabla pivote: solo desvincula de este alumno, no borra el usuario
+        $student->guardians()->sync($syncData);
+
+        // Actualizar datos de contacto de respaldo en la tabla students
+        if (! empty($syncData)) {
+            $primaryGuardian = $student->guardians()->orderByPivot('is_primary', 'desc')->first();
+            if ($primaryGuardian) {
+                $student->updateQuietly([
+                    'guardian_name' => $primaryGuardian->name,
+                    'guardian_phone' => $primaryGuardian->phone ?? $student->guardian_phone,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Exporta el listado de estudiantes a un archivo CSV.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $students = Student::with(['course', 'guardians'])
             ->when($request->course_id, fn ($q, $c) => $q->where('course_id', $c))
             ->when($request->status, fn ($q, $s) => $q->where('status', $s))
             ->orderBy('last_name')
             ->get();
 
-        if ($request->get('format') === 'pdf') {
-            return Pdf::loadView('exports.students_pdf', compact('students'))
-                ->setPaper('letter', 'landscape')
-                ->download('estudiantes_'.now()->format('Ymd').'.pdf');
-        }
-
-        return $this->streamCsv('estudiantes_'.now()->format('Ymd').'.csv',
-            ['Código', 'Nombres', 'Apellidos', 'CI', 'Curso', 'Apoderado', 'Tel. apoderado', 'Estado'],
+        return $this->streamCsv('estudiantes_'.date('Y-m-d').'.csv',
+            ['Código', 'Nombres', 'Apellidos', 'DNI/CURP', 'Curso', 'Tutor', 'Tel. Tutor', 'Estado'],
             $students->map(fn ($s) => [
-                $s->code, $s->first_name, $s->last_name, $s->dni,
+                $s->code, $s->first_name, $s->last_name, $s->curp ?? $s->dni,
                 optional($s->course)->name, $s->guardian_name, $s->guardian_phone, $s->status,
             ])
         );
@@ -232,7 +301,6 @@ class StudentController extends Controller
             return back()->with('error', 'El archivo está vacío.');
         }
 
-        // Normalizar encabezados (sin tildes/espacios, en minúscula)
         $headers = array_map(fn ($h) => $this->normalize($h), $headers);
         $courses = Course::all();
         $studentRole = Role::where('slug', 'estudiante')->first();
@@ -243,7 +311,7 @@ class StudentController extends Controller
 
         while (($row = fgetcsv($handle)) !== false) {
             if (count(array_filter($row, fn ($v) => trim((string) $v) !== '')) === 0) {
-                continue; // fila vacía
+                continue;
             }
 
             $data = array_combine($headers, array_pad($row, count($headers), null));
@@ -256,7 +324,6 @@ class StudentController extends Controller
                 continue;
             }
 
-            // Determinar curso: columna del CSV o el seleccionado por defecto
             $courseId = $request->course_id;
             $courseName = trim($data['curso'] ?? '');
             if ($courseName !== '') {
@@ -275,7 +342,7 @@ class StudentController extends Controller
                     ['email' => $email],
                     [
                         'name' => "{$first} {$last}",
-                        'password' => Hash::make($code),
+                        'password' => Hash::make(Str::random(32)),
                         'role_id' => optional($studentRole)->id,
                         'school_id' => auth()->user()->school_id,
                         'is_active' => true,
@@ -338,7 +405,7 @@ class StudentController extends Controller
     {
         return response()->streamDownload(function () use ($headers, $rows) {
             $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF"); // BOM para que Excel reconozca UTF-8
+            fwrite($out, "\xEF\xBB\xBF");
             fputcsv($out, $headers);
             foreach ($rows as $row) {
                 fputcsv($out, $row);
@@ -359,16 +426,13 @@ class StudentController extends Controller
             'gender' => ['nullable', 'in:M,F,Otro'],
             'address' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'email' => ['required', 'email', 'max:120'],
+            'email' => ['nullable', 'email', 'max:120'],
             'guardian_name' => ['nullable', 'string', 'max:150'],
             'guardian_phone' => ['nullable', 'string', 'max:30'],
             'course_id' => ['nullable', 'exists:courses,id'],
             'enrollment_date' => ['nullable', 'date'],
             'status' => ['required', 'in:activo,inactivo,retirado'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ], [
-            'email.required' => 'El correo electrónico del estudiante o tutor es obligatorio para el acceso al sistema y notificaciones.',
-            'email.email' => 'Debes ingresar un correo electrónico válido.',
         ]);
     }
 }

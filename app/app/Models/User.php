@@ -6,6 +6,7 @@ use App\Models\Concerns\Auditable;
 use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -54,6 +55,16 @@ class User extends Authenticatable
         return $this->hasOne(Student::class);
     }
 
+    /**
+     * Estudiantes / hijos asociados a este usuario tutor (rol padre).
+     */
+    public function children(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class, 'guardian_student')
+            ->withPivot(['relationship', 'is_primary', 'school_id'])
+            ->withTimestamps();
+    }
+
     public function hasRole(string $slug): bool
     {
         return optional($this->role)->slug === $slug;
@@ -72,6 +83,16 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('superadmin');
+    }
+
+    public function isParent(): bool
+    {
+        return $this->hasRole('padre');
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->hasRole('estudiante');
     }
 
     public function getAvatarUrlAttribute(): ?string

@@ -100,10 +100,12 @@ class RegisterController extends Controller
             ['name' => 'Administrador', 'slug' => 'admin', 'description' => 'Acceso total al sistema'],
             ['name' => 'Docente', 'slug' => 'docente', 'description' => 'Gestión de notas, asistencia y horarios'],
             ['name' => 'Secretaría', 'slug' => 'secretaria', 'description' => 'Matrículas, pagos y estudiantes'],
-            ['name' => 'Estudiante / Padre', 'slug' => 'estudiante', 'description' => 'Consulta de notas y comunicados'],
+            ['name' => 'Estudiante', 'slug' => 'estudiante', 'description' => 'Consulta de notas y comunicados'],
+            ['name' => 'Padre / Tutor', 'slug' => 'padre', 'description' => 'Consulta de expediente de hijos'],
         ];
         foreach ($roles as $r) {
             Role::firstOrCreate(['slug' => $r['slug']], $r);
         }
+        Role::where('slug', 'estudiante')->where('name', 'like', '%Padre%')->update(['name' => 'Estudiante']);
     }
 }

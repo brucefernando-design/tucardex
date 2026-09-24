@@ -120,7 +120,7 @@ class UserController extends Controller
         $query = Role::orderBy('name');
 
         if (! $currentUser?->isSuperAdmin()) {
-            $query->whereIn('slug', ['admin', 'secretaria', 'docente', 'estudiante']);
+            $query->whereIn('slug', ['admin', 'secretaria', 'docente', 'estudiante', 'padre']);
         }
 
         return $query->get();
