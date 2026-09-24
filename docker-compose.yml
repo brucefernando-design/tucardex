@@ -17,8 +17,21 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    image: tucardex-tucardex-app
     container_name: tucardex-app
     restart: unless-stopped
+    volumes:
+      - /opt/tucardex/app:/var/www/html
+    networks:
+      - internal
+    depends_on:
+      - tucardex-db
+
+  tucardex-worker:
+    image: tucardex-tucardex-app
+    container_name: tucardex-worker
+    restart: unless-stopped
+    command: php /var/www/html/artisan queue:work --sleep=3 --tries=3 --timeout=90
     volumes:
       - /opt/tucardex/app:/var/www/html
     networks:

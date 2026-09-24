@@ -45,3 +45,7 @@ Thumbs.db
 *~
 npm-debug.log*
 yarn-error.log*
+
+# Bootstrap cache
+app/bootstrap/cache/*
+!app/bootstrap/cache/.gitignore
