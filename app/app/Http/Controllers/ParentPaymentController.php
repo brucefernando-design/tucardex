@@ -85,6 +85,7 @@ class ParentPaymentController extends Controller
                         ],
                         'auto_return' => 'approved',
                         'external_reference' => (string) $payment->token,
+                        'notification_url' => route('webhooks.mercadopago', ['school' => $school->id]),
                         'statement_descriptor' => Str::limit($setting->school_name ?? 'COLEGIO', 15, ''),
                     ]);
 

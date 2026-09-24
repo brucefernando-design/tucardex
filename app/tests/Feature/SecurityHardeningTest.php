@@ -287,4 +287,33 @@ class SecurityHardeningTest extends TestCase
         $this->assertDatabaseMissing('students', ['school_id' => $tempSchool->id]);
         $this->assertDatabaseMissing('payments', ['school_id' => $tempSchool->id]);
     }
+
+    /**
+     * TEST 10: Webhook de pagos responde 200 ante payloads inválidos o no esperados sin romper PHP.
+     */
+    public function test_webhook_handles_malformed_payload_gracefully_without_500(): void
+    {
+        // 1. Payload vacío o mal formado
+        $response = $this->postJson(route('webhooks.mercadopago'), []);
+        $response->assertStatus(200);
+        $response->assertJson(['status' => 'ignored']);
+
+        // 2. Payload de evento no soportado
+        $response2 = $this->postJson(route('webhooks.mercadopago'), [
+            'type' => 'merchant_order',
+            'data' => ['id' => '12345'],
+        ]);
+        $response2->assertStatus(200);
+        $response2->assertJson(['status' => 'ignored']);
+    }
+
+    /**
+     * TEST 11: Acceso autorizado a boletas masivas compila correctamente el PDF sin agotar memoria.
+     */
+    public function test_authorized_mass_report_cards_compiles_successfully(): void
+    {
+        $response = $this->actingAs($this->teacherUser)->get(route('courses.boletas_masivas', $this->assignedCourse));
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+    }
 }

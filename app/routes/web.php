@@ -148,8 +148,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('students', StudentController::class);
         Route::resource('teachers', TeacherController::class);
 
-        Route::get('courses/{course}/acta', [ReportCardController::class, 'courseSheet'])->name('courses.acta');
-        Route::get('courses/{course}/boletas-masivas', [\App\Http\Controllers\ReportCardController::class, 'massCourseBoletines'])->name('courses.boletas_masivas');
         Route::get('courses/{course}/materias', [CourseSubjectController::class, 'index'])->name('courses.academic.index');
         Route::post('courses/{course}/materias', [CourseSubjectController::class, 'store'])->name('courses.academic.store');
         Route::put('courses/{course}/materias/{subject}', [CourseSubjectController::class, 'update'])->name('courses.academic.update');
@@ -198,6 +196,8 @@ Route::middleware('auth')->group(function () {
 
     // ===== Gestión diaria y comunicación: Admin + Secretaría + Docente =====
     Route::middleware('role:admin,secretaria,docente')->group(function () {
+        Route::get('courses/{course}/acta', [ReportCardController::class, 'courseSheet'])->name('courses.acta');
+        Route::get('courses/{course}/boletas-masivas', [\App\Http\Controllers\ReportCardController::class, 'massCourseBoletines'])->name('courses.boletas_masivas');
         Route::get('attendances', [AttendanceController::class, 'index'])->name('attendances.index');
         Route::post('attendances', [AttendanceController::class, 'store'])->name('attendances.store');
         Route::get('attendances/reporte', [AttendanceController::class, 'report'])->name('attendances.report');
