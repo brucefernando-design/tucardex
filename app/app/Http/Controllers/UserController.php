@@ -39,6 +39,13 @@ class UserController extends Controller
         ]);
 
         $data['password'] = Hash::make($data['password']);
+        $adminRole = Role::where('slug', 'admin')->first();
+        if ($data['role_id'] == optional($adminRole)->id) {
+            $school = auth()->user()->school;
+            if ($school && ! $school->canAddAdminUser()) {
+                return back()->withInput()->with('error', 'El Plan Básico admite únicamente 1 usuario administrador. Actualiza a Plan Profesional para agregar más administradores.');
+            }
+        }
         $data['is_active'] = $request->boolean('is_active');
 
         User::create($data);
@@ -68,6 +75,13 @@ class UserController extends Controller
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
+        }
+        $adminRole = Role::where('slug', 'admin')->first();
+        if ($data['role_id'] == optional($adminRole)->id) {
+            $school = auth()->user()->school;
+            if ($school && ! $school->canAddAdminUser()) {
+                return back()->withInput()->with('error', 'El Plan Básico admite únicamente 1 usuario administrador. Actualiza a Plan Profesional para agregar más administradores.');
+            }
         }
         $data['is_active'] = $request->boolean('is_active');
 

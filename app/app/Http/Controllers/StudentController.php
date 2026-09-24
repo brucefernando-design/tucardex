@@ -39,8 +39,12 @@ class StudentController extends Controller
         return view('students.index', compact('students', 'courses'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        $school = auth()->user()->school;
+        if ($school && ! $school->canAddStudent()) {
+            return redirect()->route('students.index')->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+        }
         $courses = Course::orderBy('name')->get();
 
         return view('students.create', compact('courses'));
@@ -48,6 +52,10 @@ class StudentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $school = auth()->user()->school;
+        if ($school && ! $school->canAddStudent()) {
+            return redirect()->route('students.index')->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+        }
         $data = $this->validateData($request);
         $data['code'] ??= 'EST-'.str_pad((string) (Student::max('id') + 1), 5, '0', STR_PAD_LEFT);
 
@@ -171,8 +179,12 @@ class StudentController extends Controller
     /**
      * Muestra el formulario de importación masiva.
      */
-    public function importForm(): View
+    public function importForm(): View|RedirectResponse
     {
+        $school = auth()->user()->school;
+        if ($school && ! $school->canAddStudent()) {
+            return redirect()->route('students.index')->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+        }
         $courses = Course::orderBy('name')->get();
 
         return view('students.import', compact('courses'));
@@ -197,6 +209,10 @@ class StudentController extends Controller
      */
     public function import(Request $request): RedirectResponse
     {
+        $school = auth()->user()->school;
+        if ($school && ! $school->canAddStudent()) {
+            return back()->with('error', 'Tu plan Básico admite 100 alumnos. Pasa a Profesional.');
+        }
         $request->validate([
             'file' => ['required', 'file', 'mimes:csv,txt'],
             'course_id' => ['nullable', 'exists:courses,id'],

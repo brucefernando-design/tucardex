@@ -35,4 +35,61 @@ class School extends Model
     {
         return $this->status === 'activo';
     }
+
+    public function isOnTrial(): bool
+    {
+        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
+    }
+
+    public function trialDaysRemaining(): int
+    {
+        if (! $this->isOnTrial()) {
+            return 0;
+        }
+        return (int) ceil(now()->diffInDays($this->trial_ends_at, false));
+    }
+
+    public function effectivePlan(): string
+    {
+        // Durante los 30 días de prueba, el colegio cuenta con las características del plan profesional
+        if ($this->isOnTrial()) {
+            return 'pro';
+        }
+        return $this->plan ?? 'basico';
+    }
+
+    public function maxStudents(): int
+    {
+        return match ($this->effectivePlan()) {
+            'basico' => 100,
+            default => 2000,
+        };
+    }
+
+    public function canAddStudent(): bool
+    {
+        $count = $this->students()->where('status', 'activo')->count();
+        return $count < $this->maxStudents();
+    }
+
+    public function canAccessPayments(): bool
+    {
+        return in_array($this->effectivePlan(), ['pro', 'institucional']);
+    }
+
+    public function canGenerateTuitionBatch(): bool
+    {
+        return in_array($this->effectivePlan(), ['pro', 'institucional']);
+    }
+
+    public function canAddAdminUser(): bool
+    {
+        if ($this->effectivePlan() === 'basico') {
+            $adminRole = Role::where('slug', 'admin')->first();
+            $adminCount = $this->users()->where('role_id', optional($adminRole)->id)->count();
+            return $adminCount < 1;
+        }
+        return true;
+    }
+
 }

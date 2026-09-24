@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias para proteger rutas por rol: ->middleware('role:admin')
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'plan.feature' => \App\Http\Middleware\EnsurePlanFeature::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
