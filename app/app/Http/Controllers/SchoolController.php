@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -132,22 +133,74 @@ class SchoolController extends Controller
         return redirect()->route('schools.show', $school)->with('success', 'Colegio y condiciones de suscripción actualizadas exitosamente.');
     }
 
+    /**
+     * Eliminación definitiva del colegio con purga en cascada transaccional
+     * de todos los registros dependientes (alumnos, cobros, notas, archivos) sin dejar huérfanos.
+     */
     public function destroy(School $school): RedirectResponse
     {
         $name = $school->name;
 
-        // No permitir eliminar si es el colegio actual demo id 1 por seguridad
+        // No permitir eliminar el colegio principal del sistema
         if ($school->id === 1) {
             return back()->with('error', 'El colegio principal del sistema no se puede eliminar. Puedes suspenderlo.');
         }
 
-        DB::transaction(function () use ($school) {
-            User::withoutGlobalScopes()->where('school_id', $school->id)->delete();
-            Setting::withoutGlobalScopes()->where('school_id', $school->id)->delete();
+        $schoolId = $school->id;
+
+        // 1. Limpieza de archivos físicos en almacenamiento
+        try {
+            Storage::disk('public')->deleteDirectory("admissions/school_{$schoolId}");
+            Storage::disk('public')->deleteDirectory("vouchers/school_{$schoolId}");
+        } catch (\Throwable $e) {
+            logger()->warning("Error limpiando almacenamiento físico de escuela {$schoolId}: " . $e->getMessage());
+        }
+
+        // 2. Purga transaccional en cascada de todas las tablas dependientes
+        DB::transaction(function () use ($school, $schoolId) {
+            DB::table('assignment_submissions')->where('school_id', $schoolId)->delete();
+            DB::table('assignments')->where('school_id', $schoolId)->delete();
+            DB::table('grades')->where('school_id', $schoolId)->delete();
+            DB::table('attendances')->where('school_id', $schoolId)->delete();
+            DB::table('incidents')->where('school_id', $schoolId)->delete();
+            DB::table('loans')->where('school_id', $schoolId)->delete();
+            DB::table('books')->where('school_id', $schoolId)->delete();
+            DB::table('messages')->where('school_id', $schoolId)->delete();
+            DB::table('events')->where('school_id', $schoolId)->delete();
+            DB::table('announcements')->where('school_id', $schoolId)->delete();
+            DB::table('app_notifications')->where('school_id', $schoolId)->delete();
+
+            DB::table('electronic_invoices')->where('school_id', $schoolId)->delete();
+            DB::table('electronic_summaries')->where('school_id', $schoolId)->delete();
+            DB::table('electronic_billing_settings')->where('school_id', $schoolId)->delete();
+            DB::table('payments')->where('school_id', $schoolId)->delete();
+
+            DB::table('admissions')->where('school_id', $schoolId)->delete();
+            DB::table('enrollments')->where('school_id', $schoolId)->delete();
+            DB::table('schedules')->where('school_id', $schoolId)->delete();
+
+            $courseIds = DB::table('courses')->where('school_id', $schoolId)->pluck('id');
+            if ($courseIds->isNotEmpty()) {
+                DB::table('course_subject')->whereIn('course_id', $courseIds)->delete();
+            }
+            DB::table('courses')->where('school_id', $schoolId)->delete();
+            DB::table('subjects')->where('school_id', $schoolId)->delete();
+
+            DB::table('guardian_student')->where('school_id', $schoolId)->delete();
+            DB::table('students')->where('school_id', $schoolId)->delete();
+            DB::table('teachers')->where('school_id', $schoolId)->delete();
+
+            DB::table('document_folios')->where('school_id', $schoolId)->delete();
+            DB::table('audit_logs')->where('school_id', $schoolId)->delete();
+            DB::table('impersonation_logs')->where('school_id', $schoolId)->delete();
+
+            DB::table('users')->where('school_id', $schoolId)->delete();
+            DB::table('settings')->where('school_id', $schoolId)->delete();
+
             $school->delete();
         });
 
-        return redirect()->route('schools.index')->with('success', "Colegio '{$name}' cancelado y eliminado de la plataforma.");
+        return redirect()->route('schools.index')->with('success', "Colegio '{$name}' y todos sus datos dependientes fueron eliminados de forma definitiva sin dejar registros huérfanos.");
     }
 
     /**

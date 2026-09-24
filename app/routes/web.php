@@ -73,7 +73,7 @@ Route::prefix('p')->name('parent.payments.')->group(function () {
     Route::get('{payment:token}/retorno', [\App\Http\Controllers\ParentPaymentController::class, 'returnCallback'])->name('return');
     Route::get('{payment:token}/exito', [\App\Http\Controllers\ParentPaymentController::class, 'success'])->name('success');
     Route::post('{payment:token}/comprobante', [\App\Http\Controllers\ParentPaymentController::class, 'uploadSpeiProof'])->name('voucher');
-    Route::get('{payment:token}/recibo', [\App\Http\Controllers\ParentPaymentController::class, 'receipt'])->name('receipt');
+    Route::get('{payment:token}/recibo', [\App\Http\Controllers\ParentPaymentController::class, 'publicReceipt'])->name('receipt');
 });
 
 // Aplicación (requiere sesión)
