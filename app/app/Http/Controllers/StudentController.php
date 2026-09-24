@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\View\View;
@@ -61,7 +62,7 @@ class StudentController extends Controller
                 ['email' => $data['email']],
                 [
                     'name' => trim("{$data['first_name']} {$data['last_name']}"),
-                    'password' => Hash::make($data['code']), // Contraseña inicial: Matrícula
+                    'password' => Hash::make(Str::random(32)), // Contraseña inicial: Matrícula
                     'role_id' => optional($studentRole)->id,
                     'school_id' => auth()->user()->school_id,
                     'phone' => $data['phone'] ?? $data['guardian_phone'] ?? null,
@@ -116,7 +117,7 @@ class StudentController extends Controller
                     ['email' => $data['email']],
                     [
                         'name' => trim("{$data['first_name']} {$data['last_name']}"),
-                        'password' => Hash::make($student->code ?? 'Alumno2026!'),
+                        'password' => Hash::make(Str::random(32)),
                         'role_id' => optional($studentRole)->id,
                         'school_id' => auth()->user()->school_id,
                         'phone' => $data['phone'] ?? $data['guardian_phone'] ?? null,

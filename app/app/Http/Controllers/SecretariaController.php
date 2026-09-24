@@ -16,6 +16,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -368,7 +369,7 @@ class SecretariaController extends Controller
                         ['email' => $email],
                         [
                             'name' => $student->full_name,
-                            'password' => Hash::make($student->code ?? 'Alumno2026!'),
+                            'password' => Hash::make(Str::random(32)),
                             'role_id' => optional($studentRole)->id,
                             'school_id' => auth()->user()->school_id,
                             'is_active' => true,

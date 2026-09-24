@@ -1,12 +1,25 @@
 #!/bin/bash
 # =============================================================
-# TuCardex — Backup Nocturno MariaDB con Sincronización a Cloudflare R2
+# TuCardex - Backup Nocturno MariaDB con Sincronización a Cloudflare R2
 # Generado: 2026-09-18 | Cron: 02:00 AM diario
 # =============================================================
-BACKUP_DIR="/opt/tucardex/backups"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Cargar variables de entorno de infraestructura desde .env si existe
+if [ -f "$DIR/.env" ]; then
+  set -a
+  source <(grep -E '^[A-Za-z0-9_]+=' "$DIR/.env")
+  set +a
+elif [ -f "$DIR/app/.env" ]; then
+  set -a
+  source <(grep -E '^[A-Za-z0-9_]+=' "$DIR/app/.env")
+  set +a
+fi
+
+BACKUP_DIR="${BACKUP_DIR:-$DIR/backups}"
 CONTAINER="tucardex-db"
-DB_NAME="tucardex"
-DB_ROOT_PASS="RootCardex2026!"
+DB_NAME="${DB_DATABASE:-tucardex}"
+DB_ROOT_PASS="${MYSQL_ROOT_PASSWORD:-$DB_PASSWORD}"
 DATE=$(date +%Y-%m-%d_%H%M)
 KEEP_DAYS=30
 LOG="$BACKUP_DIR/backup.log"
@@ -33,9 +46,9 @@ if [ $EXIT_CODE -eq 0 ]; then
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] OK Backup Local: tucardex-$DATE.sql.gz ($SIZE)" >> "$LOG"
   
   # Copiar temporalmente para que el contenedor lo suba a Cloudflare R2
-  cp "$BACKUP_FILE" "/opt/tucardex/app/storage/app/backup_latest.sql.gz"
+  cp "$BACKUP_FILE" "$DIR/app/storage/app/backup_latest.sql.gz"
   docker exec tucardex-app php /var/www/html/sync_backup_r2.php /var/www/html/storage/app/backup_latest.sql.gz >> "$LOG" 2>&1
-  rm -f "/opt/tucardex/app/storage/app/backup_latest.sql.gz"
+  rm -f "$DIR/app/storage/app/backup_latest.sql.gz"
   
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] OK Sincronizado con Cloudflare R2 (Offsite Disaster Recovery)" >> "$LOG"
 else

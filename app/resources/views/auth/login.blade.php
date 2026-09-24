@@ -133,6 +133,7 @@
                 <button class="btn-login" type="submit"><i class="bi bi-box-arrow-in-right"></i> Iniciar sesión</button>
             </form>
 
+            @if (app()->environment() !== 'production')
             <div class="divider">Cuentas de demostración</div>
 
             <div class="demo-card">
@@ -142,6 +143,7 @@
                 <div class="demo-row" onclick="fill('secretaria@colegio.test')"><span class="em">secretaria@colegio.test</span><span class="tag t-sec">Secretaría</span></div>
                 <div class="demo-row" onclick="fill('estudiante@colegio.test')"><span class="em">estudiante@colegio.test</span><span class="tag t-est">Estudiante</span></div>
             </div>
+            @endif
 
             <div class="foot-note">© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuCardex' }} · Todos los derechos reservados</div>
         </div>

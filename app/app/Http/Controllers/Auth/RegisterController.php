@@ -31,7 +31,7 @@ class RegisterController extends Controller
             'plan' => ['required', 'in:basico,pro,institucional'],
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'confirmed', PasswordRule::min(6)],
+            'password' => ['required', 'confirmed', PasswordRule::min(8)],
         ], [
             'email.unique' => 'Ese correo ya está registrado.',
         ]);

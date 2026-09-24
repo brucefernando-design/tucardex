@@ -4,10 +4,10 @@ services:
     container_name: tucardex-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: tucardex
-      MYSQL_USER: tucardex_user
-      MYSQL_PASSWORD: CardexSecure2026!
-      MYSQL_ROOT_PASSWORD: RootCardex2026!
+      MYSQL_DATABASE: ${DB_DATABASE:-tucardex}
+      MYSQL_USER: ${DB_USERNAME:-tucardex_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - tucardex_db_data:/var/lib/mysql
     networks:
