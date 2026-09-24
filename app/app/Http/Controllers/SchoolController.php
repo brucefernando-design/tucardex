@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Role;
 use App\Models\School;
+use App\Models\ImpersonationLog;
 use App\Models\Setting;
 use App\Models\Student;
 use App\Models\Teacher;
@@ -154,13 +155,17 @@ class SchoolController extends Controller
      */
     public function impersonate(School $school): RedirectResponse
     {
+        $currentUser = auth()->user();
+        if (! $currentUser || ! $currentUser->isSuperAdmin()) {
+            abort(403, 'Solo el SuperAdministrador de la plataforma puede usar el modo soporte.');
+        }
+
         $admin = User::withoutGlobalScopes()
             ->where('school_id', $school->id)
             ->whereHas('role', fn ($q) => $q->where('slug', 'admin'))
             ->first();
 
         if (! $admin) {
-            // Si no tiene admin, buscar cualquier usuario del colegio
             $admin = User::withoutGlobalScopes()->where('school_id', $school->id)->first();
         }
 
@@ -168,15 +173,28 @@ class SchoolController extends Controller
             return back()->with('error', "El colegio '{$school->name}' no tiene ningún usuario registrado para ingresar.");
         }
 
-        $superAdminId = auth()->id();
+        // Registrar en bitácora de auditoría estricta
+        $log = ImpersonationLog::create([
+            'superadmin_id'            => $currentUser->id,
+            'superadmin_email'         => $currentUser->email,
+            'school_id'                => $school->id,
+            'school_name'              => $school->name,
+            'impersonated_user_id'     => $admin->id,
+            'impersonated_user_email'  => $admin->email,
+            'ip_address'               => request()->ip(),
+            'user_agent'               => request()->userAgent(),
+            'started_at'               => now(),
+        ]);
+
         session([
-            'impersonator_id' => $superAdminId,
+            'impersonator_id'     => $currentUser->id,
             'impersonator_school' => $school->id,
+            'impersonation_log_id' => $log->id,
         ]);
 
         Auth::login($admin);
 
-        return redirect()->route('dashboard')->with('success', "Has ingresado como Administrador de {$school->name} en Modo Soporte Técnico.");
+        return redirect()->route('dashboard')->with('success', "Has ingresado como Administrador de {$school->name} en Modo Soporte Técnico. (Acción auditada)");
     }
 
     /**
@@ -190,9 +208,15 @@ class SchoolController extends Controller
 
         $superAdminId = session('impersonator_id');
         $schoolId = session('impersonator_school');
+        $logId = session('impersonation_log_id');
+
+        // Cerrar bitácora de auditoría
+        if ($logId) {
+            ImpersonationLog::where('id', $logId)->update(['ended_at' => now()]);
+        }
 
         $superAdmin = User::find($superAdminId);
-        session()->forget(['impersonator_id', 'impersonator_school']);
+        session()->forget(['impersonator_id', 'impersonator_school', 'impersonation_log_id']);
 
         if ($superAdmin) {
             Auth::login($superAdmin);
@@ -243,6 +267,6 @@ class SchoolController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
-        return back()->with('success', "Contraseña actualizada exitosamente para {$admin->name} ({$admin->email}). Nueva clave: {$request->new_password}");
+        return back()->with('success', "Contraseña actualizada exitosamente para {$admin->name} ({$admin->email}). La nueva clave ha sido aplicada de forma segura.");
     }
 }

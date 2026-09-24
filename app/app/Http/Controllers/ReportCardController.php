@@ -6,6 +6,8 @@ use App\Models\Course;
 use App\Models\Grade;
 use App\Models\Setting;
 use App\Models\Student;
+use App\Models\Teacher;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -24,6 +26,13 @@ class ReportCardController extends Controller
      * Padre: solo sus hijos vinculados.
      * Estudiante: solo su propio expediente.
      */
+    /**
+     * Valida permisos para consultar la boleta del estudiante:
+     * - Admin / Secretaría / SuperAdmin: acceso institucional.
+     * - Docente: únicamente si es tutor del grupo del alumno o le imparte clases.
+     * - Padre: solo sus hijos vinculados.
+     * - Estudiante: solo su propio expediente.
+     */
     private function authorizeAccess(Student $student): void
     {
         $user = auth()->user();
@@ -31,7 +40,22 @@ class ReportCardController extends Controller
             abort(403);
         }
 
-        if ($user->hasAnyRole(['admin', 'secretaria', 'docente', 'superadmin'])) {
+        if ($user->hasRole('superadmin')) {
+            return;
+        }
+
+        if ($user->hasAnyRole(['admin', 'secretaria'])) {
+            if ($user->school_id !== $student->school_id) {
+                abort(403, 'No perteneces a la institución de este estudiante.');
+            }
+            return;
+        }
+
+        if ($user->hasRole('docente')) {
+            $teacher = $user->teacher;
+            if (! $teacher || ! $this->teacherHasAccessToStudent($teacher, $student)) {
+                abort(403, 'No tienes autorización para consultar la boleta de un estudiante de otro grupo.');
+            }
             return;
         }
 
@@ -50,6 +74,32 @@ class ReportCardController extends Controller
         }
 
         abort(403, 'Acceso denegado.');
+    }
+
+    private function teacherHasAccessToCourse(Teacher $teacher, Course $course): bool
+    {
+        if ($course->tutor_id === $teacher->id) {
+            return true;
+        }
+
+        if (DB::table('course_subject')->where('course_id', $course->id)->where('teacher_id', $teacher->id)->exists()) {
+            return true;
+        }
+
+        if ($course->schedules()->where('teacher_id', $teacher->id)->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function teacherHasAccessToStudent(Teacher $teacher, Student $student): bool
+    {
+        if (! $student->course) {
+            return false;
+        }
+
+        return $this->teacherHasAccessToCourse($teacher, $student->course);
     }
 
     public function pdf(Student $student): Response
@@ -79,6 +129,20 @@ class ReportCardController extends Controller
      */
     public function courseSheet(Request $request, Course $course): Response
     {
+        $user = auth()->user();
+        if (! $user) {
+            abort(403);
+        }
+
+        if ($user->hasRole('docente')) {
+            $teacher = $user->teacher;
+            if (! $teacher || ! $this->teacherHasAccessToCourse($teacher, $course)) {
+                abort(403, 'No tienes autorización para consultar el acta de un grupo que no tienes asignado.');
+            }
+        } elseif (! $user->hasAnyRole(['admin', 'secretaria', 'superadmin'])) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
         $period = $request->period ?: 'Todos';
 
         $course->load(['tutor', 'subjects' => fn ($q) => $q->orderBy('name')]);
@@ -200,8 +264,17 @@ class ReportCardController extends Controller
     public function massCourseBoletines(Course $course): Response
     {
         $user = auth()->user();
-        if (! $user || ! $user->hasAnyRole(['admin', 'secretaria', 'docente', 'superadmin'])) {
+        if (! $user) {
             abort(403);
+        }
+
+        if ($user->hasRole('docente')) {
+            $teacher = $user->teacher;
+            if (! $teacher || ! $this->teacherHasAccessToCourse($teacher, $course)) {
+                abort(403, 'No tienes autorización para generar las boletas masivas de un grupo que no tienes asignado.');
+            }
+        } elseif (! $user->hasAnyRole(['admin', 'secretaria', 'superadmin'])) {
+            abort(403, 'Acceso no autorizado.');
         }
 
         $students = Student::where('course_id', $course->id)
