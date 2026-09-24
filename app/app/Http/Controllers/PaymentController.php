@@ -119,7 +119,20 @@ class PaymentController extends Controller
         $payment->load('student.course');
         $setting = Setting::current();
 
-        return Pdf::loadView('documents.receipt', compact('payment', 'setting'))
+        // Obtener cargos desglosados asociados al mismo alumno, período y fecha de pago (ej. Colegiatura + Plataforma Digital)
+        $items = Payment::where('student_id', $payment->student_id)
+            ->where('period', $payment->period)
+            ->where('status', $payment->status)
+            ->when($payment->paid_date, fn ($q) => $q->whereDate('paid_date', $payment->paid_date->toDateString()))
+            ->get();
+
+        if ($items->isEmpty() || ! $items->contains('id', $payment->id)) {
+            $items = collect([$payment]);
+        }
+
+        $totalAmount = (float) $items->sum('amount');
+
+        return Pdf::loadView('documents.receipt', compact('payment', 'items', 'totalAmount', 'setting'))
             ->setPaper('letter', 'portrait')
             ->download('Recibo_'.$payment->invoice_number.'.pdf');
     }
