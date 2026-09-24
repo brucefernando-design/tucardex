@@ -172,10 +172,12 @@ class ElectronicBillingController extends Controller
 
     public function anular(ElectronicInvoice $invoice): RedirectResponse
     {
-        $success = $this->billing->cancel($invoice);
-
-        if ($success) {
-            return back()->with('success', 'Factura cancelada ante el SAT correctamente.');
+        $driver = $this->getActiveBillingDriver();
+        if (method_exists($driver, 'cancel')) {
+            $success = $driver->cancel($invoice);
+            if ($success) {
+                return back()->with('success', 'Factura cancelada ante el SAT correctamente.');
+            }
         }
 
         return back()->with('error', 'No fue posible cancelar la factura ante el SAT.');
@@ -184,7 +186,7 @@ class ElectronicBillingController extends Controller
     public function reenviar(ElectronicInvoice $invoice): RedirectResponse
     {
         if ($invoice->payment) {
-            $newInvoice = $this->billing->emitForPayment($invoice->payment);
+            $newInvoice = $this->getActiveBillingDriver()->emitForPayment($invoice->payment);
             if ($newInvoice->estado === 'aceptado') {
                 $invoice->delete();
                 return back()->with('success', "CFDI 4.0 re-emitido y timbrado exitosamente.");

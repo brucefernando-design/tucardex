@@ -21,10 +21,10 @@ class FacturamaService
         $targetEnv = $env ?: ($settings->environment ?? config('services.facturama.env', 'produccion'));
 
         if ($targetEnv === 'produccion') {
-            return 'https://api.facturama.com.mx';
+            return 'https://api.facturama.mx';
         }
 
-        return 'https://apisandbox.facturama.com.mx';
+        return 'https://apisandbox.facturama.mx';
     }
 
     /**
@@ -45,7 +45,7 @@ class FacturamaService
     }
 
     /**
-     * Prueba la conexión con Facturama (GET /api/Profile o /api/Clients).
+     * Prueba la conexión con Facturama (GET /TaxEntity o /BranchOffice).
      */
     public function testConnection(?string $user = null, ?string $password = null, ?string $env = null): array
     {
@@ -57,33 +57,35 @@ class FacturamaService
         if (empty($authUser) || empty($authPass)) {
             return [
                 'ok' => false,
-                'message' => 'No hay usuario y contraseña de Facturama configurados todavía en el servidor (.env).',
+                'message' => 'No hay usuario y contraseña de Facturama configurados en el servidor (.env).',
             ];
         }
 
         try {
             $response = Http::withBasicAuth($authUser, $authPass)
-                ->timeout(10)
-                ->get("{$baseUrl}/api/Profile");
+                ->timeout(12)
+                ->get("{$baseUrl}/TaxEntity");
 
             if ($response->successful()) {
-                $profile = $response->json();
-                $taxName = $profile['TaxName'] ?? $profile['Email'] ?? 'Cuenta Activa';
+                $tax = $response->json();
+                $taxName = $tax['TaxName'] ?? $tax['ComercialName'] ?? 'Cuenta Activa';
+                $rfc = $tax['Rfc'] ?? '';
+                $regimen = $tax['FiscalRegime'] ?? '';
                 return [
                     'ok' => true,
-                    'message' => "Conexión exitosa con Facturama CFDI 4.0 ({$taxName}). Entorno: " . ($env ?: 'producción') . ".",
+                    'message' => "Conexión exitosa con Facturama CFDI 4.0: {$taxName} (RFC: {$rfc}, Régimen: {$regimen}). Timbres TuCardex listos.",
                 ];
             }
 
-            // Intento con endpoint alternativo de clientes
-            $altResponse = Http::withBasicAuth($authUser, $authPass)
+            // Fallback con sucursales
+            $branchResponse = Http::withBasicAuth($authUser, $authPass)
                 ->timeout(10)
-                ->get("{$baseUrl}/api/Clients?limit=1");
+                ->get("{$baseUrl}/BranchOffice");
 
-            if ($altResponse->successful()) {
+            if ($branchResponse->successful()) {
                 return [
                     'ok' => true,
-                    'message' => 'Conexión verificada exitosamente con la API de Facturama.',
+                    'message' => 'Conexión verificada exitosamente con la API de Facturama (Sucursal Principal activa).',
                 ];
             }
 
@@ -119,7 +121,7 @@ class FacturamaService
         $rawRfc = strtoupper(trim($student->dni ?? ''));
         $clientRfc = $this->isValidRfc($rawRfc) ? $rawRfc : 'XAXX010101000';
         $clientNombre = strtoupper($student->guardian_name ?: ($student->full_name ?? 'PUBLICO EN GENERAL'));
-        $clientCp = $settings->codigo_postal ?: '06000';
+        $clientCp = $settings->codigo_postal ?: '88177';
 
         // Complemento IEDU
         $curpAlumno = $student->curp ?: 'XAXX01010100000000';
@@ -150,7 +152,7 @@ class FacturamaService
                 'PaymentMethod' => 'PUE', // Pago en una sola exhibición
                 'Currency' => 'MXN',
                 'Date' => now()->format('Y-m-d\TH:i:s'),
-                'ExpeditionPlace' => $settings->codigo_postal ?: '06000',
+                'ExpeditionPlace' => $settings->codigo_postal ?: '88177',
                 'Items' => [
                     [
                         'ProductCode' => $settings->clave_prod_serv ?: '86121500',
@@ -220,7 +222,7 @@ class FacturamaService
                         'estado' => 'aceptado',
                         'sunat_code' => $facturamaId, // Almacena el ID de Facturama para descargas
                         'hash' => $uuid,
-                        'cdr_description' => 'CFDI 4.0 timbrado exitosamente con Facturama (Complemento IEDU)',
+                        'cdr_description' => 'CFDI 4.0 timbrado exitosamente con Facturama (Complemento IEDU SAT)',
                         'error_message' => null,
                     ]);
                 }
@@ -296,9 +298,10 @@ class FacturamaService
         }
 
         try {
+            $format = strtolower($format) === 'xml' ? 'xml' : 'pdf';
             $response = Http::withBasicAuth($creds['user'], $creds['password'])
                 ->timeout(15)
-                ->get("{$baseUrl}/api/Cfdi/{$format}/issued/{$invoiceId}");
+                ->get("{$baseUrl}/cfdi/{$format}/issued/{$invoiceId}");
 
             if ($response->successful()) {
                 $data = $response->json();
