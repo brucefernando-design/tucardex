@@ -96,7 +96,15 @@ class SecretariaController extends Controller
         $student->load('course');
         $setting = Setting::current();
 
-        $qrData = $this->generateQrCode("ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | CURP: {$student->curp} | ESCUELA: {$setting->school_name} | CICLO: {$setting->academic_year}", 120);
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'credencial',
+            'Credencial de Identificación Escolar Oficial',
+            'EXP-' . $student->code,
+            [],
+            120
+        );
 
         $pdf = Pdf::loadView('secretaria.pdf.credencial_single', compact('student', 'setting', 'qrData'))
             ->setPaper('letter', 'portrait');
@@ -121,7 +129,15 @@ class SecretariaController extends Controller
         $setting = Setting::current();
 
         $studentsWithQr = $students->map(function ($student) use ($setting) {
-            $student->qrData = $this->generateQrCode("ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | CURP: {$student->curp} | ESCUELA: {$setting->school_name} | CICLO: {$setting->academic_year}", 90);
+            $student->qrData = QrCodeService::generateVerifiedQr(
+                $student,
+                $setting,
+                'credencial',
+                'Credencial de Identificación Escolar Oficial',
+                'EXP-' . $student->code,
+                [],
+                90
+            );
             return $student;
         });
 
@@ -172,7 +188,20 @@ class SecretariaController extends Controller
             $promedio = $promedio ? number_format($promedio, 2) : 'N/D';
         }
 
-        $qrData = $this->generateQrCode("VALIDACION OFICIAL | FOLIO: {$folio} | CONSTANCIA DE ESTUDIOS | ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | {$setting->school_name} | CCT: {$setting->cct}", 120);
+        $extra = ['motivo' => $motivo, 'dirigido_a' => $dirigidoA];
+        if ($promedio) {
+            $extra['promedio'] = $promedio . ' / 10.00';
+        }
+
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'constancia_estudios',
+            'Constancia de Estudios Oficial',
+            $folio,
+            $extra,
+            120
+        );
 
         $pdf = Pdf::loadView('secretaria.pdf.constancia_estudios', compact(
             'student', 'setting', 'folio', 'motivo', 'dirigidoA', 'incluirPromedio', 'promedio', 'qrData'
@@ -194,7 +223,15 @@ class SecretariaController extends Controller
         $dirigidoA = $request->get('dirigido_a', 'A QUIEN CORRESPONDA');
         $observaciones = $request->get('observaciones', 'Durante su permanencia en esta institución ha demostrado un comportamiento ejemplar, respetando las normas y valores de nuestra comunidad educativa.');
 
-        $qrData = $this->generateQrCode("VALIDACION OFICIAL | FOLIO: {$folio} | CARTA DE BUENA CONDUCTA | ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | {$setting->school_name}", 120);
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'buena_conducta',
+            'Carta de Buena Conducta Oficial',
+            $folio,
+            ['conducta' => 'Comportamiento ejemplar acreditado'],
+            120
+        );
 
         $pdf = Pdf::loadView('secretaria.pdf.carta_buena_conducta', compact(
             'student', 'setting', 'folio', 'dirigidoA', 'observaciones', 'qrData'
@@ -218,7 +255,15 @@ class SecretariaController extends Controller
         $pendientes = $student->payments->whereIn('status', ['pendiente', 'vencido'])->sum('amount');
         $tieneAdeudo = $pendientes > 0;
 
-        $qrData = $this->generateQrCode("VALIDACION OFICIAL | FOLIO: {$folio} | CONSTANCIA NO ADEUDO | ALUMNO: {$student->full_name} | {$setting->school_name}", 120);
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'no_adeudo',
+            'Constancia de No Adeudo Oficial',
+            $folio,
+            ['estatus_financiero' => $tieneAdeudo ? 'Con saldo pendiente' : 'Al corriente / Sin adeudos'],
+            120
+        );
 
         $pdf = Pdf::loadView('secretaria.pdf.constancia_no_adeudo', compact(
             'student', 'setting', 'folio', 'dirigidoA', 'tieneAdeudo', 'pendientes', 'qrData'
@@ -245,7 +290,15 @@ class SecretariaController extends Controller
 
         $promedioGeneral = Grade::where('student_id', $student->id)->avg('score');
 
-        $qrData = $this->generateQrCode("VALIDACION OFICIAL | FOLIO: {$folio} | KARDEX ACADEMICO | ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | PROMEDIO: " . number_format($promedioGeneral, 2) . " | {$setting->school_name}", 120);
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'kardex',
+            'Kárdex Académico Oficial',
+            $folio,
+            ['promedio' => ($promedioGeneral ? number_format($promedioGeneral, 2) : 'N/D') . ' / 10.00'],
+            120
+        );
 
         $pdf = Pdf::loadView('secretaria.pdf.kardex_oficial', compact(
             'student', 'setting', 'folio', 'grades', 'promedioGeneral', 'qrData'
@@ -265,7 +318,15 @@ class SecretariaController extends Controller
 
         $folio = 'EXP-' . date('Y') . '-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
 
-        $qrData = $this->generateQrCode("FICHA DE INSCRIPCION | FOLIO: {$folio} | ALUMNO: {$student->full_name} | CURP: {$student->curp} | {$setting->school_name}", 120);
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'ficha_matricula',
+            'Ficha Oficial de Inscripción Escolar',
+            $folio,
+            [],
+            120
+        );
 
         $pdf = Pdf::loadView('secretaria.pdf.ficha_matricula', compact(
             'student', 'setting', 'folio', 'qrData'

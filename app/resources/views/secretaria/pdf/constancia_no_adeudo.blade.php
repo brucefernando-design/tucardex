@@ -197,32 +197,27 @@
             font-size: 7pt;
             color: #64748b;
         }
-        .validation-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-top: 1pt solid #e2e8f0;
-            padding-top: 5pt;
-            display: table;
+        .validation-table {
             width: 100%;
+            margin-top: 25pt;
+            border-top: 1pt solid #cbd5e1;
+            padding-top: 8pt;
         }
-        .val-qr {
-            display: table-cell;
-            width: 45pt;
+        .val-qr-td {
+            width: 50pt;
             vertical-align: middle;
         }
-        .val-qr img {
-            width: 40pt;
-            height: 40pt;
+        .val-qr-td img {
+            width: 44pt;
+            height: 44pt;
+            display: block;
         }
-        .val-text {
-            display: table-cell;
+        .val-text-td {
             vertical-align: middle;
-            font-size: 6pt;
-            color: #64748b;
+            font-size: 7pt;
+            color: #475569;
             padding-left: 8pt;
-            line-height: 1.3;
+            line-height: 1.35;
         }
     </style>
 </head>
@@ -362,18 +357,20 @@
         </tr>
     </table>
 
-    <div class="validation-footer">
-        <div class="val-qr">
-            @if($qrData)
-                <img src="{{ $qrData }}">
-            @endif
-        </div>
-        <div class="val-text">
-            <strong>DOCUMENTO OFICIAL DIGITALMENTE CONCILIADO</strong><br>
-            Verificación de solvencia en base de datos TuCardex · Folio: <strong>{{ $folio }}</strong><br>
-            Total verificado: ${{ number_format((float)$student->payments->where('status', 'pagado')->sum('amount'), 2) }} {{ $setting->currency ?? 'MXN' }}
-        </div>
-    </div>
+    <table class="validation-table">
+        <tr>
+            <td class="val-qr-td">
+                @if(!empty($qrData))
+                    <img src="{{ $qrData }}">
+                @endif
+            </td>
+            <td class="val-text-td">
+                <strong style="color:#0f172a; font-size:7.5pt;">DOCUMENTO OFICIAL DIGITALMENTE CONCILIADO</strong><br>
+                Escanee el código QR para verificar la solvencia oficial de esta constancia en tiempo real.<br>
+                Folio: <strong>{{ $folio }}</strong> · Verificado en TuCardex · Emisión: {{ now()->format('d/m/Y H:i') }}
+            </td>
+        </tr>
+    </table>
 
 </body>
 </html>

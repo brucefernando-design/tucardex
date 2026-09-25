@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\DocumentVerification;
+use App\Models\Setting;
+use App\Models\Student;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Log;
@@ -37,5 +40,31 @@ class QrCodeService
             Log::warning('Error generando código QR: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Registra un documento oficial verificable y devuelve el Data URI del QR apuntando a la URL pública de verificación.
+     */
+    public static function generateVerifiedQr(
+        Student $student,
+        Setting $setting,
+        string $docType,
+        string $docTitle,
+        ?string $folio = null,
+        array $extraData = [],
+        int $size = 120
+    ): ?string {
+        $verification = DocumentVerification::issueForStudent(
+            $student,
+            $setting,
+            $docType,
+            $docTitle,
+            $folio,
+            $extraData
+        );
+
+        $url = $verification->verification_url;
+
+        return static::generateDataUri($url, $size);
     }
 }

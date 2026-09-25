@@ -130,31 +130,27 @@
             font-size: 6.5pt;
             color: #64748b;
         }
-        .val-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-top: 1pt solid #e2e8f0;
-            padding-top: 4pt;
-            display: table;
+        .val-footer-table {
             width: 100%;
+            margin-top: 20pt;
+            border-top: 1pt solid #cbd5e1;
+            padding-top: 6pt;
         }
-        .val-qr {
-            display: table-cell;
+        .val-qr-td {
+            width: 45pt;
+            vertical-align: middle;
+        }
+        .val-qr-td img {
             width: 40pt;
-            vertical-align: middle;
+            height: 40pt;
+            display: block;
         }
-        .val-qr img {
-            width: 36pt;
-            height: 36pt;
-        }
-        .val-txt {
-            display: table-cell;
+        .val-txt-td {
             vertical-align: middle;
-            font-size: 6pt;
-            color: #64748b;
-            padding-left: 6pt;
+            font-size: 6.5pt;
+            color: #475569;
+            padding-left: 8pt;
+            line-height: 1.35;
         }
     </style>
 </head>
@@ -276,17 +272,20 @@
         </tr>
     </table>
 
-    <div class="val-footer">
-        <div class="val-qr">
-            @if($qrData)
-                <img src="{{ $qrData }}">
-            @endif
-        </div>
-        <div class="val-txt">
-            <strong>EXPEDIENTE OFICIAL DE MATRÍCULA ESCOLAR</strong><br>
-            Registrado en TuCardex · Folio: <strong>{{ $folio }}</strong> · Fecha de emisión: {{ now()->format('d/m/Y H:i') }}
-        </div>
-    </div>
+    <table class="val-footer-table">
+        <tr>
+            <td class="val-qr-td">
+                @if(!empty($qrData))
+                    <img src="{{ $qrData }}">
+                @endif
+            </td>
+            <td class="val-txt-td">
+                <strong style="color:#0f172a; font-size:7.5pt;">EXPEDIENTE OFICIAL DE MATRÍCULA ESCOLAR</strong><br>
+                Escanee el código QR para verificar la autenticidad de esta ficha de inscripción.<br>
+                Registrado en TuCardex · Folio: <strong>{{ $folio }}</strong> · Fecha de emisión: {{ now()->format('d/m/Y H:i') }}
+            </td>
+        </tr>
+    </table>
 
 </body>
 </html>

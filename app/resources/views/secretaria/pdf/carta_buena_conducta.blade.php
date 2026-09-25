@@ -149,32 +149,27 @@
             color: #64748b;
             margin-top: 1pt;
         }
-        .validation-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-top: 1pt solid #e2e8f0;
-            padding-top: 6pt;
-            display: table;
+        .validation-table {
             width: 100%;
+            margin-top: 25pt;
+            border-top: 1pt solid #cbd5e1;
+            padding-top: 8pt;
         }
-        .val-qr {
-            display: table-cell;
+        .val-qr-td {
             width: 50pt;
             vertical-align: middle;
         }
-        .val-qr img {
-            width: 45pt;
-            height: 45pt;
+        .val-qr-td img {
+            width: 46pt;
+            height: 46pt;
+            display: block;
         }
-        .val-text {
-            display: table-cell;
+        .val-text-td {
             vertical-align: middle;
-            font-size: 6.5pt;
-            color: #64748b;
+            font-size: 7pt;
+            color: #475569;
             padding-left: 8pt;
-            line-height: 1.3;
+            line-height: 1.35;
         }
     </style>
 </head>
@@ -277,18 +272,20 @@
         </tr>
     </table>
 
-    <div class="validation-footer">
-        <div class="val-qr">
-            @if($qrData)
-                <img src="{{ $qrData }}">
-            @endif
-        </div>
-        <div class="val-text">
-            <strong>DOCUMENTO OFICIAL EMITIDO POR CONTROL ESCOLAR</strong><br>
-            Verificación de integridad: Folio <strong>{{ $folio }}</strong> · {{ $setting->school_name }}<br>
-            Emisión: {{ now()->format('d/m/Y H:i') }}
-        </div>
-    </div>
+    <table class="validation-table">
+        <tr>
+            <td class="val-qr-td">
+                @if(!empty($qrData))
+                    <img src="{{ $qrData }}">
+                @endif
+            </td>
+            <td class="val-text-td">
+                <strong style="color:#0f172a; font-size:7.5pt;">DOCUMENTO OFICIAL EMITIDO POR CONTROL ESCOLAR</strong><br>
+                Escanee el código QR para verificar la autenticidad de esta carta en tiempo real.<br>
+                Folio: <strong>{{ $folio }}</strong> · {{ $setting->school_name }} · Emisión: {{ now()->format('d/m/Y H:i') }}
+            </td>
+        </tr>
+    </table>
 
 </body>
 </html>

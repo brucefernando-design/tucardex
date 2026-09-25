@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\DocumentVerification;
 use App\Models\Grade;
 use App\Models\Role;
 use App\Models\School;
@@ -104,13 +105,58 @@ class BoletasQrAndMassTest extends TestCase
         $this->assertGreaterThan(100, strlen($uri));
     }
 
-    public function test_individual_boleta_includes_qr_code(): void
+    public function test_individual_boleta_includes_qr_code_and_creates_verification(): void
     {
         $response = $this->actingAs($this->adminUser)
             ->get(route('students.boletin', $this->student));
 
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
+
+        $verif = DocumentVerification::where('student_id', $this->student->id)
+            ->where('doc_type', 'boleta_calificaciones')
+            ->first();
+
+        $this->assertNotNull($verif);
+        $this->assertEquals(24, strlen($verif->token));
+    }
+
+    public function test_constancia_estudios_creates_verification_and_qr(): void
+    {
+        // 1. Desde perfil del estudiante (students.constancia)
+        $res1 = $this->actingAs($this->adminUser)
+            ->get(route('students.constancia', $this->student));
+        $res1->assertStatus(200);
+        $res1->assertHeader('content-type', 'application/pdf');
+
+        // 2. Desde secretaría (secretaria.constancia.descargar)
+        $res2 = $this->actingAs($this->adminUser)
+            ->get(route('secretaria.constancia.descargar', $this->student));
+        $res2->assertStatus(200);
+        $res2->assertHeader('content-type', 'application/pdf');
+
+        $verif = DocumentVerification::where('student_id', $this->student->id)
+            ->where('doc_type', 'constancia_estudios')
+            ->first();
+
+        $this->assertNotNull($verif);
+
+        // 3. Probar la página pública de verificación al escanear el QR
+        $publicPage = $this->get(route('documentos.verificar', ['token' => $verif->token]));
+        $publicPage->assertStatus(200);
+        $publicPage->assertSee('Documento Oficial Auténtico');
+        $publicPage->assertSee('Roberto Cárdenas Reyes');
+        $publicPage->assertSee('EST-00007');
+        $publicPage->assertSee('Colegio San Martín');
+        // No debe mostrar el teléfono privado del tutor
+        $publicPage->assertDontSee('76537056');
+    }
+
+    public function test_invalid_verification_token_shows_not_recognized_message(): void
+    {
+        $response = $this->get(route('documentos.verificar', ['token' => 'token-inexistente-999999']));
+        $response->assertStatus(200);
+        $response->assertSee('Código de Verificación No Reconocido');
     }
 
     public function test_mass_boletas_generates_pdf_for_course(): void
@@ -144,7 +190,6 @@ class BoletasQrAndMassTest extends TestCase
         $response->assertSee('Boletas Masivas');
         $response->assertSee(route('courses.boletas_masivas', $this->course));
 
-        // Cuando se filtra por un grupo específico
         $filteredResponse = $this->actingAs($this->adminUser)
             ->get(route('students.index', ['course_id' => $this->course->id]));
 

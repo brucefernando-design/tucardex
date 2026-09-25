@@ -47,6 +47,21 @@
         <div class="sign">
             <div class="line">{{ $setting->director ?? 'Dirección Académica' }}<br><span style="color:#7b8a99;font-size:11px">Director(a)</span></div>
         </div>
+
+        @if(!empty($qrData))
+        <table style="width:100%; margin-top:25px; border-top:1px solid #cbd5e1; padding-top:8px;">
+            <tr>
+                <td style="width:50px; vertical-align:middle;">
+                    <img src="{{ $qrData }}" style="width:45px; height:45px; display:block;">
+                </td>
+                <td style="vertical-align:middle; padding-left:8px; font-size:8.5px; color:#64748b; line-height:1.35;">
+                    <strong style="color:#1f2a36;">DOCUMENTO OFICIAL DIGITALMENTE VALIDADO</strong><br>
+                    Escanee el código QR para verificar la autenticidad de esta constancia en tiempo real.<br>
+                    Folio: <strong>{{ $folio ?? 'CE-'.date('Y').'-'.str_pad($student->id, 4, '0', STR_PAD_LEFT) }}</strong>
+                </td>
+            </tr>
+        </table>
+        @endif
     </div>
 
     <div class="footer">Documento generado por el Sistema de Gestión Escolar — {{ $setting->school_name }}</div>

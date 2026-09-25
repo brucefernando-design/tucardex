@@ -52,10 +52,27 @@ class StudentDocumentController extends Controller
         $student->load('course.tutor');
         $setting = Setting::current();
 
-        $pdf = Pdf::loadView('documents.constancia', compact('student', 'setting'))
-            ->setPaper('letter', 'portrait');
+        $folio = 'CE-' . date('Y') . '-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
+        $motivo = 'los fines legales y administrativos que al interesado convengan.';
+        $dirigidoA = 'A QUIEN CORRESPONDA';
+        $incluirPromedio = false;
+        $promedio = null;
 
-        return $pdf->download('Constancia_'.str_replace(' ', '_', $student->full_name).'.pdf');
+        $qrData = \App\Services\QrCodeService::generateVerifiedQr(
+            $student,
+            $setting,
+            'constancia_estudios',
+            'Constancia de Estudios Oficial',
+            $folio,
+            ['motivo' => $motivo, 'dirigido_a' => $dirigidoA]
+        );
+
+        $pdf = Pdf::loadView('secretaria.pdf.constancia_estudios', compact(
+            'student', 'setting', 'folio', 'motivo', 'dirigidoA', 'incluirPromedio', 'promedio', 'qrData'
+        ))->setPaper('letter', 'portrait');
+
+        $cleanName = \Illuminate\Support\Str::slug($student->full_name, '_');
+        return $pdf->download("Constancia_Estudios_{$cleanName}.pdf");
     }
 
     public function estadoCuenta(Student $student): Response

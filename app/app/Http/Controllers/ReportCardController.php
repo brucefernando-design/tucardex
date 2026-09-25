@@ -249,11 +249,21 @@ class ReportCardController extends Controller
 
         $appSettings = Setting::current();
         $academicYear = $appSettings->academic_year ?? (optional($student->course)->academic_year ?? date('Y'));
-        $schoolName = $appSettings->school_name ?? 'TuCardex';
-        $promedioTxt = $generalAverage !== null ? number_format($generalAverage, 1) : 'N/D';
+        $promedioTxt = $generalAverage !== null ? number_format($generalAverage, 1) . ' / 10.0' : 'N/D';
+        $folioBoleta = 'BOL-' . $academicYear . '-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
 
-        $qrContent = "VALIDACION OFICIAL | BOLETA DE CALIFICACIONES | ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | CURP: {$student->curp} | PROMEDIO: {$promedioTxt} | {$schoolName} | CICLO: {$academicYear}";
-        $qrData = QrCodeService::generateDataUri($qrContent, 100);
+        $qrData = QrCodeService::generateVerifiedQr(
+            $student,
+            $appSettings,
+            'boleta_calificaciones',
+            'Boleta de Calificaciones Oficial SEP',
+            $folioBoleta,
+            [
+                'promedio' => $promedioTxt,
+                'asistencia' => $attendancePercent !== null ? "{$attendancePercent}%" : 'N/D',
+            ],
+            100
+        );
 
         return [
             'student'                    => $student,

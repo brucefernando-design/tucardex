@@ -86,6 +86,12 @@ Route::prefix('pagos')->group(function () {
     Route::get('{payment:token}/recibo', [\App\Http\Controllers\ParentPaymentController::class, 'publicReceipt']);
 });
 
+// Verificación pública oficial de documentos escolares vía QR
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('v/{token}', [\App\Http\Controllers\PublicVerificationController::class, 'show'])->name('documentos.verificar');
+    Route::get('verificar/{token}', [\App\Http\Controllers\PublicVerificationController::class, 'show'])->name('documentos.verificar.long');
+});
+
 // Aplicación (requiere sesión)
 Route::middleware('auth')->group(function () {
     // Dejar suplantación SaaS (volver a SuperAdmin)
