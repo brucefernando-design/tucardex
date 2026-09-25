@@ -5,7 +5,7 @@
     <title>Carta de Buena Conducta - {{ $student->full_name }}</title>
     <style>
         @page {
-            margin: 25mm 20mm 20mm 20mm;
+            margin: 12mm 15mm 10mm 15mm;
             size: letter portrait;
         }
         * {
@@ -14,33 +14,33 @@
         }
         body {
             color: #1e293b;
-            font-size: 11pt;
-            line-height: 1.6;
+            font-size: 10pt;
+            line-height: 1.45;
             margin: 0;
             padding: 0;
         }
         .header-table {
             width: 100%;
-            border-bottom: 2.5pt solid #0f172a;
-            padding-bottom: 12pt;
-            margin-bottom: 20pt;
+            border-bottom: 2pt solid #0f172a;
+            padding-bottom: 6pt;
+            margin-bottom: 10pt;
         }
         .header-logo {
-            width: 70pt;
+            width: 55pt;
             vertical-align: middle;
         }
         .header-logo img {
-            max-width: 65pt;
-            max-height: 65pt;
+            max-width: 50pt;
+            max-height: 50pt;
             border-radius: 4pt;
         }
         .header-info {
             vertical-align: middle;
             text-align: center;
-            padding: 0 10pt;
+            padding: 0 8pt;
         }
         .school-title {
-            font-size: 14pt;
+            font-size: 12.5pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
@@ -48,78 +48,78 @@
             margin-bottom: 2pt;
         }
         .school-meta {
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #475569;
-            line-height: 1.3;
+            line-height: 1.25;
         }
         .header-folio {
-            width: 90pt;
+            width: 85pt;
             vertical-align: middle;
             text-align: right;
         }
         .folio-box {
             border: 1.5pt solid #0f172a;
             border-radius: 4pt;
-            padding: 4pt 6pt;
+            padding: 3pt 5pt;
             text-align: center;
             background: #f8fafc;
         }
         .folio-label {
-            font-size: 6pt;
+            font-size: 5.5pt;
             font-weight: bold;
             color: #64748b;
             text-transform: uppercase;
         }
         .folio-number {
-            font-size: 8.5pt;
+            font-size: 8pt;
             font-weight: bold;
             color: #0f172a;
         }
         .doc-title-box {
             text-align: center;
-            margin: 20pt 0 15pt;
+            margin: 8pt 0 10pt;
         }
         .doc-title {
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
             letter-spacing: 2pt;
             border-bottom: 1pt solid #cbd5e1;
             display: inline-block;
-            padding-bottom: 4pt;
+            padding-bottom: 2pt;
         }
         .recipient {
-            font-size: 10pt;
+            font-size: 9pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
-            margin-bottom: 16pt;
+            margin-bottom: 8pt;
         }
         .content-paragraph {
             text-align: justify;
-            margin-bottom: 14pt;
-            font-size: 10.5pt;
-            line-height: 1.75;
+            margin-bottom: 8pt;
+            font-size: 9.5pt;
+            line-height: 1.45;
         }
         .data-card {
             background: #f8fafc;
             border: 1pt solid #e2e8f0;
             border-left: 3pt solid #3b82f6;
             border-radius: 4pt;
-            padding: 10pt 14pt;
-            margin: 16pt 0;
+            padding: 6pt 10pt;
+            margin: 8pt 0;
         }
         .data-table {
             width: 100%;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
         }
         .data-table td {
-            padding: 3pt 0;
+            padding: 1.5pt 0;
             vertical-align: top;
         }
         .data-table .label-col {
-            width: 140pt;
+            width: 130pt;
             color: #64748b;
             font-weight: 500;
         }
@@ -129,47 +129,50 @@
         }
         .signatures-table {
             width: 100%;
-            margin-top: 50pt;
+            margin-top: 18pt;
+            page-break-inside: avoid;
         }
         .sign-col {
             width: 50%;
             text-align: center;
             vertical-align: top;
-            padding: 0 20pt;
+            padding: 0 15pt;
         }
         .sign-line {
             border-top: 1pt solid #0f172a;
-            padding-top: 4pt;
-            font-size: 9pt;
+            padding-top: 3pt;
+            font-size: 8.5pt;
             font-weight: bold;
             color: #0f172a;
         }
         .sign-sub {
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #64748b;
             margin-top: 1pt;
+            line-height: 1.2;
         }
         .validation-table {
             width: 100%;
-            margin-top: 25pt;
+            margin-top: 10pt;
             border-top: 1pt solid #cbd5e1;
-            padding-top: 8pt;
+            padding-top: 4pt;
+            page-break-inside: avoid;
         }
         .val-qr-td {
-            width: 50pt;
+            width: 44pt;
             vertical-align: middle;
         }
         .val-qr-td img {
-            width: 46pt;
-            height: 46pt;
+            width: 40pt;
+            height: 40pt;
             display: block;
         }
         .val-text-td {
             vertical-align: middle;
-            font-size: 7pt;
+            font-size: 6.5pt;
             color: #475569;
-            padding-left: 8pt;
-            line-height: 1.35;
+            padding-left: 6pt;
+            line-height: 1.25;
         }
     </style>
 </head>
@@ -254,7 +257,7 @@
     <table class="signatures-table">
         <tr>
             <td class="sign-col">
-                <div style="height: 40pt;"></div>
+                <div style="height: 24pt;"></div>
                 <div class="sign-line">{{ $setting->director ?? 'Dirección General' }}</div>
                 <div class="sign-sub">
                     Director(a) del Plantel<br>
@@ -262,7 +265,7 @@
                 </div>
             </td>
             <td class="sign-col">
-                <div style="height: 40pt;"></div>
+                <div style="height: 24pt;"></div>
                 <div class="sign-line">SECRETARÍA Y CONTROL ESCOLAR</div>
                 <div class="sign-sub">
                     Validación y Registro<br>

@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
+@php
+    $tieneAdeudo = $tieneAdeudo ?? (($pendientes ?? 0) > 0);
+@endphp
 <head>
     <meta charset="utf-8">
     <title>Constancia de No Adeudo - {{ $student->full_name }}</title>
     <style>
         @page {
-            margin: 20mm 18mm 18mm 18mm;
+            margin: 12mm 15mm 10mm 15mm;
             size: letter portrait;
         }
         * {
@@ -14,25 +17,25 @@
         }
         body {
             color: #1e293b;
-            font-size: 10.5pt;
-            line-height: 1.6;
+            font-size: 9.5pt;
+            line-height: 1.45;
             margin: 0;
             padding: 0;
         }
         .header-table {
             width: 100%;
             border-bottom: 2pt solid #0f172a;
-            padding-bottom: 10pt;
-            margin-bottom: 16pt;
+            padding-bottom: 6pt;
+            margin-bottom: 10pt;
             border-collapse: collapse;
         }
         .header-logo {
-            width: 65pt;
+            width: 55pt;
             vertical-align: middle;
         }
         .header-logo img {
-            max-width: 60pt;
-            max-height: 60pt;
+            max-width: 50pt;
+            max-height: 50pt;
         }
         .header-info {
             vertical-align: middle;
@@ -40,7 +43,7 @@
             padding: 0 8pt;
         }
         .school-title {
-            font-size: 13pt;
+            font-size: 12.5pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
@@ -49,7 +52,7 @@
         .school-meta {
             font-size: 7.5pt;
             color: #475569;
-            line-height: 1.3;
+            line-height: 1.25;
         }
         .header-folio {
             width: 85pt;
@@ -59,7 +62,7 @@
         .folio-box {
             border: 1.5pt solid #0f172a;
             border-radius: 3pt;
-            padding: 4pt 6pt;
+            padding: 3pt 5pt;
             text-align: center;
             background: #f8fafc;
         }
@@ -76,7 +79,7 @@
         }
         .doc-title-box {
             text-align: center;
-            margin: 15pt 0 12pt;
+            margin: 8pt 0 10pt;
         }
         .doc-title {
             font-size: 12pt;
@@ -86,36 +89,36 @@
             letter-spacing: 1.5pt;
             border-bottom: 1.5pt solid #cbd5e1;
             display: inline-block;
-            padding-bottom: 3pt;
+            padding-bottom: 2pt;
         }
         .recipient {
-            font-size: 9.5pt;
+            font-size: 9pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
-            margin-bottom: 12pt;
+            margin-bottom: 8pt;
         }
         .content-paragraph {
             text-align: justify;
-            margin-bottom: 12pt;
-            font-size: 10pt;
-            line-height: 1.7;
+            margin-bottom: 8pt;
+            font-size: 9.5pt;
+            line-height: 1.45;
         }
         .data-card {
             background: #f8fafc;
             border: 1pt solid #cbd5e1;
             border-left: 3.5pt solid #16a34a;
             border-radius: 3pt;
-            padding: 8pt 12pt;
-            margin: 12pt 0;
+            padding: 6pt 10pt;
+            margin: 8pt 0;
         }
         .data-table {
             width: 100%;
-            font-size: 9pt;
+            font-size: 8.5pt;
             border-collapse: collapse;
         }
         .data-table td {
-            padding: 2.5pt 0;
+            padding: 1.5pt 0;
             vertical-align: top;
         }
         .data-table .label-col {
@@ -130,55 +133,56 @@
         .audit-box {
             border: 1pt solid #cbd5e1;
             border-radius: 3pt;
-            padding: 8pt 10pt;
+            padding: 5pt 8pt;
             background: #ffffff;
-            margin: 12pt 0;
+            margin: 8pt 0;
         }
         .audit-title {
-            font-size: 8pt;
+            font-size: 7.5pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
-            margin-bottom: 4pt;
+            margin-bottom: 3pt;
             border-bottom: 1pt solid #e2e8f0;
             padding-bottom: 2pt;
         }
         .audit-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8pt;
+            font-size: 7.5pt;
         }
         .audit-table th {
             background: #f1f5f9;
             color: #475569;
             font-weight: bold;
             text-align: left;
-            padding: 3pt 4pt;
+            padding: 2pt 4pt;
             border: 0.5pt solid #cbd5e1;
-            font-size: 7.5pt;
+            font-size: 7pt;
         }
         .audit-table td {
-            padding: 3pt 4pt;
+            padding: 2pt 4pt;
             border: 0.5pt solid #e2e8f0;
         }
         .status-badge-box {
             text-align: center;
-            margin: 12pt 0;
-            padding: 8pt;
-            border-radius: 4pt;
+            margin: 8pt 0;
+            padding: 5pt;
+            border-radius: 3pt;
             background: #ecfdf5;
             border: 1.5pt solid #16a34a;
         }
         .status-badge-text {
-            font-size: 10pt;
+            font-size: 9pt;
             font-weight: bold;
             color: #065f46;
             text-transform: uppercase;
         }
         .signatures-table {
             width: 100%;
-            margin-top: 35pt;
+            margin-top: 16pt;
             border-collapse: collapse;
+            page-break-inside: avoid;
         }
         .sign-col {
             width: 50%;
@@ -199,25 +203,26 @@
         }
         .validation-table {
             width: 100%;
-            margin-top: 25pt;
+            margin-top: 10pt;
             border-top: 1pt solid #cbd5e1;
-            padding-top: 8pt;
+            padding-top: 4pt;
+            page-break-inside: avoid;
         }
         .val-qr-td {
-            width: 50pt;
+            width: 44pt;
             vertical-align: middle;
         }
         .val-qr-td img {
-            width: 44pt;
-            height: 44pt;
+            width: 40pt;
+            height: 40pt;
             display: block;
         }
         .val-text-td {
             vertical-align: middle;
-            font-size: 7pt;
+            font-size: 6.5pt;
             color: #475569;
-            padding-left: 8pt;
-            line-height: 1.35;
+            padding-left: 6pt;
+            line-height: 1.25;
         }
     </style>
 </head>
@@ -310,7 +315,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($student->payments->where('status', 'pagado')->take(5) as $p)
+                        @foreach($student->payments->where('status', 'pagado')->take(3) as $p)
                             <tr>
                                 <td>{{ $p->concept }}</td>
                                 <td>{{ $p->period ?? 'Regular' }}</td>
@@ -339,7 +344,7 @@
     <table class="signatures-table">
         <tr>
             <td class="sign-col">
-                <div style="height: 35pt;"></div>
+                <div style="height: 20pt;"></div>
                 <div class="sign-line">TESORERÍA Y FINANZAS</div>
                 <div class="sign-sub">
                     Control de Pagos y Caja<br>
@@ -347,7 +352,7 @@
                 </div>
             </td>
             <td class="sign-col">
-                <div style="height: 35pt;"></div>
+                <div style="height: 20pt;"></div>
                 <div class="sign-line">{{ $setting->director ?? 'Dirección General' }}</div>
                 <div class="sign-sub">
                     Dirección del Plantel<br>

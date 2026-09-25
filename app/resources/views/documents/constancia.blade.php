@@ -4,20 +4,20 @@
     <meta charset="utf-8">
     <style>
         * { font-family: DejaVu Sans, sans-serif; }
-        body { color:#2c3e50; font-size:13px; margin:0; }
-        .header { text-align:center; border-bottom:3px solid #2ecc71; padding:26px 20px 16px; }
-        .header .brand { color:#27ae60; font-weight:bold; font-size:22px; }
-        .header h2 { margin:6px 0 0; font-size:15px; letter-spacing:1px; }
-        .header .meta { color:#7b8a99; font-size:11px; margin-top:4px; }
-        .body { padding:40px 56px; line-height:1.9; text-align:justify; }
-        .title { text-align:center; font-size:18px; font-weight:bold; letter-spacing:3px; margin:10px 0 36px; text-decoration:underline; }
+        body { color:#2c3e50; font-size:11.5px; margin:0; }
+        .header { text-align:center; border-bottom:2px solid #2ecc71; padding:15px 20px 10px; }
+        .header .brand { color:#27ae60; font-weight:bold; font-size:18px; }
+        .header h2 { margin:4px 0 0; font-size:13px; letter-spacing:1px; }
+        .header .meta { color:#7b8a99; font-size:9.5px; margin-top:2px; }
+        .body { padding:15px 36px; line-height:1.5; text-align:justify; }
+        .title { text-align:center; font-size:15px; font-weight:bold; letter-spacing:2px; margin:6px 0 16px; text-decoration:underline; }
         .body strong { color:#1f2a36; }
-        .data { margin:22px 0; }
-        .data td { padding:5px 0; }
-        .data .lbl { color:#7b8a99; width:160px; }
-        .sign { margin-top:90px; text-align:center; }
-        .sign .line { border-top:1px solid #2c3e50; width:240px; margin:0 auto; padding-top:6px; }
-        .footer { position:fixed; bottom:24px; left:0; right:0; text-align:center; color:#9fb0bf; font-size:10px; }
+        .data { margin:12px 0; }
+        .data td { padding:3px 0; }
+        .data .lbl { color:#7b8a99; width:150px; }
+        .sign { margin-top:30px; text-align:center; }
+        .sign .line { border-top:1px solid #2c3e50; width:220px; margin:0 auto; padding-top:4px; font-size:11px; }
+        .footer { position:fixed; bottom:15px; left:0; right:0; text-align:center; color:#9fb0bf; font-size:9px; }
     </style>
 </head>
 <body>
