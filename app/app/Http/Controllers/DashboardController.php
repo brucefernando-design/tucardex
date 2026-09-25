@@ -124,9 +124,13 @@ class DashboardController extends Controller
             ->pluck('total', 'level')
             ->toArray();
 
+        $dateFormat = DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', paid_date) as ym"
+            : "DATE_FORMAT(paid_date, '%Y-%m') as ym";
+
         $monthlyIncome = Payment::where('status', 'pagado')
             ->whereNotNull('paid_date')
-            ->selectRaw("DATE_FORMAT(paid_date, '%Y-%m') as ym, SUM(amount) as total")
+            ->selectRaw("{$dateFormat}, SUM(amount) as total")
             ->groupBy('ym')
             ->orderByDesc('ym')
             ->limit(6)
