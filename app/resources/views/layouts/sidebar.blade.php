@@ -34,7 +34,7 @@
 
     @php
         $isAdmin = $u->isAdmin();
-        $isSecretaria = $u->isSecretaria();
+        $isSecretaria = $u->hasRole('secretaria');
         $isAcad = $u->hasAnyRole(['admin','secretaria']);
         $isTeacher = $u->hasRole('docente');
         $isParent = $u->hasRole('padre');
