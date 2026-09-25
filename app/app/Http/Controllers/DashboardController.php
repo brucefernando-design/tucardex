@@ -80,16 +80,41 @@ class DashboardController extends Controller
     private function adminDashboard(): View
     {
         $stats = [
-            'students' => Student::count(),
+            'students' => Student::where('status', 'activo')->count(),
             'teachers' => Teacher::count(),
             'courses' => Course::count(),
             'subjects' => Subject::count(),
+            'today_absences' => Attendance::whereDate('date', today())->where('status', 'ausente')->count(),
         ];
+
+        $todayAbsences = Attendance::with(['student', 'course'])
+            ->whereDate('date', today())
+            ->where('status', 'ausente')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        $overduePayments = Payment::with('student.course')
+            ->where(function ($q) {
+                $q->where('status', 'vencido')
+                  ->orWhere(function ($sub) {
+                      $sub->where('status', 'pendiente')
+                          ->whereNotNull('due_date')
+                          ->where('due_date', '<', today());
+                  });
+            })
+            ->orderBy('due_date')
+            ->limit(5)
+            ->get();
 
         $income = [
             'paid' => (float) Payment::where('status', 'pagado')->sum('amount'),
-            'pending' => (float) Payment::where('status', 'pendiente')->sum('amount'),
+            'pending' => (float) Payment::whereIn('status', ['pendiente', 'vencido'])->sum('amount'),
             'overdue' => (float) Payment::where('status', 'vencido')->sum('amount'),
+            'month_paid' => (float) Payment::where('status', 'pagado')
+                ->whereMonth('paid_date', now()->month)
+                ->whereYear('paid_date', now()->year)
+                ->sum('amount'),
         ];
 
         $studentsByLevel = Course::query()
@@ -119,7 +144,8 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'stats', 'income', 'studentsByLevel', 'monthlyIncome',
-            'genderDistribution', 'recentStudents', 'announcements'
+            'genderDistribution', 'recentStudents', 'announcements',
+            'todayAbsences', 'overduePayments'
         ));
     }
 

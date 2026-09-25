@@ -1,181 +1,369 @@
 @extends('layouts.app')
-@section('title', 'Portal de Padres / Tutores')
+@section('title', 'Portal Familiar')
 
 @section('content')
-<div class="page-head">
+@php
+    $currency = $appSettings->currency ?? '$';
+    $totalAsist = array_sum($attendanceSummary);
+    $pctAsist = $totalAsist ? round(($attendanceSummary['presente'] / $totalAsist) * 100) : 100;
+    
+    // Próxima colegiatura a vencer
+    $nextPayment = $payments->whereIn('status', ['pendiente', 'vencido'])->sortBy('due_date')->first();
+    $totalPendiente = $payments->whereIn('status', ['pendiente', 'vencido'])->sum('amount');
+
+    // Asistencia de la semana actual (L M M J V)
+    $startOfWeek = now()->startOfWeek();
+    $weeklyAttendances = \App\Models\Attendance::where('student_id', $student->id)
+        ->whereBetween('date', [$startOfWeek->toDateString(), now()->endOfWeek()->toDateString()])
+        ->get()
+        ->keyBy(fn($a) => $a->date->format('Y-m-d'));
+
+    $weekDays = [
+        ['label' => 'L', 'name' => 'Lunes', 'date' => $startOfWeek->copy()->addDays(0)],
+        ['label' => 'M', 'name' => 'Martes', 'date' => $startOfWeek->copy()->addDays(1)],
+        ['label' => 'M', 'name' => 'Miércoles', 'date' => $startOfWeek->copy()->addDays(2)],
+        ['label' => 'J', 'name' => 'Jueves', 'date' => $startOfWeek->copy()->addDays(3)],
+        ['label' => 'V', 'name' => 'Viernes', 'date' => $startOfWeek->copy()->addDays(4)],
+    ];
+@endphp
+
+{{-- Cabecera / Saludo --}}
+<div class="page-head mb-3">
     <div>
-        <h1>Hola, {{ auth()->user()->name }}</h1>
-        <div class="breadcrumb-mini">Portal Familiar · Expediente Escolar</div>
+        <h1 style="font-size:22px;font-weight:800;letter-spacing:-0.02em">Hola, {{ auth()->user()->name }} 👋</h1>
+        <div class="breadcrumb-mini">Portal Familiar · Seguimiento Escolar y Colegiaturas</div>
     </div>
     @if($student)
         <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('students.boletin', $student) }}" target="_blank" class="btn btn-danger btn-icon">
-                <i class="bi bi-file-earmark-pdf"></i> Boleta Oficial
+            <a href="{{ route('students.boletin', $student) }}" target="_blank" class="chip-btn">
+                <i class="bi bi-file-earmark-pdf text-danger"></i> Boleta oficial
             </a>
-            <a href="{{ route('students.estadoCuenta', $student) }}" target="_blank" class="btn btn-outline-secondary btn-icon">
-                <i class="bi bi-receipt"></i> Estado de Cuenta
+            <a href="{{ route('students.estadoCuenta', $student) }}" target="_blank" class="chip-btn">
+                <i class="bi bi-receipt text-primary"></i> Estado de cuenta
             </a>
-            <a href="{{ route('students.constancia', $student) }}" target="_blank" class="btn btn-light btn-icon">
-                <i class="bi bi-file-text"></i> Constancia
-            </a>
-            <a href="{{ route('students.carnet', $student) }}" target="_blank" class="btn btn-light btn-icon">
-                <i class="bi bi-person-vcard"></i> Credencial
+            <a href="{{ route('students.carnet', $student) }}" target="_blank" class="chip-btn">
+                <i class="bi bi-person-vcard text-success"></i> Credencial
             </a>
         </div>
     @endif
 </div>
 
-<!-- SELECTOR DE HIJOS SI TIENE MÁS DE 1 -->
+{{-- Selector de Hijos (Tabs/Chips Limpias) --}}
 @if($children->count() > 1)
-    <div class="card mb-4 bg-light border">
-        <div class="card-body py-2 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-people-fill text-primary fs-5"></i>
-                <span class="fw-bold">Viendo a:</span>
-                <span class="badge bg-primary fs-6">{{ $student->full_name }}</span>
-                <span class="text-muted small">({{ optional($student->course)->name ?? 'Sin curso' }})</span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <label class="form-label mb-0 small text-muted">Cambiar de alumno:</label>
-                <select class="form-select form-select-sm" style="width: auto; min-width: 220px;" onchange="window.location.href='?student=' + this.value">
-                    @foreach($children as $ch)
-                        <option value="{{ $ch->id }}" @selected($student && $student->id === $ch->id)>
-                            {{ $ch->full_name }} — {{ optional($ch->course)->name ?? 'Sin grupo' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+        <span class="text-muted small fw-semibold text-uppercase me-1" style="font-size:11px;letter-spacing:0.04em">Hijos:</span>
+        @foreach($children as $ch)
+            <a href="?student={{ $ch->id }}" class="child-tab {{ $student && $student->id === $ch->id ? 'active' : '' }}">
+                <span class="avatar-dot">{{ mb_substr($ch->first_name, 0, 1) }}</span>
+                <span>{{ $ch->full_name }}</span>
+                <span class="badge {{ $student && $student->id === $ch->id ? 'bg-light text-dark' : 'bg-secondary-subtle text-secondary' }} rounded-pill" style="font-size:10.5px">
+                    {{ optional($ch->course)->name ?? 'Sin grupo' }}
+                </span>
+            </a>
+        @endforeach
     </div>
 @elseif($student)
     <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
-        <i class="bi bi-person-check-fill text-success"></i> Estudiante vinculado: <strong>{{ $student->full_name }}</strong> ({{ optional($student->course)->name ?? 'Sin curso' }})
+        <i class="bi bi-mortarboard-fill text-success"></i> Alumno consultado: <strong class="text-dark">{{ $student->full_name }}</strong> · Grado y grupo: <strong class="text-dark">{{ optional($student->course)->name ?? 'Sin asignar' }} {{ optional($student->course)->section ? '"'.$student->course->section.'"' : '' }}</strong>
     </div>
 @endif
 
-@php
-    $totalAsist = array_sum($attendanceSummary);
-    $pctAsist = $totalAsist ? round(($attendanceSummary['presente'] / $totalAsist) * 100) : 0;
-    $pendiente = $payments->whereIn('status', ['pendiente','vencido'])->sum('amount');
-@endphp
-
-<div class="stats-row">
-    <div class="stat-card bg-teal">
-        <div class="label">Promedio de {{ $student->first_name }}</div>
-        <div class="value">{{ $average ?? '—' }}</div>
-        <i class="bi bi-clipboard-data icon"></i>
-    </div>
-    <div class="stat-card bg-green">
-        <div class="label">Asistencia escolar</div>
-        <div class="value">{{ $pctAsist }}%</div>
-        <i class="bi bi-calendar2-check icon"></i>
-    </div>
-    <div class="stat-card bg-blue">
-        <div class="label">Materias inscritas</div>
-        <div class="value">{{ $bySubject->count() }}</div>
-        <i class="bi bi-journal-bookmark icon"></i>
-    </div>
-    <div class="stat-card {{ $pendiente > 0 ? 'bg-red' : 'bg-dark' }}">
-        <div class="label">Colegiaturas / Saldo</div>
-        <div class="value">{{ $appSettings->currency ?? '$' }} {{ number_format($pendiente, 2) }}</div>
-        <i class="bi bi-cash icon"></i>
-    </div>
-</div>
-
-<div class="grid-2">
-    <div class="card card-accent">
-        <div class="card-header"><span class="title"><i class="bi bi-bar-chart"></i> Rendimiento por materia</span></div>
-        <div class="card-body"><div class="chart-box"><canvas id="subjChart"></canvas></div></div>
-    </div>
-    <div class="card">
-        <div class="card-header"><span class="title"><i class="bi bi-calendar2-check"></i> Resumen de asistencia</span></div>
-        <div class="card-body">
-            @foreach(['presente'=>'success','tardanza'=>'warning','justificado'=>'info','ausente'=>'danger'] as $st=>$col)
-                <div class="d-flex justify-content-between mb-1"><span class="text-capitalize">{{ $st }}</span><span>{{ $attendanceSummary[$st] ?? 0 }}</span></div>
-                <div class="progress mb-3"><div class="progress-bar bg-{{ $col }}" style="width:{{ $totalAsist ? ($attendanceSummary[$st]/$totalAsist*100) : 0 }}%"></div></div>
-            @endforeach
-        </div>
-    </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-header"><span class="title"><i class="bi bi-journal-text"></i> Tareas y actividades escolares</span></div>
-    <div class="card-body p-0"><table class="table mb-0"><thead><tr><th class="ps-3">Tarea</th><th>Materia</th><th>Fecha Límite</th><th class="text-end pe-3">Estado de entrega</th></tr></thead><tbody>
-    @forelse($assignments as $a)
-        @php $sub = $submissionsMap->get($a->id); @endphp
-        <tr>
-            <td class="ps-3"><strong>{{ $a->title }}</strong><div class="small text-muted">{{ \Illuminate\Support\Str::limit($a->description, 60) }}</div></td>
-            <td>{{ optional($a->subject)->name }}</td>
-            <td>{{ $a->due_date->format('d/m/Y') }} @if($a->is_overdue)<span class="badge-soft badge-vencido ms-1">Vencida</span>@elseif($a->due_date->isToday())<span class="badge-soft badge-pendiente ms-1">¡Hoy!</span>@endif</td>
-            <td class="text-end pe-3">
-                @if($sub && $sub->status==='revisado')
-                    <span class="badge-soft badge-activo">Calificada{{ $sub->score!==null ? ': '.$sub->score : '' }}</span>
-                @elseif($sub)
-                    <span class="badge-soft badge-pendiente">Entregada</span>
-                @else
-                    <span class="badge bg-light text-secondary border">Sin entregar</span>
+{{-- Hero de Resumen: Próxima Colegiatura + Promedio + Asistencia Semanal --}}
+<div class="card mb-4 border-0 shadow-sm" style="background:#ffffff;border-radius:18px;overflow:hidden">
+    <div class="row g-0">
+        {{-- Próxima Colegiatura a Vencer --}}
+        <div class="col-lg-6 p-4 border-end-lg" style="background:linear-gradient(135deg, #0B1A14 0%, #15803d 100%);color:#ffffff">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge bg-white text-dark rounded-pill px-3 py-1" style="font-size:11px;font-weight:700">
+                    <i class="bi bi-credit-card-2-front me-1 text-success"></i> Colegiatura
+                </span>
+                @if($nextPayment && $nextPayment->due_date)
+                    <span style="font-size:12px;opacity:.9">
+                        Vence: <strong>{{ $nextPayment->due_date->format('d/m/Y') }}</strong>
+                    </span>
                 @endif
-            </td>
-        </tr>
-    @empty<tr><td colspan="4" class="empty-state">No hay tareas pendientes registradas 🎉</td></tr>@endforelse
-    </tbody></table></div>
-</div>
-
-<div class="grid-2">
-    <div class="card">
-        <div class="card-header"><span class="title"><i class="bi bi-clipboard-data"></i> Calificaciones del alumno</span></div>
-        <div class="card-body p-0"><table class="table mb-0"><thead><tr><th class="ps-3">Materia</th><th>Periodo</th><th>Evaluación</th><th>Nota</th></tr></thead><tbody>
-        @forelse($grades->take(12) as $g)
-            <tr>
-                <td class="ps-3">{{ optional($g->subject)->name }}</td>
-                <td class="text-muted">{{ $g->period }}</td>
-                <td>{{ ucfirst($g->type) }}</td>
-                <td><span class="badge-soft {{ $g->score>=6.0 ? 'badge-activo':'badge-vencido' }}">{{ $g->score }}</span></td>
-            </tr>
-        @empty<tr><td colspan="4" class="empty-state">Sin calificaciones registradas</td></tr>@endforelse
-        </tbody></table></div>
-    </div>
-    
-    <!-- ESTADO DE CUENTA Y COLEGIATURAS -->
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span class="title"><i class="bi bi-cash-stack"></i> Pagos y Colegiaturas</span>
-            <a href="{{ route('students.estadoCuenta', $student) }}" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-receipt"></i> Estado de cuenta</a>
-        </div>
-        <div class="card-body p-0"><div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th class="ps-3">Concepto</th><th>Monto</th><th>Estado</th><th class="text-end pe-3">Factura</th></tr></thead><tbody>
-        @forelse($payments->take(10) as $p)
-            @php $comp = $p->comprobante(); @endphp
-            <tr>
-                <td class="ps-3"><strong>{{ $p->concept }}</strong>@if($p->period)<div class="small text-muted">{{ $p->period }}</div>@endif</td>
-                <td><strong>{{ $appSettings->currency ?? '$' }} {{ number_format($p->amount,2) }}</strong></td>
-                <td><span class="badge-soft badge-{{ $p->status }}">{{ ucfirst($p->status) }}</span></td>
-                <td class="text-end pe-3">
-                    @if($comp && $comp->estado === 'aceptado')
-                        <a href="{{ route('facturacion.pdf', $comp) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Descargar PDF"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
-                        <a href="{{ route('facturacion.xml', $comp) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Descargar XML"><i class="bi bi-filetype-xml"></i> XML</a>
-                    @elseif($p->status === 'pagado')
-                        <a href="{{ route('payments.receipt', $p) }}" target="_blank" class="btn btn-sm btn-outline-primary text-nowrap" title="Descargar Recibo en PDF">
-                            <i class="bi bi-file-earmark-pdf me-1"></i> Recibo
-                        </a>
-                    @else
-                        <a href="{{ route('parent.payments.checkout', $p) }}" class="btn btn-sm btn-success fw-bold text-nowrap shadow-sm">
-                            <i class="bi bi-credit-card-2-front me-1"></i> Pagar Colegiatura
-                        </a>
-                    @endif
-                </td>
-            </tr>
-        @empty<tr><td colspan="4" class="empty-state">Sin registros de pago</td></tr>@endforelse
-        </tbody></table></div></div>
-        @if(optional($appSettings)->spei_enabled && $appSettings->spei_clabe)
-            <div class="card-footer bg-light py-2 px-3 small">
-                <i class="bi bi-bank text-primary me-1"></i> <strong>Pago por Transferencia SPEI:</strong> Banco {{ $appSettings->spei_bank }} · CLABE: <code>{{ $appSettings->spei_clabe }}</code> · Beneficiario: {{ $appSettings->spei_beneficiary }}
             </div>
-        @endif
+
+            @if($nextPayment)
+                <div class="my-2">
+                    <div style="font-size:12.5px;opacity:.85;text-transform:uppercase;letter-spacing:0.04em">Próxima a pagar</div>
+                    <div style="font-size:32px;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin:4px 0">
+                        {{ $currency }} {{ number_format($nextPayment->amount, 2) }}
+                    </div>
+                    <div style="font-size:13.5px;opacity:.9;margin-bottom:16px">
+                        {{ $nextPayment->concept }} @if($nextPayment->period) · Periodo {{ $nextPayment->period }} @endif
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="{{ route('parent.payments.checkout', $nextPayment) }}" class="btn btn-brand btn-pill px-4 py-2" style="background:#22c55e;color:#0B1A14;font-weight:700;border:none">
+                        <i class="bi bi-wallet2 me-1"></i> Pagar colegiatura en línea
+                    </a>
+                    <a href="{{ route('students.estadoCuenta', $student) }}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                        Estado de cuenta
+                    </a>
+                </div>
+            @else
+                <div class="py-3">
+                    <div style="font-size:28px;margin-bottom:6px">🙌</div>
+                    <h3 style="font-size:20px;font-weight:700;margin:0 0 4px">¡Al corriente en colegiaturas!</h3>
+                    <p style="font-size:13px;opacity:.85;margin-bottom:14px">No tienes saldos pendientes por liquidar para {{ $student->first_name }}.</p>
+                    <a href="{{ route('students.estadoCuenta', $student) }}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                        Ver historial de pagos
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        {{-- Resumen Académico: Promedio General y Asistencia de la Semana --}}
+        <div class="col-lg-6 p-4 d-flex flex-column justify-content-between" style="background:#ffffff">
+            <div class="row g-3 align-items-center">
+                {{-- Promedio General --}}
+                <div class="col-sm-5">
+                    <div class="p-3 rounded-4" style="background:#f8fafc;border:1px solid var(--line-light)">
+                        <div class="text-muted small text-uppercase fw-semibold" style="font-size:11px;letter-spacing:0.04em">Promedio general</div>
+                        <div class="d-flex align-items-baseline gap-1 my-1">
+                            <span style="font-size:32px;font-weight:800;color:var(--brand);letter-spacing:-0.03em">
+                                {{ $average !== null ? number_format($average, 1) : '—' }}
+                            </span>
+                            <span class="text-muted small fw-semibold">/ 10</span>
+                        </div>
+                        <div class="small text-muted" style="font-size:11.5px">
+                            {{ $grades->count() }} notas registradas
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Asistencia de la semana en bolitas L M M J V --}}
+                <div class="col-sm-7">
+                    <div class="p-3 rounded-4" style="background:#f8fafc;border:1px solid var(--line-light)">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small text-uppercase fw-semibold" style="font-size:11px;letter-spacing:0.04em">Esta semana</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:10.5px">{{ $pctAsist }}% global</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between gap-1">
+                            @foreach($weekDays as $wd)
+                                @php
+                                    $dStr = $wd['date']->toDateString();
+                                    $att = $weeklyAttendances->get($dStr);
+                                    $isFuture = $wd['date']->isFuture() && !$wd['date']->isToday();
+                                    $dotClass = 'vacio';
+                                    $dotTitle = $wd['name'] . ': Sin registro';
+
+                                    if ($att) {
+                                        $dotClass = $att->status; // presente, tardanza, ausente, justificado
+                                        $dotTitle = $wd['name'] . ': ' . ucfirst($att->status);
+                                    } elseif ($isFuture) {
+                                        $dotTitle = $wd['name'] . ': Por ocurrir';
+                                    } elseif ($wd['date']->isToday()) {
+                                        $dotTitle = $wd['name'] . ' (Hoy)';
+                                    }
+                                @endphp
+                                <div class="text-center">
+                                    <div class="day-dot {{ $dotClass }}" title="{{ $dotTitle }}" data-bs-toggle="tooltip">
+                                        {{ $wd['label'] }}
+                                    </div>
+                                    <span class="text-muted d-block mt-1" style="font-size:10px">{{ $wd['date']->format('d') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top small text-muted">
+                <span>Materias cursando: <strong class="text-dark">{{ $bySubject->count() }}</strong></span>
+                <a href="{{ route('students.boletin', $student) }}" target="_blank" class="text-success fw-semibold">
+                    Ver boleta oficial <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="card mt-4">
-    <div class="card-header"><span class="title"><i class="bi bi-megaphone"></i> Comunicados del Colegio</span></div>
+{{-- Tareas Pendientes y Calificaciones --}}
+<div class="row g-3 mb-4">
+    {{-- Tareas Escolares --}}
+    <div class="col-lg-7">
+        <div class="card h-100 mb-0">
+            <div class="card-header">
+                <span class="title">
+                    <i class="bi bi-journal-text"></i> Tareas y actividades escolares
+                </span>
+                <span class="badge bg-light text-secondary border">{{ $assignments->count() }} activas</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Tarea</th>
+                                <th>Materia</th>
+                                <th>Fecha límite</th>
+                                <th class="text-end pe-3">Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @forelse($assignments as $a)
+                            @php $sub = $submissionsMap->get($a->id); @endphp
+                            <tr>
+                                <td class="ps-3">
+                                    <strong class="d-block text-dark" style="font-size:13px">{{ $a->title }}</strong>
+                                    <span class="text-muted small">{{ \Illuminate\Support\Str::limit($a->description, 45) }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ optional($a->subject)->name }}</span>
+                                </td>
+                                <td>
+                                    <span class="small {{ $a->is_overdue ? 'text-danger fw-semibold' : 'text-muted' }}">
+                                        {{ $a->due_date->format('d/m/Y') }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-3">
+                                    @if($sub && $sub->status === 'revisado')
+                                        <span class="badge-soft badge-activo">Calificada: {{ $sub->score ?? '—' }}</span>
+                                    @elseif($sub)
+                                        <span class="badge-soft badge-pendiente">Entregada</span>
+                                    @else
+                                        <span class="badge bg-light text-secondary border">Sin entregar</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="empty-state py-4">No hay tareas escolares pendientes 🎉</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Calificaciones por Materia --}}
+    <div class="col-lg-5">
+        <div class="card h-100 mb-0">
+            <div class="card-header">
+                <span class="title">
+                    <i class="bi bi-clipboard-data"></i> Calificaciones recientes
+                </span>
+                <a href="{{ route('students.boletin', $student) }}" target="_blank" class="small text-muted fw-semibold">Boleta completa</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Materia</th>
+                                <th>Periodo</th>
+                                <th class="text-end pe-3">Calificación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @forelse($grades->take(6) as $g)
+                            <tr>
+                                <td class="ps-3">
+                                    <strong class="text-dark" style="font-size:13px">{{ optional($g->subject)->name }}</strong>
+                                </td>
+                                <td><span class="text-muted small">{{ $g->period }}</span></td>
+                                <td class="text-end pe-3">
+                                    <span class="badge-soft {{ $g->score >= 6.0 ? 'badge-activo' : 'badge-vencido' }} fw-bold" style="font-size:12px">
+                                        {{ number_format($g->score, 1) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="empty-state py-4">Sin calificaciones registradas aún</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Estado de Cuenta y Colegiaturas --}}
+<div class="card mb-4">
+    <div class="card-header">
+        <span class="title">
+            <i class="bi bi-cash-stack"></i> Historial de pagos y colegiaturas
+        </span>
+        <a href="{{ route('students.estadoCuenta', $student) }}" target="_blank" class="small text-muted fw-semibold">
+            Descargar estado de cuenta
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Concepto</th>
+                        <th>Periodo</th>
+                        <th>Monto</th>
+                        <th>Fecha límite / Pago</th>
+                        <th>Estatus</th>
+                        <th class="text-end pe-3">Comprobante</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($payments->take(8) as $p)
+                    @php $comp = $p->comprobante(); @endphp
+                    <tr>
+                        <td class="ps-3">
+                            <strong class="text-dark" style="font-size:13.5px">{{ $p->concept }}</strong>
+                        </td>
+                        <td><span class="text-muted small">{{ $p->period ?? '—' }}</span></td>
+                        <td>
+                            <strong>{{ $currency }} {{ number_format($p->amount, 2) }}</strong>
+                        </td>
+                        <td>
+                            <span class="text-muted small">
+                                {{ $p->status === 'pagado' ? optional($p->paid_date)->format('d/m/Y') : optional($p->due_date)->format('d/m/Y') }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-soft badge-{{ $p->status }}">{{ ucfirst($p->status) }}</span>
+                        </td>
+                        <td class="text-end pe-3">
+                            @if($comp && $comp->estado === 'aceptado')
+                                <a href="{{ route('facturacion.pdf', $comp) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Descargar PDF">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </a>
+                            @elseif($p->status === 'pagado')
+                                <a href="{{ route('payments.receipt', $p) }}" target="_blank" class="btn btn-sm btn-light border" title="Recibo">
+                                    <i class="bi bi-file-earmark-pdf text-danger me-1"></i> Recibo
+                                </a>
+                            @else
+                                <a href="{{ route('parent.payments.checkout', $p) }}" class="btn btn-sm btn-brand btn-pill text-nowrap">
+                                    Pagar colegiatura
+                                </a>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="empty-state py-4">Sin registros de colegiaturas</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if(optional($appSettings)->spei_enabled && $appSettings->spei_clabe)
+        <div class="card-footer bg-light py-2 px-3 small text-muted">
+            <i class="bi bi-bank text-success me-1"></i> <strong>Transferencia SPEI:</strong> Banco {{ $appSettings->spei_bank }} · CLABE: <code>{{ $appSettings->spei_clabe }}</code> · Beneficiario: {{ $appSettings->spei_beneficiary }}
+        </div>
+    @endif
+</div>
+
+{{-- Comunicados --}}
+<div class="card mb-4">
+    <div class="card-header">
+        <span class="title"><i class="bi bi-megaphone"></i> Comunicados escolares</span>
+    </div>
     <div class="card-body p-0">
         <div class="list-group list-group-flush">
             @forelse($announcements as $an)
@@ -187,17 +375,9 @@
                     <p class="small text-muted mb-0">{{ \Illuminate\Support\Str::limit($an->body, 140) }}</p>
                 </div>
             @empty
-                <div class="empty-state p-4 text-center text-muted">No hay comunicados recientes dirigidos a padres de familia.</div>
+                <div class="empty-state py-4 text-muted">No hay comunicados escolares recientes.</div>
             @endforelse
         </div>
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-new Chart(document.getElementById('subjChart'),{type:'bar',
-    data:{labels:@json($bySubject->pluck('subject')),datasets:[{label:'Promedio',data:@json($bySubject->pluck('avg')),backgroundColor:'#1abc9c',borderRadius:6,maxBarThickness:46}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:10}}}});
-</script>
-@endpush

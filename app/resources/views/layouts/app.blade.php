@@ -34,7 +34,7 @@
     <div class="main">
         <header class="topbar">
             <button class="toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
-            <div class="page-title"><i class="bi bi-mortarboard-fill"></i> @yield('title', 'Panel')</div>
+            <div class="page-title"><i class="bi bi-mortarboard-fill"></i> @yield('title', 'Inicio')</div>
             <div class="spacer"></div>
             <div class="top-actions">
                 @unless(auth()->user()->isSuperAdmin())
@@ -49,7 +49,7 @@
                     <a href="{{ route('announcements.index') }}" title="Comunicados"><i class="bi bi-megaphone fs-5"></i></a>
                 @endif
                 @if(auth()->user()->hasAnyRole(['admin','secretaria']))
-                    <a href="{{ route('payments.index') }}" title="Pagos"><i class="bi bi-cash-coin fs-5"></i></a>
+                    <a href="{{ route('payments.index') }}" title="Colegiaturas"><i class="bi bi-cash-coin fs-5"></i></a>
                 @endif
                 <!-- Botón de Asistente en Barra Superior -->
                 <button onclick="window.openCardexAssistant()" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3 py-1 me-2" title="Abrir Asistente TuCardex">
@@ -89,31 +89,29 @@
                     $onTrial = $currentSchool->isOnTrial();
                     $trialDays = $currentSchool->trialDaysRemaining();
                 @endphp
-                <div class="card mb-3 border-0 shadow-sm" style="background: #f8fafc; border-left: 4px solid #16a34a !important; border-radius: 8px;">
-                    <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">
-                                <i class="bi bi-shield-check me-1"></i>Plan {{ $planName }}
+                <div class="plan-banner-line">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">
+                            <i class="bi bi-shield-check me-1"></i>Plan {{ $planName }}
+                        </span>
+                        @if($onTrial)
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 11px;">
+                                <i class="bi bi-clock-history me-1"></i>Prueba: {{ $trialDays }} {{ $trialDays === 1 ? 'día restante' : 'días restantes' }}
                             </span>
-                            @if($onTrial)
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 11px;">
-                                    <i class="bi bi-clock-history me-1"></i>Prueba activa: {{ $trialDays }} {{ $trialDays === 1 ? 'día restante' : 'días restantes' }}
-                                </span>
-                                <span class="badge {{ $currentSchool->students()->count() >= $currentSchool->maxStudents() ? 'bg-danger-subtle text-danger border-danger-subtle' : 'bg-warning-subtle text-dark border-warning-subtle' }} px-2 py-1" style="font-size: 11px;">
-                                    <i class="bi bi-people me-1"></i>Cupo de prueba: {{ $currentSchool->students()->count() }}/{{ $currentSchool->maxStudents() }} alumnos
-                                </span>
-                            @endif
-                            <span class="text-muted small d-none d-md-inline" style="font-size: 12px;">
-                                {{ $currentSchool->name }}
+                            <span class="badge {{ $currentSchool->students()->count() >= $currentSchool->maxStudents() ? 'bg-danger-subtle text-danger' : 'bg-light text-secondary border' }} px-2 py-1" style="font-size: 11px;">
+                                <i class="bi bi-people me-1"></i>Cupo: {{ $currentSchool->students()->count() }}/{{ $currentSchool->maxStudents() }}
                             </span>
-                        </div>
-                        @if($currentSchool->effectivePlan() === 'basico' || $onTrial)
-                            <a href="mailto:ventas@tucardex.com?subject={{ urlencode('Mejorar Plan - ' . $currentSchool->name) }}&body={{ urlencode('Hola, deseo solicitar información para mejorar el plan de mi colegio (' . $currentSchool->name . ').') }}" 
-                               class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 11.5px; font-weight: 600;">
-                                <i class="bi bi-stars me-1"></i>Mejorar plan
-                            </a>
                         @endif
+                        <span class="text-muted small d-none d-md-inline" style="font-size: 12px;">
+                            {{ $currentSchool->name }}
+                        </span>
                     </div>
+                    @if($currentSchool->effectivePlan() === 'basico' || $onTrial)
+                        <a href="mailto:ventas@tucardex.com?subject={{ urlencode('Mejorar Plan - ' . $currentSchool->name) }}&body={{ urlencode('Hola, deseo solicitar información para mejorar el plan de mi colegio (' . $currentSchool->name . ').') }}" 
+                           class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 11.5px; font-weight: 600;">
+                            <i class="bi bi-stars me-1"></i>Mejorar plan
+                        </a>
+                    @endif
                 </div>
             @endif
             @if(session('success'))
