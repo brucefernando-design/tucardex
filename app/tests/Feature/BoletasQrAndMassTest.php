@@ -197,4 +197,19 @@ class BoletasQrAndMassTest extends TestCase
         $filteredResponse->assertSee('Grupo Filtrado:');
         $filteredResponse->assertSee('Imprimir Boletas de');
     }
+
+    public function test_constancia_estudios_generates_exactly_single_page(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('secretaria.constancia.descargar', $this->student));
+
+        $response->assertStatus(200);
+        $content = $response->getContent();
+
+        // En especificación PDF, cada página se declara como un diccionario /Type /Page
+        preg_match_all('/\/Type\s*\/Page\b/', $content, $matches);
+        $pageCount = count($matches[0]);
+
+        $this->assertEquals(1, $pageCount, "La constancia de estudios debe caber exactamente en 1 sola hoja.");
+    }
 }
