@@ -11,6 +11,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
+
+    <!-- PWA Settings & Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B1A14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TuCardex">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 </head>
 <body>
 @if(session()->has('impersonator_id'))
@@ -134,5 +144,60 @@
 </script>
 @stack('scripts')
     @include('layouts.assistant')
+
+    <!-- Banner PWA discreto para instalar app en celular -->
+    <div id="pwaInstallBanner" style="display:none; position:fixed; bottom:20px; left:16px; right:16px; max-width:420px; margin:0 auto; z-index:9999; background:#0B1A14; color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.4); align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(255,255,255,0.12);">
+        <div class="d-flex align-items-center gap-3" style="min-width:0;">
+            <img src="/icons/icon-192.png" alt="TuCardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+            <div style="min-width:0; line-height:1.2;">
+                <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuCardex App</div>
+                <small style="color:#94a3b8; font-size:11.5px;">Acceso rápido con ícono en tu teléfono</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button onclick="installPWA()" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold" style="font-size:12px;">Instalar</button>
+            <button onclick="dismissPwaInstall()" class="btn btn-sm text-secondary p-1" style="line-height:1;" title="Cerrar"><i class="bi bi-x-lg"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Registro del Service Worker PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.log('SW registration error:', err);
+                });
+            });
+        }
+
+        let pwaDeferredPrompt;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            pwaDeferredPrompt = e;
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner && !localStorage.getItem('pwa_dismissed')) {
+                banner.style.display = 'flex';
+            }
+        });
+
+        function installPWA() {
+            if (pwaDeferredPrompt) {
+                pwaDeferredPrompt.prompt();
+                pwaDeferredPrompt.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        const banner = document.getElementById('pwaInstallBanner');
+                        if (banner) banner.style.display = 'none';
+                    }
+                    pwaDeferredPrompt = null;
+                });
+            }
+        }
+
+        function dismissPwaInstall() {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'none';
+            localStorage.setItem('pwa_dismissed', 'true');
+        }
+    </script>
 </body>
 </html>
