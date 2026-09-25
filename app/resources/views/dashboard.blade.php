@@ -122,6 +122,12 @@
 </div>
 
 {{-- Sección "Hoy en el colegio" (2 columnas) --}}
+<div class="d-flex align-items-center justify-content-between mb-2">
+    <h2 style="font-size:15px;font-weight:700;margin:0;color:var(--ink)">
+        <i class="bi bi-clock-history me-1 text-success"></i> Hoy en el colegio
+    </h2>
+    <span class="text-muted small" style="font-size:12px">Resumen operativo del día</span>
+</div>
 <div class="row g-3 mb-4">
     {{-- Columna Izquierda: Faltas de hoy --}}
     <div class="col-lg-6">
