@@ -109,6 +109,8 @@ class SecretariaController extends Controller
      */
     public function descargarCredencialesGrupo(Course $course, Request $request): Response
     {
+        $tipo = $request->query('tipo', 'frente_reverso');
+
         $students = Student::where('course_id', $course->id)
             ->where('status', 'activo')
             ->orderBy('last_name')
@@ -126,10 +128,12 @@ class SecretariaController extends Controller
             'students' => $studentsWithQr,
             'course' => $course,
             'setting' => $setting,
+            'tipo' => $tipo,
         ])->setPaper('letter', 'portrait');
 
         $cleanCourse = Str::slug($course->full_name, '_');
-        return $pdf->download("Credenciales_Grupo_{$cleanCourse}.pdf");
+        $sufijo = $tipo === 'duplex' ? 'Duplex' : 'Completa';
+        return $pdf->download("Credenciales_{$cleanCourse}_{$sufijo}.pdf");
     }
 
     /**

@@ -16,10 +16,39 @@
             <p class="text-muted small mb-0">Emisión de credenciales con fotografía, código QR de validación y formato individual PVC o planilla por grado/grupo.</p>
         </div>
         @if($selectedCourse && $students->isNotEmpty())
-            <a href="{{ route('secretaria.credenciales.grupo', $selectedCourse->id) }}" class="btn btn-success rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2">
-                <i class="bi bi-printer-fill"></i>
-                <span class="fw-medium">Imprimir Planilla Completa ({{ $students->count() }} Alumnos)</span>
-            </a>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="dropdown">
+                    <button class="btn btn-success rounded-pill px-3 py-2 shadow-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-printer-fill"></i>
+                        <span class="fw-semibold">Imprimir Planilla Completa ({{ $students->count() }} Alumnos)</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="min-width:320px;">
+                        <li>
+                            <a class="dropdown-item p-2 rounded-3" href="{{ route('secretaria.credenciales.grupo', ['course' => $selectedCourse->id, 'tipo' => 'frente_reverso']) }}">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-layout-split text-success fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-dark" style="font-size:13px;">Frente y Reverso Juntos (Recomendado)</strong>
+                                        <span class="text-muted" style="font-size:11px;">4 alumnos por hoja (anverso y reverso contiguos). Ideal para doblar y enmicar en cartulina u opalina.</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item p-2 rounded-3" href="{{ route('secretaria.credenciales.grupo', ['course' => $selectedCourse->id, 'tipo' => 'duplex']) }}">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-arrow-repeat text-primary fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-dark" style="font-size:13px;">Impresión Dúplex (Doble Cara)</strong>
+                                        <span class="text-muted" style="font-size:11px;">8 alumnos por hoja. Pág. 1 con frentes y Pág. 2 con reversos en espejo para impresoras automáticas a 2 caras.</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         @endif
     </div>
 
@@ -57,9 +86,23 @@
                     <span class="text-muted small">Total de alumnos activos: {{ $students->count() }}</span>
                 </div>
                 @if($students->isNotEmpty())
-                    <a href="{{ route('secretaria.credenciales.grupo', $selectedCourse->id) }}" class="btn btn-outline-success btn-sm rounded-pill px-3">
-                        <i class="bi bi-file-earmark-pdf"></i> Descargar PDF Lote
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-success btn-sm rounded-pill px-3 dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF Lote
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="min-width:280px;">
+                            <li>
+                                <a class="dropdown-item py-2 px-3 rounded-2" href="{{ route('secretaria.credenciales.grupo', ['course' => $selectedCourse->id, 'tipo' => 'frente_reverso']) }}">
+                                    <i class="bi bi-layout-split text-success me-2"></i> Frente + Reverso (Plegable/Enmicar)
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 px-3 rounded-2" href="{{ route('secretaria.credenciales.grupo', ['course' => $selectedCourse->id, 'tipo' => 'duplex']) }}">
+                                    <i class="bi bi-arrow-repeat text-primary me-2"></i> Dúplex (Doble Cara)
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 @endif
             </div>
 
