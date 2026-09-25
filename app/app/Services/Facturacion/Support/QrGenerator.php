@@ -37,19 +37,6 @@ class QrGenerator
     /** Data URI PNG del QR, o null si no hay librería disponible. */
     public static function dataUri(ElectronicInvoice $invoice, ElectronicBillingSetting $settings, int $size = 150): ?string
     {
-        if (! class_exists(\Endroid\QrCode\QrCode::class) || ! class_exists(\Endroid\QrCode\Writer\PngWriter::class)) {
-            return null;
-        }
-
-        try {
-            $writer = new \Endroid\QrCode\Writer\PngWriter();
-            $qr = \Endroid\QrCode\QrCode::create(static::content($invoice, $settings))
-                ->setSize($size)
-                ->setMargin(6);
-
-            return $writer->write($qr)->getDataUri();
-        } catch (Throwable $e) {
-            return null;
-        }
+        return \App\Services\QrCodeService::generateDataUri(static::content($invoice, $settings), $size, 6);
     }
 }

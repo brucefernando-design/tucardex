@@ -24,10 +24,10 @@
         .ok { color:#1e8e57; } .bad { color:#c0392b; }
         .summary { margin-top:18px; border:2px solid #2ecc71; border-radius:6px; padding:12px 16px; text-align:right; }
         .summary .big { font-size:22px; font-weight:bold; color:#1f2a36; }
-        .footer { margin-top:50px; padding:0 24px; color:#7b8a99; font-size:10px; }
-        .sign { margin-top:46px; width:100%; }
+        .footer { margin-top:14px; padding:0 24px; color:#7b8a99; font-size:9.5px; }
+        .sign { margin-top:24px; width:100%; }
         .sign td { text-align:center; padding-top:6px; border-top:1px solid #2c3e50; font-size:11px; width:33%; }
-        .sign-row td { border:none; padding-top:40px; }
+        .sign-row td { border:none; padding-top:26px; }
     </style>
 </head>
 <body>
@@ -104,6 +104,25 @@
             <tr class="sign-row"><td></td><td></td><td></td></tr>
             <tr><td>Profesor Titular</td><td>{{ $appSettings->director ?? 'Director(a)' }}<br><small style='color:#9fb0bf;font-size:9px'>Cédula Prof.: {{ $appSettings->cedula_profesional ?? '_______________' }}</small></td><td>Padre de Familia o Tutor</td></tr>
         </table>
+
+        @if(!empty($qrData))
+        <table style="width:100%;margin-top:20px;border-top:1px solid #cbd5e1;padding-top:8px;">
+            <tr>
+                <td style="width:50px;vertical-align:middle;text-align:left;">
+                    <img src="{{ $qrData }}" style="width:48px;height:48px;display:block;">
+                </td>
+                <td style="vertical-align:middle;font-size:8.5px;color:#64748b;line-height:1.35;padding-left:8px;">
+                    <strong style="color:#1f2a36;">DOCUMENTO OFICIAL VALIDADOR SEP / TUCARDEX</strong><br>
+                    Alumno: <strong>{{ $student->full_name }}</strong> &middot; Matrícula: <strong>{{ $student->code }}</strong> &middot; CURP: <strong>{{ $student->curp ?? $student->dni ?? 'N/D' }}</strong><br>
+                    Promedio General: <strong>{{ $generalAverage !== null ? number_format($generalAverage, 1) : '—' }}</strong> &middot; Escala oficial SEP: 5.0 a 10.0 (Mínimo aprobatorio: 6.0)
+                </td>
+                <td style="width:115px;vertical-align:middle;text-align:right;font-size:8px;color:#94a3b8;line-height:1.3;">
+                    Validación QR Escolar<br>
+                    Emitido: {{ $date->format('d/m/Y') }}
+                </td>
+            </tr>
+        </table>
+        @endif
     </div>
 
     <div class="footer">

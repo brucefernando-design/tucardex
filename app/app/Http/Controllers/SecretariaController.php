@@ -12,6 +12,7 @@ use App\Models\Setting;
 use App\Models\Student;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\QrCodeService;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Request;
@@ -496,19 +497,6 @@ class SecretariaController extends Controller
      */
     private function generateQrCode(string $content, int $size = 120): ?string
     {
-        if (! class_exists(QrCode::class) || ! class_exists(PngWriter::class)) {
-            return null;
-        }
-
-        try {
-            $writer = new PngWriter();
-            $qr = QrCode::create($content)
-                ->setSize($size)
-                ->setMargin(4);
-
-            return $writer->write($qr)->getDataUri();
-        } catch (\Throwable $e) {
-            return null;
-        }
+        return QrCodeService::generateDataUri($content, $size);
     }
 }

@@ -4,13 +4,31 @@
 @section('content')
 <div class="page-head">
     <div><h1>Estudiantes</h1><div class="breadcrumb-mini">Inscripciones, expedientes y alumnos</div></div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
         <a href="{{ route('students.import.form') }}" class="btn btn-outline-secondary btn-icon"><i class="bi bi-upload"></i> Importar</a>
         <div class="dropdown">
             <button class="btn btn-outline-secondary btn-icon dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-download"></i> Exportar</button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ route('students.export', array_merge(request()->only('course_id','status'), ['format'=>'csv'])) }}"><i class="bi bi-filetype-csv me-2"></i>Excel / CSV</a></li>
-                <li><a class="dropdown-item" href="{{ route('students.export', array_merge(request()->only('course_id','status'), ['format'=>'pdf'])) }}"><i class="bi bi-file-earmark-pdf me-2"></i>PDF</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                <li><a class="dropdown-item" href="{{ route('students.export', array_merge(request()->only('course_id','status'), ['format'=>'csv'])) }}"><i class="bi bi-filetype-csv me-2 text-success"></i>Excel / CSV</a></li>
+                <li><a class="dropdown-item" href="{{ route('students.export', array_merge(request()->only('course_id','status'), ['format'=>'pdf'])) }}"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i>PDF Lista</a></li>
+            </ul>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-outline-success btn-icon dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-printer-fill"></i> Boletas Masivas
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="min-width: 260px; max-height: 340px; overflow-y: auto;">
+                <li class="dropdown-header text-uppercase small fw-bold px-2 py-1 text-muted">Boletas por Grupo (PDF)</li>
+                @forelse($courses as $c)
+                    <li>
+                        <a class="dropdown-item py-2 px-2 rounded-2 d-flex align-items-center justify-content-between" href="{{ route('courses.boletas_masivas', $c) }}" target="_blank">
+                            <span><i class="bi bi-file-earmark-pdf text-danger me-2"></i>{{ $c->name }} "{{ $c->section }}"</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:10px;">PDF</span>
+                        </a>
+                    </li>
+                @empty
+                    <li><span class="dropdown-item text-muted small">No hay grupos registrados</span></li>
+                @endforelse
             </ul>
         </div>
         <a href="{{ route('students.create') }}" class="btn btn-brand btn-icon"><i class="bi bi-person-plus"></i> Nuevo estudiante</a>
@@ -52,6 +70,26 @@
                 </select>
             </div>
             <div class="col-md-2 d-grid"><button class="btn btn-outline-secondary btn-icon"><i class="bi bi-search"></i> Filtrar</button></div>
+
+            @if(request('course_id'))
+                @php $selectedCourse = $courses->firstWhere('id', request('course_id')); @endphp
+                @if($selectedCourse)
+                    <div class="col-12 mt-1">
+                        <div class="alert alert-success d-flex flex-wrap align-items-center justify-content-between py-2 px-3 mb-0 rounded-3 border-success shadow-xs" style="background:#f0fdf4;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-mortarboard-fill text-success fs-5"></i>
+                                <div>
+                                    <strong class="text-success d-block" style="font-size:13px;">Grupo Filtrado: {{ $selectedCourse->name }} "{{ $selectedCourse->section }}"</strong>
+                                    <span class="text-muted" style="font-size:11.5px;">Descarga todas las boletas de calificaciones de este grupo compiladas en un solo archivo PDF.</span>
+                                </div>
+                            </div>
+                            <a href="{{ route('courses.boletas_masivas', $selectedCourse) }}" target="_blank" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm mt-2 mt-md-0 fw-semibold">
+                                <i class="bi bi-printer-fill me-1"></i> Imprimir Boletas de {{ $selectedCourse->name }} "{{ $selectedCourse->section }}" (PDF)
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            @endif
         </form>
 
         <div class="table-responsive">

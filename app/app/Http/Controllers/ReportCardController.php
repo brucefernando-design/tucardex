@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Services\QrCodeService;
 use Illuminate\Support\Str;
 
 class ReportCardController extends Controller
@@ -246,6 +247,14 @@ class ReportCardController extends Controller
         $finals = array_filter(array_column($rows, 'final'), fn ($v) => $v !== null);
         $generalAverage = count($finals) ? round(array_sum($finals) / count($finals), 1) : null;
 
+        $appSettings = Setting::current();
+        $academicYear = $appSettings->academic_year ?? (optional($student->course)->academic_year ?? date('Y'));
+        $schoolName = $appSettings->school_name ?? 'TuCardex';
+        $promedioTxt = $generalAverage !== null ? number_format($generalAverage, 1) : 'N/D';
+
+        $qrContent = "VALIDACION OFICIAL | BOLETA DE CALIFICACIONES | ALUMNO: {$student->full_name} | MATRICULA: {$student->code} | CURP: {$student->curp} | PROMEDIO: {$promedioTxt} | {$schoolName} | CICLO: {$academicYear}";
+        $qrData = QrCodeService::generateDataUri($qrContent, 100);
+
         return [
             'student'                    => $student,
             'rows'                       => $rows,
@@ -255,6 +264,8 @@ class ReportCardController extends Controller
             'attendanceMeetsRequirement' => $attendanceMeetsRequirement,
             'totalDays'                  => $totalDays,
             'date'                       => now(),
+            'qrData'                     => $qrData,
+            'appSettings'                => $appSettings,
         ];
     }
 
