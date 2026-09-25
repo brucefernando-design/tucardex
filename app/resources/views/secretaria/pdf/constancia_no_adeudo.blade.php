@@ -203,26 +203,26 @@
         }
         .validation-table {
             width: 100%;
-            margin-top: 10pt;
+            margin-top: 12pt;
             border-top: 1pt solid #cbd5e1;
-            padding-top: 4pt;
+            padding-top: 5pt;
             page-break-inside: avoid;
         }
         .val-qr-td {
-            width: 44pt;
+            width: 54pt;
             vertical-align: middle;
         }
         .val-qr-td img {
-            width: 40pt;
-            height: 40pt;
+            width: 50pt;
+            height: 50pt;
             display: block;
         }
         .val-text-td {
             vertical-align: middle;
-            font-size: 6.5pt;
+            font-size: 7pt;
             color: #475569;
-            padding-left: 6pt;
-            line-height: 1.25;
+            padding-left: 8pt;
+            line-height: 1.3;
         }
     </style>
 </head>

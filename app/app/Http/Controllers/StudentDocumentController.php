@@ -64,7 +64,8 @@ class StudentDocumentController extends Controller
             'constancia_estudios',
             'Constancia de Estudios Oficial',
             $folio,
-            ['motivo' => $motivo, 'dirigido_a' => $dirigidoA]
+            ['motivo' => $motivo, 'dirigido_a' => $dirigidoA],
+            140
         );
 
         $pdf = Pdf::loadView('secretaria.pdf.constancia_estudios', compact(

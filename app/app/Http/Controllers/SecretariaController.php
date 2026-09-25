@@ -200,7 +200,7 @@ class SecretariaController extends Controller
             'Constancia de Estudios Oficial',
             $folio,
             $extra,
-            120
+            140
         );
 
         $pdf = Pdf::loadView('secretaria.pdf.constancia_estudios', compact(

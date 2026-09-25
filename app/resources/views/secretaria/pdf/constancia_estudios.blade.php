@@ -5,7 +5,7 @@
     <title>Constancia de Estudios - {{ $student->full_name }}</title>
     <style>
         @page {
-            margin: 12mm 15mm 10mm 15mm;
+            margin: 13mm 16mm 11mm 16mm;
             size: letter portrait;
         }
         * {
@@ -14,24 +14,24 @@
         }
         body {
             color: #1e293b;
-            font-size: 10pt;
-            line-height: 1.45;
+            font-size: 10.5pt;
+            line-height: 1.55;
             margin: 0;
             padding: 0;
         }
         .header-table {
             width: 100%;
             border-bottom: 2pt solid #0f172a;
-            padding-bottom: 6pt;
-            margin-bottom: 10pt;
+            padding-bottom: 8pt;
+            margin-bottom: 11pt;
         }
         .header-logo {
-            width: 55pt;
+            width: 60pt;
             vertical-align: middle;
         }
         .header-logo img {
-            max-width: 50pt;
-            max-height: 50pt;
+            max-width: 55pt;
+            max-height: 55pt;
             border-radius: 4pt;
         }
         .header-info {
@@ -40,7 +40,7 @@
             padding: 0 8pt;
         }
         .school-title {
-            font-size: 12.5pt;
+            font-size: 13.5pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
@@ -48,59 +48,59 @@
             margin-bottom: 2pt;
         }
         .school-meta {
-            font-size: 7.5pt;
+            font-size: 8pt;
             color: #475569;
-            line-height: 1.25;
+            line-height: 1.3;
         }
         .header-folio {
-            width: 85pt;
+            width: 90pt;
             vertical-align: middle;
             text-align: right;
         }
         .folio-box {
             border: 1.5pt solid #0f172a;
             border-radius: 4pt;
-            padding: 3pt 5pt;
+            padding: 4pt 6pt;
             text-align: center;
             background: #f8fafc;
         }
         .folio-label {
-            font-size: 5.5pt;
+            font-size: 6pt;
             font-weight: bold;
             color: #64748b;
             text-transform: uppercase;
         }
         .folio-number {
-            font-size: 8pt;
+            font-size: 8.5pt;
             font-weight: bold;
             color: #0f172a;
         }
         .doc-title-box {
             text-align: center;
-            margin: 8pt 0 10pt;
+            margin: 10pt 0 11pt;
         }
         .doc-title {
-            font-size: 12pt;
+            font-size: 12.5pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
             letter-spacing: 2pt;
             border-bottom: 1pt solid #cbd5e1;
             display: inline-block;
-            padding-bottom: 2pt;
+            padding-bottom: 3pt;
         }
         .recipient {
-            font-size: 9pt;
+            font-size: 9.5pt;
             font-weight: bold;
             color: #0f172a;
             text-transform: uppercase;
-            margin-bottom: 8pt;
+            margin-bottom: 9pt;
         }
         .content-paragraph {
             text-align: justify;
-            margin-bottom: 8pt;
-            font-size: 9.5pt;
-            line-height: 1.45;
+            margin-bottom: 9pt;
+            font-size: 10pt;
+            line-height: 1.55;
         }
         .student-highlight {
             font-weight: bold;
@@ -111,19 +111,19 @@
             border: 1pt solid #e2e8f0;
             border-left: 3pt solid #10b981;
             border-radius: 4pt;
-            padding: 6pt 10pt;
-            margin: 8pt 0;
+            padding: 7pt 12pt;
+            margin: 9pt 0;
         }
         .data-table {
             width: 100%;
-            font-size: 8.5pt;
+            font-size: 9pt;
         }
         .data-table td {
-            padding: 1.5pt 0;
+            padding: 2pt 0;
             vertical-align: top;
         }
         .data-table .label-col {
-            width: 130pt;
+            width: 135pt;
             color: #64748b;
             font-weight: 500;
         }
@@ -133,7 +133,7 @@
         }
         .signatures-table {
             width: 100%;
-            margin-top: 18pt;
+            margin-top: 22pt;
             page-break-inside: avoid;
         }
         .sign-col {
@@ -150,33 +150,33 @@
             color: #0f172a;
         }
         .sign-sub {
-            font-size: 7pt;
+            font-size: 7.5pt;
             color: #64748b;
             margin-top: 1pt;
-            line-height: 1.2;
+            line-height: 1.25;
         }
         .validation-table {
             width: 100%;
-            margin-top: 10pt;
+            margin-top: 13pt;
             border-top: 1pt solid #cbd5e1;
-            padding-top: 4pt;
+            padding-top: 5pt;
             page-break-inside: avoid;
         }
         .val-qr-td {
-            width: 44pt;
+            width: 58pt;
             vertical-align: middle;
         }
         .val-qr-td img {
-            width: 40pt;
-            height: 40pt;
+            width: 54pt;
+            height: 54pt;
             display: block;
         }
         .val-text-td {
             vertical-align: middle;
-            font-size: 6.5pt;
+            font-size: 7.5pt;
             color: #475569;
-            padding-left: 6pt;
-            line-height: 1.25;
+            padding-left: 8pt;
+            line-height: 1.35;
         }
     </style>
 </head>
@@ -263,7 +263,7 @@
     <table class="signatures-table">
         <tr>
             <td class="sign-col">
-                <div style="height: 24pt;"></div>
+                <div style="height: 26pt;"></div>
                 <div class="sign-line">{{ $setting->director ?? 'Dirección General' }}</div>
                 <div class="sign-sub">
                     Director(a) del Plantel<br>
@@ -271,7 +271,7 @@
                 </div>
             </td>
             <td class="sign-col">
-                <div style="height: 24pt;"></div>
+                <div style="height: 26pt;"></div>
                 <div class="sign-line">SELLO Y CONTROL ESCOLAR</div>
                 <div class="sign-sub">
                     Departamento de Secretaría<br>
