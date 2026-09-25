@@ -138,9 +138,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
-    const tg=document.getElementById('sidebarToggle'),sb=document.getElementById('sidebar'),bd=document.getElementById('backdrop');
+    const tg=document.getElementById('sidebarToggle'),sb=document.getElementById('sidebar'),bd=document.getElementById('backdrop'),sc=document.getElementById('sidebarClose');
     tg&&tg.addEventListener('click',()=>{sb.classList.toggle('open');bd.classList.toggle('show')});
     bd&&bd.addEventListener('click',()=>{sb.classList.remove('open');bd.classList.remove('show')});
+    sc&&sc.addEventListener('click',()=>{sb.classList.remove('open');bd.classList.remove('show')});
 </script>
 @stack('scripts')
     @include('layouts.assistant')

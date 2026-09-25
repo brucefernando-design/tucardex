@@ -8,6 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- PWA Settings & Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B1A14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TuCardex">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+
     <style>
         :root{
             --brand:#16a34a; --brand-2:#22c55e; --brand-3:#15803d; --teal:#0d9488;
@@ -18,7 +29,7 @@
             -webkit-font-smoothing:antialiased;overflow-x:hidden}
         a{text-decoration:none;color:inherit}
         .container{max-width:1140px;margin:0 auto;padding:0 22px}
-        .btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;
             font-family:inherit;font-weight:600;font-size:15px;padding:13px 24px;border-radius:12px;transition:.18s}
         .btn-primary{background:linear-gradient(135deg,var(--brand-2),var(--brand-3));color:#fff;box-shadow:0 8px 24px rgba(34,197,94,.3)}
         .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(34,197,94,.4)}
@@ -27,21 +38,38 @@
         .btn-sm{padding:9px 18px;font-size:14px}
 
         /* Fondo decorativo */
-        .bg-orbs{position:fixed;inset:0;z-index:0;overflow:hidden}
+        .bg-orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
         .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5}
         .orb.a{width:520px;height:520px;background:#15803d;top:-160px;left:-120px}
         .orb.b{width:460px;height:460px;background:#0d9488;top:120px;right:-140px;opacity:.4}
         .orb.c{width:400px;height:400px;background:#16a34a;bottom:-160px;left:30%;opacity:.3}
         .wrap{position:relative;z-index:1}
 
-        /* Navbar */
-        nav.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+        /* Navbar & Hamburger */
+        .top-header-wrap{position:sticky;top:0;z-index:1050;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(11,23,18,.86);border-bottom:1px solid rgba(255,255,255,.07)}
+        nav.top{display:flex;align-items:center;justify-content:space-between;padding:14px 0;position:relative}
         .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px}
-        .brand .logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--brand-2),var(--brand-3));
-            display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 6px 18px rgba(34,197,94,.4)}
-        .nav-links{display:flex;align-items:center;gap:28px}
-        .nav-links a.link{color:var(--muted);font-weight:500;font-size:15px}
+        .brand .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--brand-2),var(--brand-3));
+            display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(34,197,94,.4);flex-shrink:0}
+        .nav-links{display:flex;align-items:center;gap:26px}
+        .nav-links a.link{color:var(--muted);font-weight:500;font-size:15px;transition:.15s}
         .nav-links a.link:hover{color:#fff}
+
+        /* Hamburger Button */
+        .nav-hamburger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;
+            background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:24px;cursor:pointer;transition:.18s}
+        .nav-hamburger:hover,.nav-hamburger.active{background:rgba(34,197,94,.2);border-color:var(--brand-2);color:var(--brand-2)}
+
+        /* Mobile Dropdown Drawer */
+        .mobile-nav-drawer{display:none;background:#0f1f18;border:1px solid rgba(34,197,94,.25);border-radius:18px;
+            padding:18px;margin-top:6px;margin-bottom:14px;box-shadow:0 20px 40px rgba(0,0,0,.55);flex-direction:column;gap:8px}
+        .mobile-nav-drawer.open{display:flex;animation:fadeDown .2s ease}
+        @keyframes fadeDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+        .mobile-nav-drawer a.m-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+            color:#e8f0ec;font-weight:600;font-size:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+        .mobile-nav-drawer a.m-link i{color:var(--brand-2);font-size:18px;width:22px;text-align:center}
+        .mobile-nav-drawer a.m-link:active,.mobile-nav-drawer a.m-link:hover{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.3)}
+        .mobile-nav-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
 
         /* Hero */
         .hero{text-align:center;padding:70px 0 90px}
@@ -75,7 +103,7 @@
         .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
         .plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px 28px;display:flex;flex-direction:column}
         .plan.featured{background:linear-gradient(160deg,rgba(34,197,94,.16),rgba(13,148,136,.08));border-color:rgba(34,197,94,.45);position:relative;box-shadow:0 12px 32px rgba(34,197,94,.15)}
-        .plan .ptag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brand-2);color:#06281a;font-size:12px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:.5px}
+        .plan .ptag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brand-2);color:#06281a;font-size:12px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:.5px;white-space:nowrap}
         .plan h3{font-size:24px;font-weight:800}
         .plan .subtitle{color:var(--muted);font-size:14px;margin-top:4px}
         .plan .price{font-size:38px;font-weight:900;margin:18px 0 4px;color:#fff}
@@ -87,8 +115,8 @@
         .plan .discreet-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.4;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
 
         /* Comparative table */
-        .comp-table-wrap{overflow-x:auto;margin-top:50px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px}
-        .comp-table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}
+        .comp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:50px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px}
+        .comp-table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;min-width:580px}
         .comp-table th,.comp-table td{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
         .comp-table th{font-weight:800;color:#fff;background:rgba(255,255,255,.02);font-size:15px}
         .comp-table th.center,.comp-table td.center{text-align:center;width:18%}
@@ -117,10 +145,31 @@
 
         @media(max-width:900px){
             .features,.plans,.inst-grid{grid-template-columns:1fr}
-            .hero h1{font-size:44px}
-            .nav-links .link{display:none}
-            .stats{gap:34px}
-            .cta-band{padding:36px 22px}
+            .hero h1{font-size:42px}
+            .nav-links{display:none}
+            .nav-hamburger{display:inline-flex}
+            .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+            .stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:16px 12px}
+            .stat .num{font-size:28px}
+            .cta-band{padding:34px 20px}
+            .cta-band h2{font-size:26px}
+            section{padding:52px 0}
+            .sec-head{margin-bottom:34px}
+            .sec-head h2{font-size:30px}
+        }
+
+        @media(max-width:576px){
+            .container{padding:0 16px}
+            .hero{padding:34px 0 46px}
+            .badge-pill{font-size:12px;padding:6px 14px;margin-bottom:18px}
+            .hero h1{font-size:32px;line-height:1.12;letter-spacing:-.8px;margin-bottom:16px}
+            .hero p.sub{font-size:15.5px;margin-bottom:26px}
+            .hero-cta{flex-direction:column;gap:12px;margin-bottom:38px}
+            .hero-cta .btn{width:100%;padding:14px 20px}
+            .feature,.plan,.inst-card{padding:22px 18px}
+            .plan .price{font-size:32px}
+            .comp-table-wrap{padding:14px;border-radius:16px}
+            .mobile-nav-actions{grid-template-columns:1fr}
         }
     </style>
 </head>
@@ -128,18 +177,39 @@
 <div class="bg-orbs"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
 
 <div class="wrap">
-<div class="container">
-    <nav class="top">
-        <div class="brand"><span class="logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:13px">@else🎓@endif</span> {{ $appSettings->school_name ?? 'TuCardex' }}</div>
-        <div class="nav-links">
-            <a href="#funciones" class="link">Funciones</a>
-            <a href="#instituciones" class="link">Instituciones</a>
-            <a href="#precios" class="link">Precios</a>
-            <a href="{{ route('login') }}" class="link">Iniciar sesión</a>
-            <a href="{{ route('register') }}" class="btn btn-primary btn-sm"><i class="bi bi-rocket-takeoff"></i> Prueba gratis</a>
-        </div>
-    </nav>
+<div class="top-header-wrap">
+    <div class="container">
+        <nav class="top">
+            <a href="/" class="brand">
+                <span class="logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px">@else🎓@endif</span>
+                <span>{{ $appSettings->school_name ?? 'TuCardex' }}</span>
+            </a>
+            <div class="nav-links">
+                <a href="#funciones" class="link">Funciones</a>
+                <a href="#instituciones" class="link">Instituciones</a>
+                <a href="#precios" class="link">Precios</a>
+                <a href="{{ route('login') }}" class="btn btn-ghost btn-sm"><i class="bi bi-box-arrow-in-right"></i> Iniciar sesión</a>
+                <a href="{{ route('register') }}" class="btn btn-primary btn-sm"><i class="bi bi-rocket-takeoff"></i> Prueba gratis</a>
+            </div>
+            <button type="button" class="nav-hamburger" id="mobileMenuBtn" aria-label="Abrir menú de navegación" onclick="toggleMobileMenu()">
+                <i class="bi bi-list" id="mobileMenuIcon"></i>
+            </button>
+        </nav>
 
+        <!-- Menú Móvil Desplegable (Hamburguesa) -->
+        <div class="mobile-nav-drawer" id="mobileNavDrawer">
+            <a href="#funciones" class="m-link" onclick="closeMobileMenu()"><i class="bi bi-grid-1x2-fill"></i> Módulos y Funciones</a>
+            <a href="#instituciones" class="m-link" onclick="closeMobileMenu()"><i class="bi bi-building-check"></i> Niveles Educativos (SEP)</a>
+            <a href="#precios" class="m-link" onclick="closeMobileMenu()"><i class="bi bi-tag-fill"></i> Planes y Precios</a>
+            <div class="mobile-nav-actions">
+                <a href="{{ route('login') }}" class="btn btn-ghost" style="width:100%"><i class="bi bi-person-check-fill"></i> Iniciar sesión</a>
+                <a href="{{ route('register') }}" class="btn btn-primary" style="width:100%"><i class="bi bi-rocket-takeoff-fill"></i> Prueba gratis 30 días</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
     <!-- Hero -->
     <div class="hero">
         <div class="badge-pill"><i class="bi bi-shield-check"></i> Diseñado para el Sistema Educativo Mexicano</div>
@@ -147,7 +217,7 @@
         <p class="sub">Calificaciones oficiales SEP, boletas con QR, cobranza de colegiaturas, portales para alumnos y tutores. Todo lo que tu plantel necesita en una sola plataforma SaaS.</p>
         <div class="hero-cta">
             <a href="{{ route('register') }}" class="btn btn-primary"><i class="bi bi-rocket-takeoff"></i> Comenzar prueba de 30 días</a>
-            <a href="#precios" class="btn btn-ghost"><i class="bi bi-eye"></i> Ver planes y precios</a>
+            <a href="{{ route('login') }}" class="btn btn-ghost"><i class="bi bi-box-arrow-in-right"></i> Acceder a mi cuenta</a>
         </div>
 
         <div class="stats">
@@ -391,8 +461,79 @@
     box-shadow:0 8px 24px rgba(37,211,102,.45);z-index:9999;transition:.25s;text-decoration:none}
 .wa-float:hover{transform:scale(1.05);background:#20ba5c;color:#fff;box-shadow:0 12px 30px rgba(37,211,102,.6)}
 .wa-float i{font-size:22px}
-@media(max-width:600px){.wa-text{display:none}.wa-float{padding:14px;border-radius:50%}}
+@media(max-width:600px){.wa-text{display:none}.wa-float{padding:14px;border-radius:50%;bottom:84px;right:16px}}
 </style>
+
+<!-- Banner PWA discreto para instalar app en celular -->
+<div id="pwaInstallBanner" style="display:none; position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; z-index:9999; background:#0B1A14; color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.5); align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(34,197,94,0.35);">
+    <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+        <img src="/icons/icon-192.png" alt="TuCardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+        <div style="min-width:0; line-height:1.2;">
+            <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuCardex App</div>
+            <small style="color:#94a3b8; font-size:11.5px;">Acceso rápido con ícono en tu celular</small>
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <button onclick="installPWA()" class="btn btn-primary btn-sm" style="border-radius:999px; padding:7px 14px; font-size:12px;">Instalar</button>
+        <button onclick="dismissPwaInstall()" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;font-size:16px;"><i class="bi bi-x-lg"></i></button>
+    </div>
+</div>
+
+<script>
+function toggleMobileMenu() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    const btn = document.getElementById('mobileMenuBtn');
+    const icon = document.getElementById('mobileMenuIcon');
+    if (!drawer) return;
+    const isOpen = drawer.classList.toggle('open');
+    btn.classList.toggle('active', isOpen);
+    icon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+}
+
+function closeMobileMenu() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    const btn = document.getElementById('mobileMenuBtn');
+    const icon = document.getElementById('mobileMenuIcon');
+    if (drawer) drawer.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+    if (icon) icon.className = 'bi bi-list';
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function() {});
+    });
+}
+
+let pwaDeferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    pwaDeferredPrompt = e;
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner && !localStorage.getItem('pwa_dismissed')) {
+        banner.style.display = 'flex';
+    }
+});
+
+function installPWA() {
+    if (pwaDeferredPrompt) {
+        pwaDeferredPrompt.prompt();
+        pwaDeferredPrompt.userChoice.then(function(choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+                const banner = document.getElementById('pwaInstallBanner');
+                if (banner) banner.style.display = 'none';
+            }
+            pwaDeferredPrompt = null;
+        });
+    }
+}
+
+function dismissPwaInstall() {
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner) banner.style.display = 'none';
+    localStorage.setItem('pwa_dismissed', 'true');
+}
+</script>
 
 </body>
 </html>

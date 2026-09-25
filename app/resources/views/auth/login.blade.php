@@ -81,11 +81,30 @@
         .back-home{position:absolute;top:22px;left:24px;color:#a7c3b6;font-size:13.5px;z-index:2;display:flex;align-items:center;gap:6px}
         .back-home:hover{color:#fff}
         a{text-decoration:none}
-        @media(max-width:880px){ .brand-panel{display:none} }
+        .mobile-login-bar{display:none;background:#0B1A14;color:#fff;padding:14px 18px;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
+        .mobile-login-bar .m-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;color:#fff}
+        .mobile-login-bar .m-logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand-2),var(--brand-3));display:flex;align-items:center;justify-content:center;font-size:18px}
+        .mobile-login-bar a.m-back{color:#86efac;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;background:rgba(34,197,94,.14);padding:6px 12px;border-radius:999px}
+        @media(max-width:880px){
+            .brand-panel{display:none}
+            .split{flex-direction:column;min-height:100vh;background:#f8fafb}
+            .mobile-login-bar{display:flex}
+            .form-panel{padding:28px 18px;align-items:flex-start}
+            .form-box{background:#fff;padding:24px 20px;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid var(--line);margin:0 auto}
+        }
     </style>
 </head>
 <body>
 <div class="split">
+    <!-- Barra superior exclusiva para Móvil -->
+    <div class="mobile-login-bar">
+        <a href="{{ route('home') }}" class="m-brand">
+            <span class="m-logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:10px">@else🎓@endif</span>
+            <span>{{ $appSettings->school_name ?? 'TuCardex' }}</span>
+        </a>
+        <a href="{{ route('home') }}" class="m-back"><i class="bi bi-house-door-fill"></i> Inicio</a>
+    </div>
+
     <!-- Marca -->
     <div class="brand-panel">
         <a href="{{ route('home') }}" class="back-home"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
@@ -159,11 +178,61 @@
     </div>
 </div>
 
+<!-- Banner PWA discreto para instalar app en celular -->
+<div id="pwaInstallBanner" style="display:none; position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; z-index:9999; background:#0B1A14; color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.45); align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(34,197,94,0.35);">
+    <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+        <img src="/icons/icon-192.png" alt="TuCardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+        <div style="min-width:0; line-height:1.2;">
+            <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuCardex App</div>
+            <small style="color:#94a3b8; font-size:11.5px;">Acceso rápido con ícono en tu teléfono</small>
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <button onclick="installPWA()" style="background:#16a34a;color:#fff;border:none;border-radius:999px;padding:7px 14px;font-weight:700;font-size:12px;cursor:pointer;">Instalar</button>
+        <button onclick="dismissPwaInstall()" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;font-size:16px;"><i class="bi bi-x-lg"></i></button>
+    </div>
+</div>
+
 <script>
 function fill(email){
     document.getElementById('email').value = email;
     document.getElementById('password').value = 'password';
     document.getElementById('password').focus();
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function() {});
+    });
+}
+
+let pwaDeferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    pwaDeferredPrompt = e;
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner && !localStorage.getItem('pwa_dismissed')) {
+        banner.style.display = 'flex';
+    }
+});
+
+function installPWA() {
+    if (pwaDeferredPrompt) {
+        pwaDeferredPrompt.prompt();
+        pwaDeferredPrompt.userChoice.then(function(choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+                const banner = document.getElementById('pwaInstallBanner');
+                if (banner) banner.style.display = 'none';
+            }
+            pwaDeferredPrompt = null;
+        });
+    }
+}
+
+function dismissPwaInstall() {
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner) banner.style.display = 'none';
+    localStorage.setItem('pwa_dismissed', 'true');
 }
 </script>
 </body>

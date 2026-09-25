@@ -12,12 +12,15 @@
                 <i class="bi bi-mortarboard-fill" style="box-shadow:none;background:none;width:auto;height:auto;border-radius:0;font-size:18px;"></i>
             </div>
         @endif
-        <div class="d-flex flex-column" style="min-width:0; overflow:hidden;">
+        <div class="d-flex flex-column flex-grow-1" style="min-width:0; overflow:hidden;">
             <span style="font-weight:700;font-size:14.5px;color:#fff;line-height:1.2;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;" title="{{ $schoolName }}">
                 {{ $schoolName }}
             </span>
             <span style="font-size:11px;color:var(--sidebar-muted);font-weight:500;">Panel Escolar</span>
         </div>
+        <button type="button" class="sidebar-close d-lg-none" id="sidebarClose" aria-label="Cerrar menú">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
 
     <div class="sidebar-user">
