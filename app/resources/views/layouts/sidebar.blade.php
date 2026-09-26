@@ -1,4 +1,4 @@
-﻿@php 
+@php 
     $u = auth()->user(); 
     $school = $u->school;
     $schoolName = $school?->name ?? $appSettings->school_name ?? 'TuKardex';

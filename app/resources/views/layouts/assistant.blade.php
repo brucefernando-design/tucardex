@@ -1,4 +1,4 @@
-﻿{{-- Cardex Copiloto — Asistente Interactivo en Vivo con Motor Semántico Exhaustivo --}}
+{{-- Cardex Copiloto — Asistente Interactivo en Vivo con Motor Semántico Exhaustivo --}}
 <div id="cardex-assistant-root">
     <!-- Botón Flotante para abrir copiloto -->
     <button id="cardex-fab" class="cardex-fab" title="Cardex Copiloto · Tu Asistente Escolar">

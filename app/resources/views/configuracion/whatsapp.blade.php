@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('title', 'WhatsApp & Cobranza Automatizada')
 
 @section('content')

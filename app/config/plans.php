@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'trial_max_students' => 25,

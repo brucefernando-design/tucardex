@@ -1,4 +1,4 @@
-﻿@extends('layouts.checkout')
+@extends('layouts.checkout')
 @section('title', 'Pagar Colegiatura')
 
 @section('content')

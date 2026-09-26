@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('title', 'Facturación SAT (CFDI 4.0)')
 
 @section('content')
