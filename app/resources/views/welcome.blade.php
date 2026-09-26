@@ -280,7 +280,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> 100% libre de módulos financieros forzosos</li>
                 </ul>
                 <div class="highlight-box">
-                    <i class="bi bi-info-circle-fill me-1"></i> <strong>Convenio Institucional:</strong> Tarifa preferencial de $10 MXN por alumno/mes con un mínimo garantizado de $2,000 MXN mensuales por plantel.
+                    <i class="bi bi-info-circle-fill me-1"></i> <strong>Convenio Institucional:</strong> Tarifa preferencial para instituciones educativas y convenios directos.
                 </div>
             </div>
 
@@ -320,7 +320,7 @@
                 <div class="subtitle">Control escolar esencial</div>
                 <div class="price">$15 <span>MXN por alumno / mes</span></div>
                 <div class="special-note">
-                    <i class="bi bi-info-circle-fill me-1"></i> Planes institucionales desde $10 por alumno/mes (mínimo $2,000/mes)
+                    <i class="bi bi-info-circle-fill me-1"></i> Planes y convenios institucionales directos por volumen
                 </div>
                 <ul>
                     <li><i class="bi bi-check-circle-fill"></i> Gestión de alumnos, grupos y materias</li>
