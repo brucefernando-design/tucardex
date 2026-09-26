@@ -1,7 +1,7 @@
-@php 
+﻿@php 
     $u = auth()->user(); 
     $school = $u->school;
-    $schoolName = $school?->name ?? $appSettings->school_name ?? 'TuCardex';
+    $schoolName = $school?->name ?? $appSettings->school_name ?? 'TuKardex';
 @endphp
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">

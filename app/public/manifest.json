@@ -1,6 +1,6 @@
 {
-  "name": "TuCardex - Control Escolar",
-  "short_name": "TuCardex",
+  "name": "TuKardex - Control Escolar",
+  "short_name": "TuKardex",
   "description": "Sistema de gestión escolar inteligente, control de calificaciones, boletas y cobranza.",
   "start_url": "/dashboard",
   "scope": "/",

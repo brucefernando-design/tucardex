@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Periodo de Prueba Concluido · TuCardex</title>
+    <title>Periodo de Prueba Concluido · TuKardex</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,7 +125,7 @@
         <div class="content-body">
             @if($isSchoolAdmin)
                 <p class="text-secondary text-center mb-4" style="font-size: 14.5px;">
-                    Esperamos que la experiencia con <strong>TuCardex</strong> haya sido de gran valor para tu institución.
+                    Esperamos que la experiencia con <strong>TuKardex</strong> haya sido de gran valor para tu institución.
                     Tus alumnos, calificaciones y configuraciones <strong>se encuentran seguros y resguardados</strong>.
                     Para reactivar el acceso completo al personal y familias, activa tu suscripción mensual.
                 </p>
@@ -170,7 +170,7 @@
                 <div class="p-3 bg-light rounded-3 border mb-4">
                     <div class="fw-semibold small mb-2"><i class="bi bi-info-circle text-primary me-1"></i> ¿Prefieres pago por transferencia (SPEI) o Factura CFDI?</div>
                     <p class="small text-muted mb-0">
-                        Escríbenos a <a href="mailto:ventas@tucardex.com?subject={{ urlencode('Activación Colegio ' . $school->name) }}" class="fw-semibold text-decoration-none">ventas@tucardex.com</a> indicando tu razón social y te enviaremos de inmediato los datos bancarios y tu factura con validez fiscal SAT.
+                        Escríbenos a <a href="mailto:ventas@tukardex.com?subject={{ urlencode('Activación Colegio ' . $school->name) }}" class="fw-semibold text-decoration-none">ventas@tukardex.com</a> indicando tu razón social y te enviaremos de inmediato los datos bancarios y tu factura con validez fiscal SAT.
                     </p>
                 </div>
             @else
@@ -185,7 +185,7 @@
             @endif
 
             <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                <span class="small text-muted">TuCardex · Gestión Escolar Inteligente</span>
+                <span class="small text-muted">TuKardex · Gestión Escolar Inteligente</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="btn btn-sm btn-outline-secondary">

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -29,7 +29,7 @@
     <div style="padding: 24px 12px;">
         <div class="wrapper">
             <div class="header">
-                <h1>{{ $settings->school_name ?: 'TuCardex Escolar' }}</h1>
+                <h1>{{ $settings->school_name ?: 'TuKardex Escolar' }}</h1>
                 <p>Aviso de Colegiatura y Pagos Escolares</p>
             </div>
             <div class="body">

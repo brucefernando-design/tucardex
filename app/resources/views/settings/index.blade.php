@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'Configuración')
 
 @section('content')
@@ -40,7 +40,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div>
                                 <h6 class="mb-0 fw-bold"><i class="bi bi-laptop me-1"></i> Cuota de Recuperación "Plataforma Digital"</h6>
-                                <small class="text-muted">Permite al colegio recuperar el costo de TuCardex mediante un renglón cobrado a las familias.</small>
+                                <small class="text-muted">Permite al colegio recuperar el costo de TuKardex mediante un renglón cobrado a las familias.</small>
                             </div>
                             <div class="form-check form-switch fs-5">
                                 <input class="form-check-input" type="checkbox" name="platform_fee_enabled" value="1" id="platformFeeSwitch" @checked(old('platform_fee_enabled', $setting->platform_fee_enabled))>
@@ -67,7 +67,7 @@
         @if(isset($subscription))
         <div class="card mb-3 border border-primary-subtle shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                <span class="title"><i class="bi bi-star-fill text-warning me-1"></i> Suscripción TuCardex</span>
+                <span class="title"><i class="bi bi-star-fill text-warning me-1"></i> Suscripción TuKardex</span>
                 <span class="badge {{ $subscription['status'] === 'active' ? 'bg-success' : 'bg-warning text-dark' }}">
                     {{ ucfirst($subscription['status'] === 'active' ? 'Activa' : $subscription['status']) }}
                 </span>
@@ -133,7 +133,7 @@
                 </ul>
             </div>
             <div class="card-footer bg-light py-2 text-center">
-                <a href="https://wa.me/525644117635?text=Hola,%20solicito%20informaci%C3%B3n%20para%20ajustar%20el%20plan%20de%20mi%20colegio%20en%20TuCardex" target="_blank" class="btn btn-sm btn-link text-decoration-none">
+                <a href="https://wa.me/525644117635?text=Hola,%20solicito%20informaci%C3%B3n%20para%20ajustar%20el%20plan%20de%20mi%20colegio%20en%20TuKardex" target="_blank" class="btn btn-sm btn-link text-decoration-none">
                     <i class="bi bi-arrow-up-circle me-1"></i> Solicitar cambio de plan o convenio
                 </a>
             </div>

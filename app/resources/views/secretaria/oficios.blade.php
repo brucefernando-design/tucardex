@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Generador de Citatorios y Oficios Institucionales')
 
@@ -54,7 +54,7 @@
                     <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
                         <i class="bi bi-envelope-paper text-primary"></i> Redacción y Envío de Oficio
                     </h5>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">Membrete Oficial TuCardex</span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">Membrete Oficial TuKardex</span>
                 </div>
 
                 <div class="card-body p-4">

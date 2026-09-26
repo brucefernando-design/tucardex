@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 @php
     $tieneAdeudo = $tieneAdeudo ?? (($pendientes ?? 0) > 0);
@@ -372,7 +372,7 @@
             <td class="val-text-td">
                 <strong style="color:#0f172a; font-size:7.5pt;">DOCUMENTO OFICIAL DIGITALMENTE CONCILIADO</strong><br>
                 Escanee el código QR para verificar la solvencia oficial de esta constancia en tiempo real.<br>
-                Folio: <strong>{{ $folio }}</strong> · Verificado en TuCardex · Emisión: {{ now()->format('d/m/Y H:i') }}
+                Folio: <strong>{{ $folio }}</strong> · Verificado en TuKardex · Emisión: {{ now()->format('d/m/Y H:i') }}
             </td>
         </tr>
     </table>

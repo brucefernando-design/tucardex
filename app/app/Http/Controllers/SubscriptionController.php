@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -25,7 +25,7 @@ class SubscriptionController extends Controller
         $isSchoolAdmin = auth()->user()->hasRole('admin');
 
         $whatsappNumber = config('plans.sales_whatsapp', '5218671234567');
-        $waMessage = "Hola TuCardex, soy " . auth()->user()->name . " del colegio " . $school->name . " (Matrícula: " . $subscription['active_students'] . " alumnos). Nuestro periodo de prueba ha finalizado y deseo activar la suscripción en Plan " . $subscription['plan_name'] . ".";
+        $waMessage = "Hola TuKardex, soy " . auth()->user()->name . " del colegio " . $school->name . " (Matrícula: " . $subscription['active_students'] . " alumnos). Nuestro periodo de prueba ha finalizado y deseo activar la suscripción en Plan " . $subscription['plan_name'] . ".";
         $whatsappUrl = "https://wa.me/" . preg_replace('/[^0-9]/', '', $whatsappNumber) . "?text=" . urlencode($waMessage);
 
         return view('subscription.expired', compact('school', 'subscription', 'isSchoolAdmin', 'whatsappUrl'));

@@ -1,10 +1,10 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'Colegios Registrados')
 
 @section('content')
 <div class="page-head">
     <div>
-        <h1>Colegios de TuCardex</h1>
+        <h1>Colegios de TuKardex</h1>
         <div class="breadcrumb-mini">Gestión global de instituciones multi-inquilino y suscripciones SaaS</div>
     </div>
     <button class="btn btn-brand btn-icon shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoColegio">

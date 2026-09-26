@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 return [
     'trial_max_students' => 25,
@@ -57,7 +57,7 @@ return [
             'default_minimum_monthly' => 0.00,
             'popular' => true,
             'badge' => 'MÁS POPULAR',
-            'button_text' => 'Probar TuCardex',
+            'button_text' => 'Probar TuKardex',
             'description' => 'Control académico, administrativo y financiero en una sola plataforma. Recomendado para colegios privados.',
             'features' => [
                 'students' => true,

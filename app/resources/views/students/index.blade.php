@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'Estudiantes')
 
 @section('content')
@@ -46,7 +46,7 @@
             </div>
         </div>
         @if($currentSchool->students()->count() >= $currentSchool->maxStudents())
-            <a href="mailto:ventas@tucardex.com?subject={{ urlencode('Ampliar cupo - ' . $currentSchool->name) }}" class="btn btn-sm btn-dark text-nowrap rounded-pill px-3 py-1 mt-2 mt-md-0" style="font-size:12px;">
+            <a href="mailto:ventas@tukardex.com?subject={{ urlencode('Ampliar cupo - ' . $currentSchool->name) }}" class="btn btn-sm btn-dark text-nowrap rounded-pill px-3 py-1 mt-2 mt-md-0" style="font-size:12px;">
                 <i class="bi bi-arrow-up-circle me-1"></i> Activar Plan para Alumnos Ilimitados
             </a>
         @endif

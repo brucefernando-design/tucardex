@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $appSettings->school_name ?? 'TuCardex' }} · Control Escolar Inteligente para Colegios de México</title>
+    <title>{{ $appSettings->school_name ?? 'TuKardex' }} · Control Escolar Inteligente para Colegios de México</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#0B1A14">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="TuCardex">
+    <meta name="apple-mobile-web-app-title" content="TuKardex">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
@@ -182,7 +182,7 @@
         <nav class="top">
             <a href="/" class="brand">
                 <span class="logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px">@else🎓@endif</span>
-                <span>{{ $appSettings->school_name ?? 'TuCardex' }}</span>
+                <span>{{ $appSettings->school_name ?? 'TuKardex' }}</span>
             </a>
             <div class="nav-links">
                 <a href="#funciones" class="link">Funciones</a>
@@ -262,7 +262,7 @@
     <div class="container">
         <div class="sec-head">
             <div class="tag">Flexibilidad Institucional</div>
-            <h2>TuCardex se adapta a tu institución</h2>
+            <h2>TuKardex se adapta a tu institución</h2>
             <p>Ya sea una escuela pública o un colegio privado, nuestra arquitectura ofrece exactamente las herramientas que tu modelo operativo requiere.</p>
         </div>
 
@@ -331,7 +331,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> Avisos y comunicados escolares</li>
                     <li><i class="bi bi-check-circle-fill"></i> Reportes académicos básicos</li>
                 </ul>
-                <a href="https://wa.me/525644117635?text=Hola,%20solicito%20informaci%C3%B3n%20sobre%20el%20Plan%20B%C3%A1sico%20de%20TuCardex" target="_blank" class="btn btn-ghost" style="justify-content:center">Solicitar información</a>
+                <a href="https://wa.me/525644117635?text=Hola,%20solicito%20informaci%C3%B3n%20sobre%20el%20Plan%20B%C3%A1sico%20de%20TuKardex" target="_blank" class="btn btn-ghost" style="justify-content:center">Solicitar información</a>
             </div>
 
             <!-- Plan Profesional -->
@@ -350,7 +350,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> Reportes financieros y de cartera vencida</li>
                     <li><i class="bi bi-check-circle-fill"></i> Notificaciones y citatorios oficiales con QR</li>
                 </ul>
-                <a href="{{ route('register') }}" class="btn btn-primary" style="justify-content:center">Probar TuCardex</a>
+                <a href="{{ route('register') }}" class="btn btn-primary" style="justify-content:center">Probar TuKardex</a>
             </div>
 
             <!-- Plan Integral -->
@@ -363,7 +363,7 @@
                     <li><i class="bi bi-check-circle-fill"></i> <strong>Todo lo incluido en el Plan Profesional</strong></li>
                     <li><i class="bi bi-check-circle-fill"></i> Integración disponible con Canvas LMS</li>
                     <li><i class="bi bi-check-circle-fill"></i> Sincronización de alumnos, cursos y notas</li>
-                    <li><i class="bi bi-check-circle-fill"></i> API de TuCardex, Webhooks y automatizaciones</li>
+                    <li><i class="bi bi-check-circle-fill"></i> API de TuKardex, Webhooks y automatizaciones</li>
                     <li><i class="bi bi-check-circle-fill"></i> Auditoría de cambios y bitácora avanzada</li>
                     <li><i class="bi bi-check-circle-fill"></i> Soporte multi-plantel y multi-sede</li>
                     <li><i class="bi bi-check-circle-fill"></i> Configuraciones a la medida por institución</li>
@@ -371,7 +371,7 @@
                 <a href="https://wa.me/525644117635?text=Hola,%20me%20interesa%20el%20Plan%20Integral%20con%20Canvas%20LMS%20para%20mi%20instituci%C3%B3n" target="_blank" class="btn btn-ghost" style="justify-content:center">Hablar con ventas</a>
 
                 <div class="discreet-note">
-                    * La licencia institucional de Canvas, cuando sea requerida, es contratada directamente por la institución educativa. El Plan Integral de TuCardex incluye las funciones de integración disponibles.
+                    * La licencia institucional de Canvas, cuando sea requerida, es contratada directamente por la institución educativa. El Plan Integral de TuKardex incluye las funciones de integración disponibles.
                 </div>
             </div>
         </div>
@@ -419,7 +419,7 @@
                     <tr><td>Reportes financieros y cortes de caja</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Notificaciones y oficios citatorios</td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Integración con Canvas LMS</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
-                    <tr><td>API de TuCardex</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
+                    <tr><td>API de TuKardex</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Webhooks y eventos en tiempo real</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Automatizaciones de procesos</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
                     <tr><td>Integraciones externas</td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-dash"></i></td><td class="center"><i class="bi bi-check-circle-fill"></i></td></tr>
@@ -436,22 +436,22 @@
 <div class="container">
     <div class="cta-band">
         <h2>Moderniza la gestión de tu colegio hoy</h2>
-        <p>Inicia tu prueba de 30 días con acceso a todos los módulos y comprueba cómo TuCardex simplifica el día a día en tu institución.</p>
+        <p>Inicia tu prueba de 30 días con acceso a todos los módulos y comprueba cómo TuKardex simplifica el día a día en tu institución.</p>
         <a href="{{ route('register') }}" class="btn btn-primary"><i class="bi bi-rocket-takeoff"></i> Comenzar prueba gratis</a>
     </div>
 </div>
 
 <footer>
     <div class="container foot-row">
-        <div class="brand" style="font-size:16px"><span class="logo" style="width:34px;height:34px;font-size:17px">🎓</span> {{ $appSettings->school_name ?? 'TuCardex' }}</div>
-        <div>© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuCardex' }} · Control Escolar SaaS en México</div>
+        <div class="brand" style="font-size:16px"><span class="logo" style="width:34px;height:34px;font-size:17px">🎓</span> {{ $appSettings->school_name ?? 'TuKardex' }}</div>
+        <div>© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuKardex' }} · Control Escolar SaaS en México</div>
         <a href="{{ route('login') }}" class="link" style="color:var(--brand-2)">Iniciar sesión →</a>
     </div>
 </footer>
 </div>
 
 <!-- Botón Flotante de WhatsApp para Ventas -->
-<a href="https://wa.me/525644117635?text=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20y%20agendar%20una%20demostraci%C3%B3n%20de%20TuCardex%20para%20mi%20colegio" target="_blank" class="wa-float" title="Contactar por WhatsApp para una Demostración">
+<a href="https://wa.me/525644117635?text=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20y%20agendar%20una%20demostraci%C3%B3n%20de%20TuKardex%20para%20mi%20colegio" target="_blank" class="wa-float" title="Contactar por WhatsApp para una Demostración">
     <i class="bi bi-whatsapp"></i>
     <span class="wa-text">Solicitar Demo</span>
 </a>
@@ -467,9 +467,9 @@
 <!-- Banner PWA discreto para instalar app en celular -->
 <div id="pwaInstallBanner" style="display:none; position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; z-index:9999; background:#0B1A14; color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.5); align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(34,197,94,0.35);">
     <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-        <img src="/icons/icon-192.png" alt="TuCardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+        <img src="/icons/icon-192.png" alt="TuKardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
         <div style="min-width:0; line-height:1.2;">
-            <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuCardex App</div>
+            <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuKardex App</div>
             <small style="color:#94a3b8; font-size:11.5px;">Acceso rápido con ícono en tu celular</small>
         </div>
     </div>

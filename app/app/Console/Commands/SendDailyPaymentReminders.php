@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Console\Commands;
 
@@ -16,7 +16,7 @@ class SendDailyPaymentReminders extends Command
     {
         $settings = Setting::current();
 
-        $this->info("=== TuCardex: Motor de Cobranza y Recordatorios ===");
+        $this->info("=== TuKardex: Motor de Cobranza y Recordatorios ===");
 
         $daysBefore = (int) ($settings->reminder_days_before ?: 3);
         $daysAfter = (int) ($settings->reminder_days_after ?: 3);

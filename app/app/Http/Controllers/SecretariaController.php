@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -533,7 +533,7 @@ class SecretariaController extends Controller
         $pdfFilename = Str::slug("Oficio_{$tipo}_{$folio}", '_') . '.pdf';
 
         try {
-            $fromAddress = config('mail.from.address') ?: 'notificaciones@tucardex.allia2.com.mx';
+            $fromAddress = config('mail.from.address') ?: 'notificaciones@tukardex.allia2.com.mx';
 
             if ($recipients->count() === 1) {
                 Mail::to($recipients->first())->queue(new OficioInstitucionalMail(

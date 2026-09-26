@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -9,7 +9,7 @@ use Illuminate\View\View;
 class PublicVerificationController extends Controller
 {
     /**
-     * Validador público de autenticidad de documentos TuCardex
+     * Validador público de autenticidad de documentos TuKardex
      */
     public function show(string $token): View
     {

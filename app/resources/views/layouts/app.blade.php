@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -17,7 +17,7 @@
     <meta name="theme-color" content="#0B1A14">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="TuCardex">
+    <meta name="apple-mobile-web-app-title" content="TuKardex">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
@@ -62,7 +62,7 @@
                     <a href="{{ route('payments.index') }}" title="Colegiaturas"><i class="bi bi-cash-coin fs-5"></i></a>
                 @endif
                 <!-- Botón de Asistente en Barra Superior -->
-                <button onclick="window.openCardexAssistant()" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3 py-1 me-2" title="Abrir Asistente TuCardex">
+                <button onclick="window.openCardexAssistant()" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3 py-1 me-2" title="Abrir Asistente TuKardex">
                     <i class="bi bi-robot"></i>
                     <span class="d-none d-lg-inline fw-semibold" style="font-size:12.5px">Asistente</span>
                 </button>
@@ -117,7 +117,7 @@
                         </span>
                     </div>
                     @if($currentSchool->effectivePlan() === 'basico' || $onTrial)
-                        <a href="mailto:ventas@tucardex.com?subject={{ urlencode('Mejorar Plan - ' . $currentSchool->name) }}&body={{ urlencode('Hola, deseo solicitar información para mejorar el plan de mi colegio (' . $currentSchool->name . ').') }}" 
+                        <a href="mailto:ventas@tukardex.com?subject={{ urlencode('Mejorar Plan - ' . $currentSchool->name) }}&body={{ urlencode('Hola, deseo solicitar información para mejorar el plan de mi colegio (' . $currentSchool->name . ').') }}" 
                            class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 11.5px; font-weight: 600;">
                             <i class="bi bi-stars me-1"></i>Mejorar plan
                         </a>
@@ -149,9 +149,9 @@
     <!-- Banner PWA discreto para instalar app en celular -->
     <div id="pwaInstallBanner" style="display:none; position:fixed; bottom:20px; left:16px; right:16px; max-width:420px; margin:0 auto; z-index:9999; background:#0B1A14; color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.4); align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(255,255,255,0.12);">
         <div class="d-flex align-items-center gap-3" style="min-width:0;">
-            <img src="/icons/icon-192.png" alt="TuCardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+            <img src="/icons/icon-192.png" alt="TuKardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
             <div style="min-width:0; line-height:1.2;">
-                <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuCardex App</div>
+                <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuKardex App</div>
                 <small style="color:#94a3b8; font-size:11.5px;">Acceso rápido con ícono en tu teléfono</small>
             </div>
         </div>

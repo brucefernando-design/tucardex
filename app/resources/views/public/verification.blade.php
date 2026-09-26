@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $found ? 'Documento Verificado · ' . $verification->doc_title : 'Verificación de Documento' }} · TuCardex</title>
+    <title>{{ $found ? 'Documento Verificado · ' . $verification->doc_title : 'Verificación de Documento' }} · TuKardex</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -211,7 +211,7 @@
     <header class="topbar">
         <a href="{{ url('/') }}" class="brand">
             <span class="brand-badge"><i class="bi bi-mortarboard-fill"></i></span>
-            <span>TuCardex</span>
+            <span>TuKardex</span>
         </a>
         <div class="topbar-right">
             <i class="bi bi-shield-lock-fill text-success"></i> Validador Oficial SEP / Escolar
@@ -325,11 +325,11 @@
 
                     <div class="meta-box">
                         <div style="margin-bottom: 4px;">
-                            <i class="bi bi-fingerprint text-success"></i> <strong>Sello Digital TuCardex:</strong>
+                            <i class="bi bi-fingerprint text-success"></i> <strong>Sello Digital TuKardex:</strong>
                             <span class="token-code">{{ $verification->token }}</span>
                         </div>
                         <div>
-                            La información aquí mostrada proviene directamente de la base de datos oficial del plantel en <strong>TuCardex</strong>. Cualquier alteración física en el documento impreso que difiera de estos registros carece de validez oficial.
+                            La información aquí mostrada proviene directamente de la base de datos oficial del plantel en <strong>TuKardex</strong>. Cualquier alteración física en el documento impreso que difiera de estos registros carece de validez oficial.
                         </div>
                     </div>
                 </div>
@@ -348,7 +348,7 @@
                 </div>
                 <div class="card-body" style="text-align: center; padding: 32px 24px;">
                     <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
-                        El código QR escaneado no coincide con ningún documento oficial activo emitido a través del sistema de Control Escolar <strong>TuCardex</strong>, o bien el folio ha sido dado de baja.
+                        El código QR escaneado no coincide con ningún documento oficial activo emitido a través del sistema de Control Escolar <strong>TuKardex</strong>, o bien el folio ha sido dado de baja.
                     </p>
                     <a href="{{ url('/') }}" style="display: inline-block; background: #0B1A14; color: #fff; text-decoration: none; padding: 10px 22px; border-radius: 9999px; font-size: 13px; font-weight: 600;">
                         Ir al Portal Principal
@@ -359,7 +359,7 @@
     </main>
 
     <footer class="footer">
-        &copy; {{ date('Y') }} <strong>TuCardex</strong> · Plataforma de Gestión y Control Escolar Oficial · Verificado el {{ now()->format('d/m/Y H:i') }}
+        &copy; {{ date('Y') }} <strong>TuKardex</strong> · Plataforma de Gestión y Control Escolar Oficial · Verificado el {{ now()->format('d/m/Y H:i') }}
     </footer>
 
 </body>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Services\Facturacion;
 
@@ -257,7 +257,7 @@ class FacturapiService
     }
 
     /**
-     * Mapea el nivel escolar de TuCardex al catálogo oficial del SAT para IEDU.
+     * Mapea el nivel escolar de TuKardex al catálogo oficial del SAT para IEDU.
      * Catálogo SAT: Preescolar, Primaria, Secundaria, Profesional Tecnico, Bachillerato o su equivalente
      */
     protected function mapNivelEducativo(string $level): string

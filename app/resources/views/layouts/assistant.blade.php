@@ -1,4 +1,4 @@
-{{-- Cardex Copiloto — Asistente Interactivo en Vivo con Motor Semántico Exhaustivo --}}
+﻿{{-- Cardex Copiloto — Asistente Interactivo en Vivo con Motor Semántico Exhaustivo --}}
 <div id="cardex-assistant-root">
     <!-- Botón Flotante para abrir copiloto -->
     <button id="cardex-fab" class="cardex-fab" title="Cardex Copiloto · Tu Asistente Escolar">
@@ -92,7 +92,7 @@
         </div>
 
         <div class="cardex-panel-footer">
-            <span class="text-muted small" style="font-size:11px">TuCardex SEP · SAT CFDI 4.0</span>
+            <span class="text-muted small" style="font-size:11px">TuKardex SEP · SAT CFDI 4.0</span>
             <div class="form-check form-switch mb-0">
                 <input class="form-check-input" type="checkbox" id="switchAssistantPersist" checked>
                 <label class="form-check-label text-muted small" for="switchAssistantPersist" style="font-size:11px">Activo</label>
@@ -413,7 +413,7 @@
 (function() {
     'use strict';
 
-    // 1. Base de conocimiento contextual por ruta de TuCardex
+    // 1. Base de conocimiento contextual por ruta de TuKardex
     const knowledgeBase = {
         'facturacion': {
             name: 'Facturación Electrónica SAT (CFDI 4.0)',
@@ -434,7 +434,7 @@
                 },
                 {
                     q: '¿Cómo cancelar una factura ante el SAT?',
-                    a: 'Haz clic en el botón con la cruz roja al final de la fila del comprobante. TuCardex enviará la solicitud formal de cancelación directamente ante el SAT.'
+                    a: 'Haz clic en el botón con la cruz roja al final de la fila del comprobante. TuKardex enviará la solicitud formal de cancelación directamente ante el SAT.'
                 }
             ]
         },
@@ -533,7 +533,7 @@
             ]
         },
         'default': {
-            name: 'Panel de Control TuCardex',
+            name: 'Panel de Control TuKardex',
             summary: 'Tu plataforma de control escolar integral para instituciones educativas en México.',
             steps: [
                 'Navega con el menú lateral para acceder a Alumnos, Calificaciones, Pagos y Facturación SAT.',
@@ -708,7 +708,7 @@
         'email': {
             title: 'Campo: Correo Electrónico',
             desc: 'Dirección electrónica para envío de boletas, avisos y comprobantes fiscales CFDI 4.0.',
-            tip: 'Sirve como usuario de inicio de sesión en el portal TuCardex.'
+            tip: 'Sirve como usuario de inicio de sesión en el portal TuKardex.'
         },
         'password': {
             title: 'Campo: Contraseña de Acceso',
@@ -853,7 +853,7 @@
         'pac_api_key': {
             title: 'Campo: Llave Secreta API de Facturapi (PAC SAT)',
             desc: 'Token de autenticación proporcionado por el PAC para timbrado oficial de CFDI 4.0 ante el SAT.',
-            tip: 'Se almacena cifrada con AES-256 en la base de datos de TuCardex.'
+            tip: 'Se almacena cifrada con AES-256 en la base de datos de TuKardex.'
         },
         'pac_driver': {
             title: 'Campo: Proveedor de Timbrado SAT',
@@ -883,7 +883,7 @@
         'stripe_secret_key': {
             title: 'Campo: Llave Secreta de Stripe',
             desc: 'Token de servidor para autorización de cargos y reembolsos bancarios.',
-            tip: 'Cifrada con AES-256 en la base de datos de TuCardex.'
+            tip: 'Cifrada con AES-256 en la base de datos de TuKardex.'
         },
         'admin_name': {
             title: 'Campo: Nombre del Administrador del Colegio',
@@ -935,7 +935,7 @@
                 return {
                     title: 'Botón: Solicitar Cancelación Fiscal ante el SAT',
                     desc: 'Envía una solicitud formal de revocación del comprobante fiscal ante el SAT.',
-                    tip: 'Al cancelarse, el documento quedará sin efectos fiscales en TuCardex y en el SAT.'
+                    tip: 'Al cancelarse, el documento quedará sin efectos fiscales en TuKardex y en el SAT.'
                 };
             }
         }
@@ -1046,7 +1046,7 @@
 
             return {
                 title: `Encabezado: Columna "${target.innerText.trim()}"`,
-                desc: 'Clasificación de datos en esta lista del sistema escolar TuCardex.',
+                desc: 'Clasificación de datos en esta lista del sistema escolar TuKardex.',
                 tip: 'Usa los filtros superiores para ordenar o encontrar registros específicos.'
             };
         }
@@ -1124,7 +1124,7 @@
                 if (colHeader.includes('estado') || colHeader.includes('situación')) {
                     return {
                         title: `Estado: ${cellText}`,
-                        desc: 'Condición actual de este registro en la plataforma TuCardex.',
+                        desc: 'Condición actual de este registro en la plataforma TuKardex.',
                         tip: 'Verde = Todo en regla · Amarillo = Pendiente · Rojo = Requiere atención.'
                     };
                 }
@@ -1329,7 +1329,7 @@
             const navText = navLink.innerText.trim();
             const navDescMap = {
                 'dashboard': { title: 'Menú: Panel Principal', desc: 'Resumen gráfico de cobros, asistencia escolar y avisos institucionales.', tip: 'Tu vista general del colegio al iniciar sesión.' },
-                'colegios': { title: 'Menú: Gestión Global de Colegios', desc: 'Administración de escuelas dadas de alta en el SaaS TuCardex (solo Super Admin).', tip: 'Permite crear planteles, suspender o reactivar licencias.' },
+                'colegios': { title: 'Menú: Gestión Global de Colegios', desc: 'Administración de escuelas dadas de alta en el SaaS TuKardex (solo Super Admin).', tip: 'Permite crear planteles, suspender o reactivar licencias.' },
                 'alumnos': { title: 'Menú: Directorio de Alumnos', desc: 'Inscripciones, CURP oficial de 18 dígitos, credenciales escolares con QR y expedientes.', tip: 'Gestión completa de los estudiantes del colegio.' },
                 'docentes': { title: 'Menú: Personal Docente', desc: 'Plantilla de profesores, especialidades, asignación de materias y horarios.', tip: 'Control de la planta de maestros del plantel.' },
                 'grados': { title: 'Menú: Grados y Grupos', desc: 'Estructura académica: Preescolar, Primaria, Secundaria y asignación de salones.', tip: 'Organiza la estructura física y lectiva de la escuela.' },
@@ -1539,7 +1539,7 @@
                 ttTip.textContent = '💡 Revisa que el formato cumpla con los lineamientos del colegio.';
             } else {
                 ttTitle.textContent = `Elemento Escolar: ${text}`;
-                ttDesc.textContent = 'Información registrada en este módulo de la plataforma TuCardex.';
+                ttDesc.textContent = 'Información registrada en este módulo de la plataforma TuKardex.';
                 ttTip.textContent = '💡 Consulta o interactúa con este dato según tus permisos.';
             }
         }

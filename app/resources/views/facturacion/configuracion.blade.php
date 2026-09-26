@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'Facturación SAT (CFDI 4.0)')
 
 @section('content')
@@ -73,7 +73,7 @@
                         <div>
                             <h6 class="mb-1 text-success fw-bold">Sellos Digitales del Colegio Vinculados Correctamente</h6>
                             <p class="mb-0 text-muted small">
-                                Las facturas (CFDI 4.0 con Complemento IEDU) se timbran oficialmente con el RFC <strong>{{ $settings->rfc }}</strong> y los timbres incluidos de TuCardex.
+                                Las facturas (CFDI 4.0 con Complemento IEDU) se timbran oficialmente con el RFC <strong>{{ $settings->rfc }}</strong> y los timbres incluidos de TuKardex.
                                 @if($settings->csd_valido_hasta)
                                     <span class="d-block mt-1"><strong>Vigencia SAT:</strong> Hasta {{ $settings->csd_valido_hasta->format('d/m/Y') }}.</span>
                                 @endif
@@ -95,7 +95,7 @@
                 <div class="d-flex gap-2">
                     <i class="bi bi-info-circle-fill text-primary fs-5 mt-1"></i>
                     <div class="small">
-                        <strong>¿Para qué sirve el CSD?</strong> Permite que las facturas de colegiatura salgan formalmente emitidas por <strong>el RFC de tu colegio</strong> ante el SAT, consumiendo los timbres incluidos de tu suscripción de TuCardex. Tu contador tiene estos 2 archivos listos.
+                        <strong>¿Para qué sirve el CSD?</strong> Permite que las facturas de colegiatura salgan formalmente emitidas por <strong>el RFC de tu colegio</strong> ante el SAT, consumiendo los timbres incluidos de tu suscripción de TuKardex. Tu contador tiene estos 2 archivos listos.
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                 <div class="col-md-6">
                     <label class="form-label">Proveedor de Certificación (PAC / Driver)</label>
                     <select name="pac_driver" class="form-select">
-                        <option value="facturama" @selected(($settings->pac_driver ?? 'facturama') === 'facturama')>Facturama México (CFDI 4.0 + IEDU · Timbres TuCardex Multiemisor)</option>
+                        <option value="facturama" @selected(($settings->pac_driver ?? 'facturama') === 'facturama')>Facturama México (CFDI 4.0 + IEDU · Timbres TuKardex Multiemisor)</option>
                         <option value="simulado" @selected(($settings->pac_driver ?? '') === 'simulado')>Modo Simulado / Pruebas Internas (Genera XML sin costo)</option>
                         <option value="facturapi" @selected(($settings->pac_driver ?? '') === 'facturapi')>Facturapi (API REST CFDI 4.0 + IEDU)</option>
                         <option value="finkok" @selected(($settings->pac_driver ?? '') === 'finkok')>Finkok (Timbrado PAC Directo)</option>
@@ -231,7 +231,7 @@
     {{-- Credenciales de Timbrado y Llaves --}}
     <div class="card mb-4">
         <div class="card-header">
-            <span class="title"><i class="bi bi-key"></i> Bolsa de Timbres TuCardex & Cuenta Propia</span>
+            <span class="title"><i class="bi bi-key"></i> Bolsa de Timbres TuKardex & Cuenta Propia</span>
             <span class="text-muted small">Administración del proveedor de timbres</span>
         </div>
         <div class="card-body">
@@ -239,23 +239,23 @@
             <div class="alert alert-success py-2 mb-3 d-flex align-items-center gap-2">
                 <i class="bi bi-check-circle-fill fs-5"></i>
                 <div>
-                    <strong>Timbres oficiales TuCardex Activos:</strong> Tu colegio tiene habilitado el timbrado fiscal CFDI 4.0 en automático. No requieres contratar ningún PAC por separado.
+                    <strong>Timbres oficiales TuKardex Activos:</strong> Tu colegio tiene habilitado el timbrado fiscal CFDI 4.0 en automático. No requieres contratar ningún PAC por separado.
                 </div>
             </div>
             @endif
 
             <div class="alert alert-info py-2">
-                <i class="bi bi-info-circle me-2"></i> Con <strong>Facturama Multiemisor</strong> los timbres se descuentan de la bolsa maestra de TuCardex. Si tu colegio prefiere usar su propio paquete contratado directamente con Facturama, puedes ingresar tus credenciales a continuación.
+                <i class="bi bi-info-circle me-2"></i> Con <strong>Facturama Multiemisor</strong> los timbres se descuentan de la bolsa maestra de TuKardex. Si tu colegio prefiere usar su propio paquete contratado directamente con Facturama, puedes ingresar tus credenciales a continuación.
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Usuario Facturama Propio (Opcional)</label>
-                    <input type="text" name="client_id" value="{{ old('client_id', $settings->client_id) }}" class="form-control" placeholder="{{ config('services.facturama.user') ? 'Usando bolsa TuCardex Multiemisor' : 'tu-correo@facturama.mx' }}">
-                    <div class="form-text">Déjalo vacío para usar la bolsa de timbres de TuCardex.</div>
+                    <input type="text" name="client_id" value="{{ old('client_id', $settings->client_id) }}" class="form-control" placeholder="{{ config('services.facturama.user') ? 'Usando bolsa TuKardex Multiemisor' : 'tu-correo@facturama.mx' }}">
+                    <div class="form-text">Déjalo vacío para usar la bolsa de timbres de TuKardex.</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Contraseña Facturama Propia (Opcional)</label>
-                    <input type="password" name="client_secret" value="" class="form-control" placeholder="{{ $settings->client_secret ? '•••••••••••••••• (Configurada)' : (config('services.facturama.password') ? '•••••••• (Bolsa TuCardex)' : '••••••••••••') }}">
+                    <input type="password" name="client_secret" value="" class="form-control" placeholder="{{ $settings->client_secret ? '•••••••••••••••• (Configurada)' : (config('services.facturama.password') ? '•••••••• (Bolsa TuKardex)' : '••••••••••••') }}">
                     <div class="form-text">Se almacena con cifrado AES-256 en la base de datos.</div>
                 </div>
                 <div class="col-md-12 mt-2">

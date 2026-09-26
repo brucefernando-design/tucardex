@@ -51,7 +51,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tucardex.rule=Host(`tucardex.allia2.com.mx`)"
+      - "traefik.http.routers.tucardex.rule=Host(`tukardex.allia2.com.mx`) || Host(`tucardex.allia2.com.mx`)"
       - "traefik.http.routers.tucardex.entrypoints=web,websecure"
       - "traefik.http.routers.tucardex.tls=true"
       - "traefik.http.routers.tucardex.tls.certresolver=mytlschallenge"

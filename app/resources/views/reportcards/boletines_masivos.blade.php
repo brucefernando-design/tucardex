@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -51,7 +51,7 @@
                 <img src="{{ $appSettings->logo_base64 }}" style="height:32px;vertical-align:middle;margin-right:8px;border-radius:6px">
                 <span class="brand" style="vertical-align:middle">{{ $appSettings->school_name }}</span>
             @else
-                <span class="brand">&#127891; {{ $appSettings->school_name ?? 'TuCardex' }}</span>
+                <span class="brand">&#127891; {{ $appSettings->school_name ?? 'TuKardex' }}</span>
             @endif
             <h1 style="margin-top:6px">BOLETA DE CALIFICACIONES OFICIAL</h1>
             <div class="sub">Ciclo Escolar {{ $appSettings->academic_year ?? ($course->academic_year ?? date('Y')) }} · Emitido el {{ $date->format('d/m/Y') }}</div>
@@ -150,7 +150,7 @@
         </div>
 
         <div class="footer">
-            Escala oficial SEP: 5.0 a 10.0 (Mínimo aprobatorio: 6.0). Documento oficial generado por TuCardex.
+            Escala oficial SEP: 5.0 a 10.0 (Mínimo aprobatorio: 6.0). Documento oficial generado por TuKardex.
         </div>
     </div>
 @endforeach

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar sesión · {{ $appSettings->school_name ?? 'TuCardex' }}</title>
+    <title>Iniciar sesión · {{ $appSettings->school_name ?? 'TuKardex' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#0B1A14">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="TuCardex">
+    <meta name="apple-mobile-web-app-title" content="TuKardex">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
@@ -100,7 +100,7 @@
     <div class="mobile-login-bar">
         <a href="{{ route('home') }}" class="m-brand">
             <span class="m-logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:10px">@else🎓@endif</span>
-            <span>{{ $appSettings->school_name ?? 'TuCardex' }}</span>
+            <span>{{ $appSettings->school_name ?? 'TuKardex' }}</span>
         </a>
         <a href="{{ route('home') }}" class="m-back"><i class="bi bi-house-door-fill"></i> Inicio</a>
     </div>
@@ -111,7 +111,7 @@
         <div class="orb a"></div><div class="orb b"></div>
         <div class="bp-inner">
             <div class="bp-logo">@if(optional($appSettings)->logo_url)<img src="{{ $appSettings->logo_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:20px">@else🎓@endif</div>
-            <h1>{{ $appSettings->school_name ?? 'TuCardex' }}</h1>
+            <h1>{{ $appSettings->school_name ?? 'TuKardex' }}</h1>
             <div class="tagline">Sistema de Gestión Escolar</div>
 
             <div class="feat"><div class="fi"><i class="bi bi-people-fill"></i></div><div><strong>Control escolar de alumnos</strong><span>Inscripciones, calificaciones, asistencia y boletas</span></div></div>
@@ -173,7 +173,7 @@
             </div>
             @endif
 
-            <div class="foot-note">© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuCardex' }} · Todos los derechos reservados</div>
+            <div class="foot-note">© {{ date('Y') }} {{ $appSettings->school_name ?? 'TuKardex' }} · Todos los derechos reservados</div>
         </div>
     </div>
 </div>
@@ -181,9 +181,9 @@
 <!-- Banner PWA discreto para instalar app en celular -->
 <div id="pwaInstallBanner" style="display:none; position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; z-index:9999; background:#0B1A14; color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.45); align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(34,197,94,0.35);">
     <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-        <img src="/icons/icon-192.png" alt="TuCardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+        <img src="/icons/icon-192.png" alt="TuKardex" style="width:40px; height:40px; border-radius:10px; flex-shrink:0;">
         <div style="min-width:0; line-height:1.2;">
-            <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuCardex App</div>
+            <div style="font-weight:700; font-size:13.5px; color:#fff;">Instalar TuKardex App</div>
             <small style="color:#94a3b8; font-size:11.5px;">Acceso rápido con ícono en tu teléfono</small>
         </div>
     </div>

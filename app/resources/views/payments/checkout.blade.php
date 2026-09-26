@@ -1,4 +1,4 @@
-@extends('layouts.checkout')
+﻿@extends('layouts.checkout')
 @section('title', 'Pagar Colegiatura')
 
 @section('content')
@@ -26,7 +26,7 @@
                     <span class="badge bg-warning text-dark">{{ ucfirst($payment->status) }}</span>
                 </div>
                 <h4 class="mb-0 mt-2 text-white">{{ $payment->concept }}</h4>
-                <div class="text-white-50 small">{{ $setting->school_name ?? 'TuCardex' }}</div>
+                <div class="text-white-50 small">{{ $setting->school_name ?? 'TuKardex' }}</div>
             </div>
 
             <div class="card-body p-4">

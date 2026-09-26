@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -71,7 +71,7 @@
 </div>
 
 <footer class="text-center py-3 text-muted small mt-auto">
-    {{ $setting->school_name ?? $school->name }} · Admisiones TuCardex
+    {{ $setting->school_name ?? $school->name }} · Admisiones TuKardex
 </footer>
 
 </body>

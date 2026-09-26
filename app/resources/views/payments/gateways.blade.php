@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'Pasarelas de Pago y Cobranza')
 
 @section('content')
@@ -16,7 +16,7 @@
         <div style="font-size: 38px; color: #38bdf8;"><i class="bi bi-shield-check"></i></div>
         <div>
             <h5 class="mb-1 text-white">El dinero de las colegiaturas entra 100% directo a tu colegio</h5>
-            <p class="mb-0 text-slate-300 small">TuCardex no cobra comisiones ni retiene tus fondos. Los pagos por SPEI, tarjeta o Mercado Pago se acreditan directamente en la cuenta bancaria de tu institución.</p>
+            <p class="mb-0 text-slate-300 small">TuKardex no cobra comisiones ni retiene tus fondos. Los pagos por SPEI, tarjeta o Mercado Pago se acreditan directamente en la cuenta bancaria de tu institución.</p>
         </div>
     </div>
 </div>

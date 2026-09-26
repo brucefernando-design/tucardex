@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -17,7 +17,7 @@
 </head>
 <body>
     <div class="head">
-        <span class="brand">&#127891; TuCardex</span>
+        <span class="brand">&#127891; TuKardex</span>
         <h1>Listado de Estudiantes</h1>
         <div class="sub">Total: {{ $students->count() }} · Generado el {{ now()->format('d/m/Y H:i') }}</div>
     </div>

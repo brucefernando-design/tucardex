@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -307,7 +307,7 @@
             <td class="val-txt-td">
                 <strong style="color:#0f172a; font-size:7.5pt;">DOCUMENTO OFICIAL DE HISTORIAL ACADÉMICO</strong><br>
                 Escanee el código QR para verificar la autenticidad de este Kárdex en la plataforma oficial.<br>
-                Validado en TuCardex · Folio: <strong>{{ $folio }}</strong> · Fecha: {{ now()->format('d/m/Y H:i') }}
+                Validado en TuKardex · Folio: <strong>{{ $folio }}</strong> · Fecha: {{ now()->format('d/m/Y H:i') }}
             </td>
         </tr>
     </table>

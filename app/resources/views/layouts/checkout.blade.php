@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Portal de Pagos') · {{ $setting->school_name ?? config('app.name', 'TuCardex') }}</title>
+    <title>@yield('title', 'Portal de Pagos') · {{ $setting->school_name ?? config('app.name', 'TuKardex') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +47,7 @@
                     <i class="bi bi-mortarboard-fill"></i>
                 </div>
                 <div>
-                    <h5 class="mb-0 fw-bold text-dark">{{ $setting->school_name ?? config('app.name', 'TuCardex') }}</h5>
+                    <h5 class="mb-0 fw-bold text-dark">{{ $setting->school_name ?? config('app.name', 'TuKardex') }}</h5>
                     <span class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i> Portal Seguro de Pagos</span>
                 </div>
             </div>
@@ -87,7 +87,7 @@
     <footer class="checkout-footer text-center">
         <div class="container" style="max-width: 1050px;">
             <p class="mb-1"><strong>{{ $setting->school_name ?? 'Colegio' }}</strong> · Todos los pagos están protegidos y verificados con validez fiscal.</p>
-            <p class="mb-0 small text-muted">Impulsado por TuCardex · Pagos escolares en línea y facturación SAT automatizada</p>
+            <p class="mb-0 small text-muted">Impulsado por TuKardex · Pagos escolares en línea y facturación SAT automatizada</p>
         </div>
     </footer>
 

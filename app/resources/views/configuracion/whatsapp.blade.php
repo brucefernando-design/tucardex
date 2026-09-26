@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', 'WhatsApp & Cobranza Automatizada')
 
 @section('content')
@@ -78,7 +78,7 @@
                             <form action="{{ route('configuracion.whatsapp.test') }}" method="POST" class="d-flex flex-column gap-2">
                                 @csrf
                                 <input type="text" name="phone" class="form-control form-control-sm" placeholder="Teléfono a 10 dígitos (ej: 8671234567)" required>
-                                <textarea name="message" class="form-control form-control-sm" rows="2" required>Prueba de conexión exitosa desde TuCardex Escolar 🎓</textarea>
+                                <textarea name="message" class="form-control form-control-sm" rows="2" required>Prueba de conexión exitosa desde TuKardex Escolar 🎓</textarea>
                                 <button type="submit" class="btn btn-outline-success btn-sm mt-1">
                                     <i class="bi bi-send"></i> Enviar prueba a mi WhatsApp
                                 </button>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Services\Facturacion;
 
@@ -29,7 +29,7 @@ class FacturamaService
     }
 
     /**
-     * Obtiene las credenciales activas (específicas de la escuela o las maestras de TuCardex).
+     * Obtiene las credenciales activas (específicas de la escuela o las maestras de TuKardex).
      */
     public function getCredentials(): array
     {
@@ -74,7 +74,7 @@ class FacturamaService
                 $regimen = $tax['FiscalRegime'] ?? '';
                 return [
                     'ok' => true,
-                    'message' => "Conexión exitosa con Facturama CFDI 4.0: {$taxName} (RFC: {$rfc}, Régimen: {$regimen}). Timbres TuCardex Multiemisor listos.",
+                    'message' => "Conexión exitosa con Facturama CFDI 4.0: {$taxName} (RFC: {$rfc}, Régimen: {$regimen}). Timbres TuKardex Multiemisor listos.",
                 ];
             }
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Models;
 
@@ -37,7 +37,7 @@ class Setting extends Model
 
         if (! $tenancy->check()) {
             return new static([
-                'school_name' => 'TuCardex',
+                'school_name' => 'TuKardex',
                 'currency' => '$',
                 'academic_year' => date('Y') . ' - ' . (date('Y') + 1),
                 'active_period' => '1er Trimestre',
@@ -47,7 +47,7 @@ class Setting extends Model
 
         return Cache::rememberForever('app_settings_'.$tenancy->id(), function () {
             return static::first() ?? static::create([
-                'school_name' => 'TuCardex',
+                'school_name' => 'TuKardex',
                 'currency' => '$',
                 'academic_year' => date('Y') . ' - ' . (date('Y') + 1),
                 'active_period' => '1er Trimestre',
